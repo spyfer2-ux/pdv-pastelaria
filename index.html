@@ -521,15 +521,12 @@ function getProdById(id) {
 
 // ======= CARRINHO =======
 function adicionarItem(id) {
-  var prod = getProdById(id);
-  if (!prod) return;
-  var mesa = state.mesas[state.mesaAtual];
-  // Abre modal de obs antes de adicionar
-  state._pendingProd = prod;
-  document.getElementById('modal-obs-nome').textContent = prod.nome + ' - R$ ' + prod.preco.toFixed(2).replace('.',',');
-  document.getElementById('obs-item-txt').value = '';
-  state.obsItemIdx = -1; // novo item
-  abrirModal('modal-obs');
+var prod = getProdById(id);
+if (!prod) return;
+var mesa = state.mesas[state.mesaAtual];
+mesa.itens.push({uid: Date.now() + Math.random(), id: prod.id, nome: prod.nome, preco: prod.preco, cat: prod.cat, qty: 1, obs: ''});
+salvarMesas();
+renderCart();
 }
 
 function salvarObsItem() {
