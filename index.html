@@ -655,7 +655,7 @@ function renderDivItens() {
     return '<div class="div-item ' + (item._divSel ? 'sel' : '') + '" onclick="toggleDivItem(' + item.uid + ')">' +
       '<div class="div-item-cb">' + (item._divSel ? '✓' : '') + '</div>' +
       '<div class="div-item-info">' +
-        '<div class="div-item-nome">' + item.qty + 'x ' + item.nome + (item.obs ? ' <small style='color:#666'>('+item.obs+')</small>' : '') + '</div>' +
+        '<div class="div-item-nome">' + item.qty + 'x ' + item.nome + (item.obs ? ' <small style="color:#666">('+item.obs+')</small>' : '') + '</div>' +
         '<div class="div-item-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</div>' +
       '</div>' +
     '</div>';
