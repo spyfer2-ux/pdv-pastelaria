@@ -475,7 +475,7 @@ function getCats() {
 function renderFiltros() {
   var cats = getCats();
   document.getElementById('filtros-wrap').innerHTML = cats.map(function(c){
-    return '<button class="ftag' + (c===state.filtroAtivo?' on':'') + '" onclick="setFiltro(' + JSON.stringify(c) + ')">' + c + '</button>';
+    return '<button class="ftag' + (c===state.filtroAtivo?' on':'') + '" onclick="setFiltro(\'' + c + '\')">' + c + '</button>';
   }).join('');
 }
 
