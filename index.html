@@ -1,1270 +1,577 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>🥟 PDV Pastelaria</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0f0c07;
-      --surface: #1c1810;
-      --card: #252015;
-      --border: #3a3020;
-      --accent: #f5a623;
-      --accent-dark: #d48a10;
-      --action: #e8521a;
-      --text: #f0e8d5;
-      --muted: #8b7d5a;
-      --success: #5cb85c;
-      --danger: #d9534f;
-      --pix: #32bcad;
-      --debito: #4a90d9;
-      --credito: #9b59b6;
-      --dinheiro: #5cb85c;
-      --font-display: 'Bebas Neue', cursive;
-      --font-body: 'Rubik', sans-serif;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.5);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: var(--font-body);
-      background: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      overflow: hidden;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    input, select { -webkit-user-select: text; user-select: text; }
-
-    /* ---- Screens ---- */
-    .screen { display: none; height: 100vh; }
-    .screen.active { display: flex; flex-direction: column; }
-
-    /* ---- ABERTURA ---- */
-    #screen-abertura {
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(ellipse at center, #2a1f08 0%, var(--bg) 70%);
-    }
-    .abertura-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 48px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: var(--shadow), 0 0 80px rgba(245,166,35,0.08);
-    }
-    .logo { text-align: center; margin-bottom: 32px; }
-    .logo-icon { font-size: 64px; display: block; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-    .logo-title { font-family: var(--font-display); font-size: 42px; color: var(--accent); letter-spacing: 3px; line-height: 1; }
-    .logo-subtitle { color: var(--muted); font-size: 12px; margin-top: 4px; letter-spacing: 2px; text-transform: uppercase; }
-    .abertura-date { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .form-input {
-      width: 100%; background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body);
-      font-size: 16px; padding: 14px 16px; outline: none; transition: border-color 0.2s;
-    }
-    .form-input:focus { border-color: var(--accent); }
-    .form-input::placeholder { color: var(--muted); }
-    select.form-input option { background: var(--card); color: var(--text); }
-
-    /* ---- Buttons ---- */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      font-family: var(--font-body); font-weight: 600; font-size: 14px;
-      padding: 12px 20px; border: none; border-radius: var(--radius-sm);
-      cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #0f0c07; width: 100%; }
-    .btn-primary:hover { background: var(--accent-dark); }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ---- PDV Header ---- */
-    #screen-pdv { flex-direction: column; }
-    .pdv-header {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-    }
-    .pdv-logo { font-family: var(--font-display); font-size: 24px; color: var(--accent); letter-spacing: 2px; }
-    .pdv-op { color: var(--muted); font-size: 12px; }
-    .pdv-op strong { color: var(--text); }
-    .header-spacer { flex: 1; }
-    .pdv-clock { font-family: var(--font-display); font-size: 22px; color: var(--accent); letter-spacing: 1px; min-width: 90px; text-align: right; }
-    .header-btn { padding: 9px 14px; font-size: 12px; }
-
-    /* ---- PDV Body ---- */
-    .pdv-body { display: flex; flex: 1; overflow: hidden; }
-
-    /* ---- Catalog ---- */
-    #catalogo { flex: 1; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); }
-    .categorias {
-      display: flex; gap: 8px; padding: 10px 14px; background: var(--surface);
-      border-bottom: 1px solid var(--border); overflow-x: auto; flex-shrink: 0;
-    }
-    .categorias::-webkit-scrollbar { display: none; }
-    .cat-btn {
-      font-family: var(--font-body); font-size: 12px; font-weight: 500;
-      padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border);
-      background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.15s;
-    }
-    .cat-btn.active { background: var(--accent); color: #0f0c07; border-color: var(--accent); font-weight: 700; }
-    .cat-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
-    .produtos-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px; padding: 14px; overflow-y: auto; align-content: start;
-    }
-    .produto-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 14px 10px; cursor: pointer; transition: all 0.15s;
-      text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px;
-    }
-    .produto-card:hover { border-color: var(--accent); background: #2e2510; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245,166,35,0.12); }
-    .produto-card:active { transform: scale(0.95); }
-    .produto-emoji { font-size: 34px; line-height: 1; }
-    .produto-nome { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.3; }
-    .produto-preco { font-family: var(--font-display); font-size: 19px; color: var(--accent); }
-
-    /* ---- Cart ---- */
-    #carrinho { width: 320px; display: flex; flex-direction: column; background: var(--surface); flex-shrink: 0; }
-    .carrinho-header {
-      padding: 14px 18px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .carrinho-title { font-family: var(--font-display); font-size: 20px; letter-spacing: 1px; }
-    .carrinho-count { background: var(--accent); color: #0f0c07; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-    .carrinho-itens { flex: 1; overflow-y: auto; padding: 10px; }
-    .carrinho-empty {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      height: 100%; color: var(--muted); gap: 10px; font-size: 13px;
-    }
-    .carrinho-empty-icon { font-size: 44px; }
-    .cart-item {
-      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 10px; margin-bottom: 7px;
-    }
-    .cart-item-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
-    .cart-item-emoji { font-size: 18px; }
-    .cart-item-nome { flex: 1; font-size: 12px; font-weight: 500; line-height: 1.3; }
-    .cart-item-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0; transition: color 0.15s; }
-    .cart-item-remove:hover { color: var(--danger); }
-    .cart-item-bottom { display: flex; align-items: center; justify-content: space-between; }
-    .qty-control { display: flex; align-items: center; gap: 4px; }
-    .qty-btn {
-      width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border);
-      background: var(--surface); color: var(--text); cursor: pointer; font-size: 16px;
-      display: flex; align-items: center; justify-content: center; transition: all 0.15s; line-height: 1;
-    }
-    .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .qty-value { width: 28px; text-align: center; font-weight: 600; font-size: 14px; }
-    .cart-item-subtotal { font-family: var(--font-display); font-size: 16px; color: var(--accent); }
-    .carrinho-footer { border-top: 1px solid var(--border); padding: 14px 18px; }
-    .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .total-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-    .total-value { font-family: var(--font-display); font-size: 30px; color: var(--accent); }
-    .payment-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 10px; }
-    .pay-btn {
-      padding: 11px 6px; border-radius: var(--radius-sm); border: none; cursor: pointer;
-      font-family: var(--font-body); font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    }
-    .pay-btn:active { transform: scale(0.94); }
-    .pay-btn-icon { font-size: 18px; }
-    .pay-btn-dinheiro { background: var(--dinheiro); color: white; }
-    .pay-btn-pix { background: var(--pix); color: white; }
-    .pay-btn-debito { background: var(--debito); color: white; }
-    .pay-btn-credito { background: var(--credito); color: white; }
-    .btn-limpar {
-      width: 100%; padding: 9px; background: transparent; border: 1px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--muted); cursor: pointer; font-family: var(--font-body);
-      font-size: 12px; transition: all 0.15s;
-    }
-    .btn-limpar:hover { border-color: var(--danger); color: var(--danger); }
-
-    /* ---- Modals ---- */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78);
-      z-index: 100; align-items: center; justify-content: center; padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-box {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-      width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
-    }
-    .modal-box.modal-wide { max-width: 620px; }
-    .modal-header {
-      padding: 18px 22px 14px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0;
-      background: var(--surface); border-radius: 20px 20px 0 0; z-index: 1;
-    }
-    .modal-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; color: var(--accent); }
-    .modal-close {
-      width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
-      background: transparent; color: var(--muted); cursor: pointer; font-size: 16px;
-      display: flex; align-items: center; justify-content: center; transition: all 0.15s;
-    }
-    .modal-close:hover { border-color: var(--danger); color: var(--danger); }
-    .modal-body { padding: 18px 22px; }
-    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-
-    /* Payment modal */
-    .total-display { background: var(--card); border-radius: var(--radius); padding: 18px; text-align: center; margin-bottom: 18px; }
-    .total-display .lbl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .total-display .val { font-family: var(--font-display); font-size: 46px; color: var(--accent); letter-spacing: 2px; }
-    .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-    .pay-method-btn {
-      padding: 14px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: var(--card);
-      color: var(--text); cursor: pointer; font-family: var(--font-body); font-size: 12px; font-weight: 600;
-      transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 7px;
-    }
-    .pay-method-btn:hover { border-color: var(--accent); }
-    .pay-method-btn.selected { border-color: var(--accent); background: rgba(245,166,35,0.1); color: var(--accent); }
-    .pay-method-btn .icon { font-size: 26px; }
-    .troco-section { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 18px; display: none; }
-    .troco-section.visible { display: block; }
-    .troco-value { font-family: var(--font-display); font-size: 30px; color: var(--success); margin-top: 10px; letter-spacing: 1px; }
-
-    /* Fechamento */
-    #screen-fechamento {
-      align-items: center; justify-content: center;
-      background: radial-gradient(ellipse at center, #1a0808 0%, var(--bg) 70%);
-    }
-    .fechamento-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-      width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
-    }
-    .fechamento-header {
-      background: linear-gradient(135deg, #c0392b, #922b21);
-      border-radius: 20px 20px 0 0; padding: 22px; text-align: center;
-    }
-    .fechamento-header .title { font-family: var(--font-display); font-size: 30px; color: white; letter-spacing: 2px; }
-    .fechamento-body { padding: 22px; }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; text-align: center; }
-    .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .stat-value { font-family: var(--font-display); font-size: 24px; color: var(--accent); }
-    .metodo-list { margin-bottom: 18px; }
-    .metodo-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); }
-    .metodo-row:last-child { border-bottom: none; }
-    .metodo-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .badge-dinheiro { background: var(--dinheiro); color: white; }
-    .badge-pix { background: var(--pix); color: white; }
-    .badge-debito { background: var(--debito); color: white; }
-    .badge-credito { background: var(--credito); color: white; }
-    .metodo-valor { font-family: var(--font-display); font-size: 20px; color: var(--text); }
-
-    /* Histórico */
-    .venda-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 7px; }
-    .venda-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
-    .venda-num { font-weight: 700; color: var(--accent); font-size: 13px; }
-    .venda-time { color: var(--muted); font-size: 11px; margin-left: auto; }
-    .venda-total { font-family: var(--font-display); font-size: 20px; color: var(--text); }
-    .venda-itens-list { color: var(--muted); font-size: 11px; line-height: 1.6; margin-top: 4px; }
-
-    /* Produto list */
-    .produto-list-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 7px; display: flex; align-items: center; gap: 10px; }
-    .produto-list-emoji { font-size: 22px; }
-    .produto-list-info { flex: 1; }
-    .produto-list-nome { font-weight: 500; font-size: 13px; }
-    .produto-list-preco { color: var(--accent); font-family: var(--font-display); font-size: 17px; }
-    .produto-list-actions { display: flex; gap: 6px; }
-
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(100px);
-      background: var(--success); color: white; padding: 11px 22px; border-radius: 40px;
-      font-weight: 600; font-size: 13px; z-index: 9999; transition: transform 0.3s ease; pointer-events: none;
-      white-space: nowrap;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    /* Divider */
-    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-
-    /* ============ PRINT STYLES ============ */
-    @media print {
-      body > *:not(#print-area) { display: none !important; }
-      #print-area {
-        display: block !important;
-        width: 80mm;
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        color: #000;
-        background: white;
-        padding: 4mm;
-      }
-      .receipt-header { text-align: center; margin-bottom: 8px; }
-      .receipt-shop { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-      .receipt-sub { font-size: 11px; margin-bottom: 2px; }
-      .receipt-line { border-top: 1px dashed #000; margin: 6px 0; }
-      .receipt-row { display: flex; justify-content: space-between; padding: 2px 0; font-size: 11px; }
-      .receipt-total { font-size: 14px; font-weight: bold; }
-      .receipt-footer { text-align: center; margin-top: 8px; font-size: 10px; }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      #carrinho { width: 260px; }
-      .produtos-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-      .abertura-card { padding: 32px 24px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥟 PDV Pastelaria</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
+.header{background:linear-gradient(135deg,#c0392b,#8e1a12);padding:15px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 15px rgba(0,0,0,0.4)}
+.header h1{font-size:1.4em;font-weight:700;color:#fff;letter-spacing:1px}
+.header .info{font-size:0.8em;color:#ffcccc;text-align:right}
+#tela-abertura{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e)}
+.abertura-box{background:#16213e;border:2px solid #c0392b;border-radius:20px;padding:40px;max-width:450px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.abertura-box h2{color:#c0392b;font-size:1.8em;margin-bottom:8px}
+.abertura-box p{color:#aaa;margin-bottom:25px;font-size:0.9em}
+.form-group{margin-bottom:18px;text-align:left}
+.form-group label{display:block;color:#ccc;font-size:0.85em;margin-bottom:6px;font-weight:600}
+.form-group input{width:100%;padding:12px 15px;background:#0f3460;border:2px solid #c0392b33;border-radius:10px;color:#fff;font-size:1em;transition:border-color 0.3s}
+.form-group input:focus{outline:none;border-color:#c0392b}
+.btn{padding:14px 28px;border:none;border-radius:10px;cursor:pointer;font-size:1em;font-weight:700;transition:all 0.3s;letter-spacing:1px}
+.btn-primary{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;width:100%;margin-top:10px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(192,57,43,0.4)}
+.btn-success{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
+.btn-success:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(39,174,96,0.4)}
+.btn-danger{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}
+.btn-warning{background:linear-gradient(135deg,#e67e22,#f39c12);color:#fff}
+.btn-secondary{background:#2c3e50;color:#ccc}
+.btn-sm{padding:8px 14px;font-size:0.82em}
+#tela-pdv{display:none;height:100vh;flex-direction:column}
+.pdv-top{background:#16213e;padding:10px 15px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #c0392b33;flex-wrap:wrap;gap:8px}
+.pdv-top .operador{font-size:0.85em;color:#aaa}
+.pdv-top .data-hora{font-size:0.85em;color:#c0392b;font-weight:600}
+.pdv-body{display:flex;flex:1;overflow:hidden}
+.col-produtos{flex:1.5;overflow-y:auto;padding:15px;background:#1a1a2e}
+.col-carrinho{width:360px;background:#16213e;display:flex;flex-direction:column;border-left:2px solid #c0392b33}
+.search-bar{position:relative;margin-bottom:12px}
+.search-bar input{width:100%;padding:10px 15px 10px 40px;background:#16213e;border:2px solid #c0392b33;border-radius:10px;color:#fff;font-size:0.9em}
+.search-bar input:focus{outline:none;border-color:#c0392b}
+.search-bar .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c0392b;font-size:1.1em}
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.filtro-btn{padding:5px 12px;border:2px solid #c0392b33;border-radius:20px;background:transparent;color:#aaa;cursor:pointer;font-size:0.75em;transition:all 0.2s;white-space:nowrap}
+.filtro-btn.ativo{background:#c0392b;border-color:#c0392b;color:#fff}
+.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.produto-card{background:#16213e;border:2px solid #c0392b22;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;position:relative}
+.produto-card:hover{border-color:#c0392b;transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,57,43,0.2)}
+.produto-card .cat-tag{font-size:0.65em;color:#c0392b;font-weight:600;text-transform:uppercase;margin-bottom:4px}
+.produto-card .num{font-size:0.7em;color:#666;margin-bottom:2px}
+.produto-card .nome{font-size:0.85em;font-weight:600;color:#eee;line-height:1.3;margin-bottom:8px}
+.produto-card .preco{font-size:1.1em;font-weight:700;color:#27ae60}
+.produto-card .add-btn{position:absolute;bottom:10px;right:10px;width:28px;height:28px;background:#c0392b;border:none;border-radius:50%;color:#fff;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.produto-card .add-btn:hover{background:#e74c3c;transform:scale(1.1)}
+.carrinho-header{padding:15px;border-bottom:2px solid #c0392b33;display:flex;align-items:center;justify-content:space-between}
+.carrinho-header h3{color:#c0392b;font-size:1em}
+.carrinho-items{flex:1;overflow-y:auto;padding:10px}
+.item-carrinho{background:#1a1a2e;border-radius:10px;padding:10px;margin-bottom:8px;border:1px solid #c0392b22}
+.item-carrinho .nome{font-size:0.82em;color:#eee;margin-bottom:6px;line-height:1.3}
+.item-ctrl{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qty-btn{width:24px;height:24px;border:none;border-radius:6px;cursor:pointer;font-size:0.9em;display:flex;align-items:center;justify-content:center}
+.qty-btn.minus{background:#c0392b;color:#fff}
+.qty-btn.plus{background:#27ae60;color:#fff}
+.qty-num{min-width:22px;text-align:center;font-weight:700;color:#fff;font-size:0.9em}
+.item-preco{font-weight:700;color:#27ae60;font-size:0.9em}
+.item-del{background:transparent;border:none;color:#c0392b44;cursor:pointer;font-size:1em;transition:color 0.2s}
+.item-del:hover{color:#c0392b}
+.carrinho-footer{padding:15px;border-top:2px solid #c0392b33;background:#0f3460}
+.total-linha{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.total-linha .label{color:#aaa;font-size:0.85em}
+.total-linha .valor{font-weight:700;color:#27ae60;font-size:1em}
+.total-linha.grande .valor{font-size:1.5em;color:#fff}
+.pgto-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.pgto-btn{padding:10px 6px;border:2px solid transparent;border-radius:8px;background:#1a1a2e;color:#aaa;cursor:pointer;font-size:0.75em;text-align:center;transition:all 0.2s}
+.pgto-btn.ativo{border-color:#c0392b;color:#c0392b;background:#c0392b11}
+.pgto-btn:hover{border-color:#c0392b66}
+.troco-field{margin-top:8px;display:none}
+.troco-field input{width:100%;padding:8px 12px;background:#1a1a2e;border:2px solid #c0392b33;border-radius:8px;color:#fff;font-size:0.9em}
+.troco-result{color:#f39c12;font-size:0.85em;margin-top:4px;text-align:right}
+.finalizar-btn{width:100%;margin-top:12px;padding:14px;font-size:1em}
+#tela-fechamento{display:none;padding:20px;max-width:700px;margin:0 auto}
+#tela-historico{display:none;padding:20px;max-width:900px;margin:0 auto}
+#tela-produtos{display:none;padding:20px;max-width:900px;margin:0 auto}
+.card{background:#16213e;border-radius:15px;padding:20px;margin-bottom:20px;border:1px solid #c0392b22}
+.card h3{color:#c0392b;margin-bottom:15px;font-size:1.1em}
+.resumo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.resumo-item{background:#1a1a2e;border-radius:10px;padding:15px;text-align:center}
+.resumo-item .label{font-size:0.8em;color:#aaa;margin-bottom:5px}
+.resumo-item .valor{font-size:1.4em;font-weight:700;color:#27ae60}
+.resumo-item .valor.destaque{color:#c0392b}
+table{width:100%;border-collapse:collapse;font-size:0.85em}
+table th{background:#c0392b;color:#fff;padding:10px 12px;text-align:left}
+table td{padding:8px 12px;border-bottom:1px solid #c0392b11;color:#ccc}
+table tr:hover td{background:#c0392b11}
+.nav-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-box{background:#16213e;border-radius:15px;padding:30px;max-width:500px;width:90%;border:2px solid #c0392b33;max-height:90vh;overflow-y:auto}
+.modal-box h3{color:#c0392b;margin-bottom:20px;font-size:1.2em}
+.modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.badge{background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:0.7em;margin-left:5px}
+.empty-state{text-align:center;padding:40px;color:#555}
+.empty-state .icon{font-size:3em;margin-bottom:10px}
+.obs-input{width:100%;margin-top:6px;padding:6px 10px;background:#0f3460;border:1px solid #c0392b33;border-radius:6px;color:#ccc;font-size:0.8em;resize:none}
+@media(max-width:768px){.pdv-body{flex-direction:column}.col-carrinho{width:100%;max-height:45vh}.produtos-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+@media print{body{background:#fff;color:#000}.no-print{display:none!important}.recibo{color:#000}}
+</style>
 </head>
 <body>
-
-<!-- PRINT AREA -->
-<div id="print-area" style="display:none;">
-  <div id="receipt-content"></div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ===========================
-     SCREEN: ABERTURA DE CAIXA
-     =========================== -->
-<div id="screen-abertura" class="screen active">
-  <div class="abertura-card">
-    <div class="logo">
-      <span class="logo-icon">🥟</span>
-      <div class="logo-title">Pastelaria PDV</div>
-      <div class="logo-subtitle">Sistema de Ponto de Venda</div>
-    </div>
-    <div class="abertura-date" id="abertura-date"></div>
-
-    <div class="form-group">
-      <label class="form-label">⚙️ Nome do Estabelecimento</label>
-      <input type="text" class="form-input" id="input-estabelecimento" placeholder="Ex: Pastelaria do João" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">👤 Nome do Operador</label>
-      <input type="text" class="form-input" id="input-operador" placeholder="Ex: Maria" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">💵 Fundo de Caixa (R$)</label>
-      <input type="number" class="form-input" id="input-fundo" placeholder="0,00" step="0.01" min="0" value="0" />
-    </div>
-    <button class="btn btn-primary" onclick="abrirCaixa()" style="font-size:17px;padding:18px;letter-spacing:2px;margin-top:4px;">
-      🔓 ABRIR CAIXA
-    </button>
+<!-- TELA ABERTURA -->
+<div id="tela-abertura">
+<div class="abertura-box">
+  <div style="font-size:3em;margin-bottom:10px">🥟</div>
+  <h2>PDV PASTELARIA</h2>
+  <p>Sistema de Ponto de Venda</p>
+  <div class="form-group">
+    <label>Nome do Estabelecimento</label>
+    <input type="text" id="nomeEstab" placeholder="Ex: Pastelaria do João" value="">
+  </div>
+  <div class="form-group">
+    <label>Nome do Operador</label>
+    <input type="text" id="nomeOperador" placeholder="Ex: Maria">
+  </div>
+  <div class="form-group">
+    <label>Fundo de Caixa (R$)</label>
+    <input type="number" id="fundoCaixa" placeholder="0,00" min="0" step="0.01">
+  </div>
+  <button class="btn btn-primary" onclick="abrirCaixa()">🔓 ABRIR CAIXA</button>
+  <div style="margin-top:15px;display:flex;gap:8px;justify-content:center">
+    <button class="btn btn-secondary btn-sm" onclick="irParaHistorico()">📋 Histórico</button>
+    <button class="btn btn-secondary btn-sm" onclick="irParaProdutos()">🛒 Produtos</button>
   </div>
 </div>
+</div>
 
-<!-- ===========================
-     SCREEN: PDV PRINCIPAL
-     =========================== -->
-<div id="screen-pdv" class="screen">
-  <header class="pdv-header">
-    <div class="pdv-logo">🥟 PDV</div>
-    <div class="pdv-op">Operador: <strong id="header-operador">—</strong></div>
-    <div style="color:var(--muted);font-size:11px;" id="header-estab"></div>
-    <div class="header-spacer"></div>
-    <div class="pdv-clock" id="header-clock">00:00</div>
-    <button class="btn btn-ghost header-btn" onclick="abrirHistorico()">📋 Vendas</button>
-    <button class="btn btn-ghost header-btn" onclick="abrirGerenciarProdutos()">⚙️ Produtos</button>
-    <button class="btn btn-danger header-btn" onclick="confirmarFechamento()">🔒 Fechar Caixa</button>
-  </header>
-
-  <div class="pdv-body">
-    <!-- Catálogo -->
-    <div id="catalogo">
-      <div class="categorias" id="categorias-list"></div>
-      <div class="produtos-grid" id="produtos-grid"></div>
+<!-- TELA PDV PRINCIPAL -->
+<div id="tela-pdv">
+<div class="pdv-top no-print">
+  <div>
+    <div style="font-weight:700;color:#c0392b;font-size:1.1em">🥟 <span id="topEstab">PDV Pastelaria</span></div>
+    <div class="operador">Operador: <span id="topOperador">-</span></div>
+  </div>
+  <div class="data-hora" id="relogioTopo"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-warning btn-sm" onclick="irParaFechar()">💰 Fechar Caixa</button>
+    <button class="btn btn-secondary btn-sm" onclick="irParaHistorico()">📋 Histórico</button>
+    <button class="btn btn-secondary btn-sm" onclick="irParaProdutos()">⚙️ Produtos</button>
+  </div>
+</div>
+<div class="pdv-body">
+  <!-- COLUNA PRODUTOS -->
+  <div class="col-produtos no-print">
+    <div class="search-bar">
+      <span class="icon">🔍</span>
+      <input type="text" id="busca" placeholder="Buscar produto..." oninput="filtrarProdutos()">
     </div>
-
-    <!-- Carrinho -->
-    <div id="carrinho">
-      <div class="carrinho-header">
-        <div class="carrinho-title">🛒 Pedido</div>
-        <span class="carrinho-count" id="carrinho-count">0</span>
+    <div class="filtros" id="filtros"></div>
+    <div class="produtos-grid" id="gridProdutos"></div>
+  </div>
+  <!-- COLUNA CARRINHO -->
+  <div class="col-carrinho no-print">
+    <div class="carrinho-header">
+      <h3>🛒 Pedido <span id="numPedido">#1</span></h3>
+      <button class="btn btn-danger btn-sm" onclick="limparCarrinho()">🗑️ Limpar</button>
+    </div>
+    <div class="carrinho-items" id="carrinho"></div>
+    <div class="carrinho-footer">
+      <div class="total-linha"><span class="label">Subtotal</span><span class="valor" id="subtotal">R$ 0,00</span></div>
+      <div class="total-linha grande"><span class="label" style="font-size:1em;color:#fff">TOTAL</span><span class="valor" id="total">R$ 0,00</span></div>
+      <div class="pgto-btns">
+        <button class="pgto-btn" onclick="selecionarPgto('dinheiro')" id="pgto-dinheiro">💵 Dinheiro</button>
+        <button class="pgto-btn" onclick="selecionarPgto('pix')" id="pgto-pix">📱 PIX</button>
+        <button class="pgto-btn" onclick="selecionarPgto('debito')" id="pgto-debito">💳 Débito</button>
+        <button class="pgto-btn" onclick="selecionarPgto('credito')" id="pgto-credito">💳 Crédito</button>
       </div>
-      <div class="carrinho-itens" id="carrinho-itens">
-        <div class="carrinho-empty">
-          <div class="carrinho-empty-icon">🛒</div>
-          <div>Nenhum item</div>
-          <div style="font-size:11px;color:var(--muted);">Toque nos produtos para adicionar</div>
-        </div>
+      <div class="troco-field" id="troco-field">
+        <input type="number" id="valorRecebido" placeholder="Valor recebido..." oninput="calcTroco()" step="0.01" min="0">
+        <div class="troco-result" id="trocoResult"></div>
       </div>
-      <div class="carrinho-footer">
-        <div class="total-row">
-          <span class="total-label">Total</span>
-          <span class="total-value" id="cart-total">R$ 0,00</span>
-        </div>
-        <div class="payment-btns">
-          <button class="pay-btn pay-btn-dinheiro" onclick="abrirPagamento('dinheiro')">
-            <span class="pay-btn-icon">💵</span>Dinheiro
-          </button>
-          <button class="pay-btn pay-btn-pix" onclick="abrirPagamento('pix')">
-            <span class="pay-btn-icon">📱</span>PIX
-          </button>
-          <button class="pay-btn pay-btn-debito" onclick="abrirPagamento('debito')">
-            <span class="pay-btn-icon">💳</span>Débito
-          </button>
-          <button class="pay-btn pay-btn-credito" onclick="abrirPagamento('credito')">
-            <span class="pay-btn-icon">💳</span>Crédito
-          </button>
-        </div>
-        <button class="btn-limpar" onclick="limparCarrinho()">🗑️ Limpar pedido</button>
+      <div class="form-group" style="margin-top:8px">
+        <textarea class="obs-input" id="obsVenda" placeholder="Observação (opcional)..." rows="2"></textarea>
       </div>
+      <button class="btn btn-success finalizar-btn" onclick="finalizarVenda()">✅ FINALIZAR VENDA</button>
     </div>
   </div>
 </div>
-
-<!-- ===========================
-     SCREEN: FECHAMENTO DE CAIXA
-     =========================== -->
-<div id="screen-fechamento" class="screen">
-  <div class="fechamento-card">
-    <div class="fechamento-header">
-      <div style="font-size:36px;margin-bottom:6px;">🔒</div>
-      <div class="title">FECHAMENTO DE CAIXA</div>
-    </div>
-    <div class="fechamento-body" id="fechamento-body"></div>
-    <div style="padding:0 22px 22px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-ghost" style="flex:1;min-width:120px;" onclick="voltarPDV()">↩ Voltar</button>
-      <button class="btn" style="flex:1;min-width:120px;background:var(--accent);color:#0f0c07;" onclick="imprimirFechamento()">🖨️ Imprimir</button>
-      <button class="btn btn-danger" style="flex:1;min-width:120px;" onclick="fecharCaixa()">✅ Confirmar</button>
-    </div>
-  </div>
 </div>
 
-<!-- ===========================
-     MODAL: PAGAMENTO
-     =========================== -->
-<div class="modal-overlay" id="modal-pagamento">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">💳 Pagamento</div>
-      <button class="modal-close" onclick="fecharModal('modal-pagamento')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="total-display">
-        <div class="lbl">Total a Pagar</div>
-        <div class="val" id="pay-total-display">R$ 0,00</div>
-      </div>
-      <div class="payment-methods">
-        <button class="pay-method-btn" data-metodo="dinheiro" onclick="selecionarMetodo('dinheiro')">
-          <span class="icon">💵</span>Dinheiro
-        </button>
-        <button class="pay-method-btn" data-metodo="pix" onclick="selecionarMetodo('pix')">
-          <span class="icon">📱</span>PIX
-        </button>
-        <button class="pay-method-btn" data-metodo="debito" onclick="selecionarMetodo('debito')">
-          <span class="icon">💳</span>Débito
-        </button>
-        <button class="pay-method-btn" data-metodo="credito" onclick="selecionarMetodo('credito')">
-          <span class="icon">💳</span>Crédito
-        </button>
-      </div>
-      <div class="troco-section" id="troco-section">
-        <div class="form-label">💵 Valor Recebido (R$)</div>
-        <input type="number" class="form-input" id="input-recebido" placeholder="0,00" step="0.01" min="0" oninput="calcularTroco()" />
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
-          <span style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;">TROCO</span>
-          <div class="troco-value" id="troco-value">R$ 0,00</div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" style="flex:1;" onclick="fecharModal('modal-pagamento')">Cancelar</button>
-      <button class="btn btn-success" style="flex:2;font-size:15px;" onclick="confirmarPagamento()">✅ CONFIRMAR VENDA</button>
-    </div>
-  </div>
+<!-- TELA FECHAMENTO -->
+<div id="tela-fechamento">
+<div class="nav-btns no-print">
+  <button class="btn btn-secondary btn-sm" onclick="voltarPDV()">← Voltar ao PDV</button>
+  <button class="btn btn-warning btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+</div>
+<div class="card">
+  <h3>💰 Fechamento de Caixa</h3>
+  <div id="fechamentoConteudo"></div>
+</div>
+<button class="btn btn-danger no-print" onclick="fecharCaixaDefinitivo()" style="width:100%;padding:14px;font-size:1em;margin-top:10px">🔒 FECHAR CAIXA E REINICIAR</button>
 </div>
 
-<!-- ===========================
-     MODAL: COMPROVANTE
-     =========================== -->
-<div class="modal-overlay" id="modal-comprovante">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">🧾 Comprovante</div>
-      <button class="modal-close" onclick="fecharModal('modal-comprovante')">✕</button>
-    </div>
-    <div class="modal-body" id="comprovante-preview"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" style="flex:1;" onclick="fecharModal('modal-comprovante')">Fechar</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="imprimirComprovante()">🖨️ Imprimir</button>
-    </div>
-  </div>
+<!-- TELA HISTÓRICO -->
+<div id="tela-historico">
+<div class="nav-btns no-print">
+  <button class="btn btn-secondary btn-sm" onclick="voltarPDV()">← Voltar</button>
+  <button class="btn btn-warning btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+</div>
+<div class="card">
+  <h3>📋 Histórico de Vendas</h3>
+  <div id="historicoConteudo"></div>
+</div>
 </div>
 
-<!-- ===========================
-     MODAL: HISTÓRICO DE VENDAS
-     =========================== -->
-<div class="modal-overlay" id="modal-historico">
-  <div class="modal-box modal-wide">
-    <div class="modal-header">
-      <div class="modal-title">📋 Histórico do Dia</div>
-      <button class="modal-close" onclick="fecharModal('modal-historico')">✕</button>
-    </div>
-    <div class="modal-body" id="historico-body"></div>
-  </div>
+<!-- TELA PRODUTOS -->
+<div id="tela-produtos">
+<div class="nav-btns no-print">
+  <button class="btn btn-secondary btn-sm" onclick="voltarPDV()">← Voltar</button>
+</div>
+<div class="card">
+  <h3>⚙️ Gerenciar Produtos</h3>
+  <p style="color:#aaa;font-size:0.85em;margin-bottom:15px">Edite preços diretamente na tabela. As alterações ficam salvas no navegador.</p>
+  <div id="produtosAdminConteudo"></div>
+</div>
 </div>
 
-<!-- ===========================
-     MODAL: GERENCIAR PRODUTOS
-     =========================== -->
-<div class="modal-overlay" id="modal-produtos">
-  <div class="modal-box modal-wide">
-    <div class="modal-header">
-      <div class="modal-title">⚙️ Gerenciar Produtos</div>
-      <button class="modal-close" onclick="fecharModal('modal-produtos')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-        <div style="font-weight:600;margin-bottom:12px;color:var(--accent);font-size:14px;">➕ Adicionar Produto</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-          <div><div class="form-label">Nome</div><input type="text" class="form-input" id="np-nome" placeholder="Ex: Pastel de Palmito" /></div>
-          <div><div class="form-label">Preço (R$)</div><input type="number" class="form-input" id="np-preco" placeholder="0,00" step="0.01" min="0" /></div>
-          <div><div class="form-label">Emoji</div><input type="text" class="form-input" id="np-emoji" placeholder="🥟" maxlength="4" /></div>
-          <div>
-            <div class="form-label">Categoria</div>
-            <select class="form-input" id="np-categoria">
-              <option value="pasteis">🥟 Pastéis</option>
-              <option value="bebidas">🥤 Bebidas</option>
-              <option value="combos">⭐ Combos</option>
-              <option value="outros">📦 Outros</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="adicionarProduto()" style="font-size:13px;padding:12px;">➕ Adicionar</button>
-      </div>
-      <div id="produtos-list"></div>
-    </div>
+<!-- MODAL RECIBO -->
+<div class="modal" id="modalRecibo">
+<div class="modal-box">
+  <h3>🧾 Comprovante</h3>
+  <div id="reciboConteudo" class="recibo"></div>
+  <div class="modal-btns no-print">
+    <button class="btn btn-secondary btn-sm" onclick="fecharModal('modalRecibo')">Fechar</button>
+    <button class="btn btn-warning btn-sm" onclick="window.print()">🖨️ Imprimir</button>
   </div>
 </div>
-
-<!-- ===========================
-     MODAL: CONFIRMAR FECHAMENTO
-     =========================== -->
-<div class="modal-overlay" id="modal-confirmar-fechamento">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">⚠️ Atenção</div>
-      <button class="modal-close" onclick="fecharModal('modal-confirmar-fechamento')">✕</button>
-    </div>
-    <div class="modal-body" style="text-align:center;padding:32px 22px;">
-      <div style="font-size:48px;margin-bottom:14px;">🔒</div>
-      <div style="font-size:18px;font-weight:600;margin-bottom:8px;">Fechar o Caixa?</div>
-      <div style="color:var(--muted);font-size:13px;">Você será direcionado ao relatório de fechamento para revisão antes de confirmar.</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" style="flex:1;" onclick="fecharModal('modal-confirmar-fechamento')">Cancelar</button>
-      <button class="btn btn-danger" style="flex:1;" onclick="irParaFechamento()">🔒 Ver Fechamento</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===========================
-     MODAL: REIMPRESSÃO
-     =========================== -->
-<div class="modal-overlay" id="modal-reimprimir">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">🧾 Reimprimir Venda</div>
-      <button class="modal-close" onclick="fecharModal('modal-reimprimir')">✕</button>
-    </div>
-    <div class="modal-body" id="reimprimir-body"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" style="flex:1;" onclick="fecharModal('modal-reimprimir')">Fechar</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="imprimirComprovante()">🖨️ Imprimir</button>
-    </div>
-  </div>
 </div>
 
 <script>
-// ==================== CONSTANTES ====================
-const STORAGE_KEY = 'pdv_pastelaria_v3';
+// ========== DADOS ==========
+var PRODUTOS_DEFAULT = [{"id":20,"nome":"Brócolis c/ Mussarela","preco":21.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":21,"nome":"Brócolis c/ Catupiry","preco":21.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":22,"nome":"Brócolis c/ Mussarela e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":23,"nome":"Brócolis c/ Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":24,"nome":"Brócolis c/ Mussarela e Ovo","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":25,"nome":"Brócolis c/ Catupiry e Ovo","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":26,"nome":"Brócolis c/ Mussarela e Milho","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":27,"nome":"Brócolis c/ Catupiry e Milho","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":28,"nome":"Brócolis c/ Mussarela e Frango","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":29,"nome":"Brócolis c/ Catupiry e Frango","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":30,"nome":"Bauru","preco":16.9,"categoria":"Pastéis Salgados - Bauru"},{"id":31,"nome":"Bauru c/ Catupiry","preco":20.9,"categoria":"Pastéis Salgados - Bauru"},{"id":32,"nome":"Bauru c/ Cheddar","preco":19.9,"categoria":"Pastéis Salgados - Bauru"},{"id":33,"nome":"Bauru c/ Salame","preco":21.9,"categoria":"Pastéis Salgados - Bauru"},{"id":34,"nome":"Bauru c/ Provolone","preco":20.9,"categoria":"Pastéis Salgados - Bauru"},{"id":35,"nome":"Bauru c/ Bacon","preco":20.9,"categoria":"Pastéis Salgados - Bauru"},{"id":36,"nome":"Bauru c/ Milho","preco":18.9,"categoria":"Pastéis Salgados - Bauru"},{"id":37,"nome":"Bauru c/ Catupiry e Milho","preco":21.9,"categoria":"Pastéis Salgados - Bauru"},{"id":38,"nome":"Bauru c/ Cheddar e Milho","preco":20.5,"categoria":"Pastéis Salgados - Bauru"},{"id":39,"nome":"Bauru c/ Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Bauru"},{"id":40,"nome":"Bauru c/ Cheddar e Bacon","preco":23.5,"categoria":"Pastéis Salgados - Bauru"},{"id":41,"nome":"Carne c/ Azeitona","preco":18.9,"categoria":"Pastéis Salgados - Carne"},{"id":42,"nome":"Carne c/ Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":43,"nome":"Carne c/ Catupiry","preco":19.5,"categoria":"Pastéis Salgados - Carne"},{"id":44,"nome":"Carne c/ Cheddar","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":45,"nome":"Carne c/ Milho","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":46,"nome":"Carne c/ Ovo","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":47,"nome":"Carne c/ Mussarela e Ovo","preco":21.5,"categoria":"Pastéis Salgados - Carne"},{"id":48,"nome":"Carne c/ Catupiry e Ovo","preco":21.9,"categoria":"Pastéis Salgados - Carne"},{"id":49,"nome":"Carne c/ Mussarela e Bacon","preco":22.9,"categoria":"Pastéis Salgados - Carne"},{"id":50,"nome":"Carne c/ Catupiry e Bacon","preco":23.5,"categoria":"Pastéis Salgados - Carne"},{"id":51,"nome":"Carne Louca Pura","preco":22.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":52,"nome":"Carne Louca c/ Mussarela","preco":21.5,"categoria":"Pastéis Salgados - Carne Louca"},{"id":53,"nome":"Carne Louca c/ Catupiry","preco":21.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":54,"nome":"Carne Louca c/ Mussarela e Milho","preco":22.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":55,"nome":"Carne Louca c/ Catupiry e Milho","preco":22.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":56,"nome":"Carne Louca c/ Mussarela e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":57,"nome":"Carne Louca c/ Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":58,"nome":"Carne Louca c/ Escarola e Mussarela","preco":24.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":59,"nome":"Carne Louca c/ Escarola e Catupiry","preco":25.5,"categoria":"Pastéis Salgados - Carne Louca"},{"id":61,"nome":"Carne Seca com Mussarela","preco":23.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":62,"nome":"Carne Seca com Catupiry","preco":24.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":63,"nome":"Carne Seca com Escarola e Mussarela","preco":27.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":64,"nome":"Carne Seca com Escarola e Catupiry","preco":28.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":65,"nome":"Carne Seca com Mussarela e Bacon","preco":26.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":66,"nome":"Carne Seca com Catupiry e Bacon","preco":28.5,"categoria":"Pastéis Salgados - Carne Seca"},{"id":67,"nome":"Carne Seca com Purê de Batata e Mussarela","preco":26.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":68,"nome":"Carne Seca com Purê de Batata e Catupiry","preco":27.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":69,"nome":"Carne Seca com Mussarela e Ovo","preco":24.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":70,"nome":"Carne Seca com Catupiry e Ovo","preco":24.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":71,"nome":"Escarola com Mussarela","preco":20.5,"categoria":"Pastéis Salgados - Escarola"},{"id":72,"nome":"Escarola com Catupiry","preco":20.5,"categoria":"Pastéis Salgados - Escarola"},{"id":73,"nome":"Escarola com Mussarela e Bacon","preco":23.5,"categoria":"Pastéis Salgados - Escarola"},{"id":74,"nome":"Escarola com Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":75,"nome":"Escarola com Mussarela e Milho","preco":21.9,"categoria":"Pastéis Salgados - Escarola"},{"id":76,"nome":"Escarola com Catupiry e Milho","preco":21.9,"categoria":"Pastéis Salgados - Escarola"},{"id":77,"nome":"Escarola com Mussarela e Carne","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":78,"nome":"Escarola com Catupiry e Carne","preco":24.9,"categoria":"Pastéis Salgados - Escarola"},{"id":79,"nome":"Escarola com Mussarela e Frango","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":80,"nome":"Escarola com Catupiry e Frango","preco":24.9,"categoria":"Pastéis Salgados - Escarola"},{"id":81,"nome":"Escarola com Mussarela e Palmito","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":82,"nome":"Escarola com Catupiry e Palmito","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":83,"nome":"Calabresa c/ Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Calabresa"},{"id":84,"nome":"Calabresa c/ Catupiry","preco":18.5,"categoria":"Pastéis Salgados - Calabresa"},{"id":85,"nome":"Calabresa c/ Mussarela e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":86,"nome":"Calabresa c/ Catupiry e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":87,"nome":"Calabresa c/ Ovo e Cebola","preco":18.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":88,"nome":"Calabresa c/ Mussarela e Escarola","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":89,"nome":"Calabresa c/ Catupiry e Escarola","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":90,"nome":"Calabresa c/ Mussarela e Milho","preco":20.5,"categoria":"Pastéis Salgados - Calabresa"},{"id":91,"nome":"Calabresa c/ Catupiry e Milho","preco":20.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":92,"nome":"Calabresa c/ Mussarela e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":93,"nome":"Calabresa c/ Catupiry e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":96,"nome":"Frango c/ Catupiry","preco":19.9,"categoria":"Pastéis Salgados - Frango"},{"id":97,"nome":"Frango c/ Mussarela","preco":19.5,"categoria":"Pastéis Salgados - Frango"},{"id":98,"nome":"Frango c/ Cheddar","preco":18.9,"categoria":"Pastéis Salgados - Frango"},{"id":99,"nome":"Frango c/ Milho","preco":18.5,"categoria":"Pastéis Salgados - Frango"},{"id":100,"nome":"Frango c/ Mussarela e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Frango"},{"id":101,"nome":"Frango c/ Catupiry e Ovo","preco":21.5,"categoria":"Pastéis Salgados - Frango"},{"id":102,"nome":"Frango c/ Mussarela e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":103,"nome":"Frango c/ Catupiry e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":104,"nome":"Frango c/ Mussarela e Apresuntado","preco":20.9,"categoria":"Pastéis Salgados - Frango"},{"id":105,"nome":"Frango c/ Catupiry e Apresuntado","preco":20.9,"categoria":"Pastéis Salgados - Frango"},{"id":106,"nome":"Frango c/ Mussarela e Calabresa","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":107,"nome":"Frango c/ Catupiry e Calabresa","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":108,"nome":"Frango, Mussarela, Catupiry e Milho","preco":25.5,"categoria":"Pastéis Salgados - Frango"},{"id":109,"nome":"Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Mussarela"},{"id":110,"nome":"Mussarela c/ Bacon","preco":21.5,"categoria":"Pastéis Salgados - Mussarela"},{"id":111,"nome":"Mussarela c/ Milho","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":112,"nome":"Mussarela c/ Provolone","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":113,"nome":"Catupiry c/ Milho","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":114,"nome":"Mussarela c/ Catupiry","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":115,"nome":"4 Queijos (Mussarela, Catupiry, Queijo Prato, Provolone)","preco":25.5,"categoria":"Pastéis Salgados - Mussarela"},{"id":116,"nome":"5 Queijos (Mussarela, Catupiry, Prato, Provolone, Cheddar)","preco":26.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":117,"nome":"Palmito","preco":18.9,"categoria":"Pastéis Salgados - Palmito"},{"id":118,"nome":"Palmito c/ Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Palmito"},{"id":119,"nome":"Palmito c/ Catupiry","preco":18.5,"categoria":"Pastéis Salgados - Palmito"},{"id":120,"nome":"Palmito c/ Ovo","preco":18.5,"categoria":"Pastéis Salgados - Palmito"},{"id":121,"nome":"Palmito c/ Mussarela e Escarola","preco":21.9,"categoria":"Pastéis Salgados - Palmito"},{"id":122,"nome":"Palmito c/ Catupiry e Escarola","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":123,"nome":"Palmito c/ Mussarela e Bacon","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":124,"nome":"Palmito c/ Catupiry e Bacon","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":125,"nome":"Palmito c/ Mussarela e Brócolis","preco":21.9,"categoria":"Pastéis Salgados - Palmito"},{"id":126,"nome":"Palmito c/ Catupiry e Brócolis","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":127,"nome":"Palmito c/ Mussarela e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Palmito"},{"id":128,"nome":"Palmito c/ Catupiry e Ovo","preco":21.9,"categoria":"Pastéis Salgados - Palmito"},{"id":129,"nome":"Pizza c/ Azeitona","preco":16.9,"categoria":"Pastéis Salgados - Pizza"},{"id":130,"nome":"Pizza c/ Catupiry","preco":19.9,"categoria":"Pastéis Salgados - Pizza"},{"id":131,"nome":"Pizza c/ Bacon","preco":19.9,"categoria":"Pastéis Salgados - Pizza"},{"id":132,"nome":"Pizza c/ Calabresa","preco":19.5,"categoria":"Pastéis Salgados - Pizza"},{"id":133,"nome":"Pizza c/ Cheddar","preco":18.9,"categoria":"Pastéis Salgados - Pizza"},{"id":134,"nome":"Pizza c/ Salame","preco":20.9,"categoria":"Pastéis Salgados - Pizza"},{"id":135,"nome":"Pizza c/ Catupiry e Milho","preco":21.9,"categoria":"Pastéis Salgados - Pizza"},{"id":136,"nome":"Pizza c/ Bacon e Catupiry","preco":23.9,"categoria":"Pastéis Salgados - Pizza"},{"id":137,"nome":"Salame c/ Mussarela","preco":21.5,"categoria":"Pastéis Salgados - Salame"},{"id":138,"nome":"Salame c/ Catupiry","preco":21.5,"categoria":"Pastéis Salgados - Salame"},{"id":139,"nome":"Salame c/ Bacon e Cheddar","preco":21.5,"categoria":"Pastéis Salgados - Salame"},{"id":140,"nome":"Salame c/ Bacon e Catupiry","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":141,"nome":"Salame c/ Mussarela e Bacon","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":142,"nome":"Salame c/ Mussarela e Provolone","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":143,"nome":"Salame c/ Catupiry e Provolone","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":144,"nome":"Vegano Berinjela / Palmito / Tomate Seco","preco":26.9,"categoria":"Pastéis Salgados - Vegano"},{"id":145,"nome":"Vegano Escarola / Brócolis / Azeitona","preco":26.9,"categoria":"Pastéis Salgados - Vegano"},{"id":146,"nome":"Vegano Palmito / Milho / Ervilha / Escarola","preco":26.9,"categoria":"Pastéis Salgados - Vegano"},{"id":147,"nome":"Vegano Brócolis / Vinagrete / Milho","preco":21.9,"categoria":"Pastéis Salgados - Vegano"},{"id":148,"nome":"Vegano Escarola / Tomate Seco","preco":21.9,"categoria":"Pastéis Salgados - Vegano"},{"id":149,"nome":"Hot Dog com 2 Salsichas, Purê de Batata e Batata Palha","preco":21.9,"categoria":"Pastéis de Hot Dog"},{"id":150,"nome":"Gigante de Hot Dog com 2 Salsichas, Purê, Batata Palha, Mussarela, Calabresa e Bacon","preco":27.9,"categoria":"Pastéis de Hot Dog"},{"id":151,"nome":"O Gigante Tradicional (Carne, Mussarela, Ovo, Apresuntado, Calabresa, Bacon, Vinagrete e Azeitona)","preco":29.9,"categoria":"Os Gigantes"},{"id":152,"nome":"O Gigante de Frango (Frango, Mussarela, Ovo, Apresuntado, Calabresa, Bacon, Vinagrete e Azeitona)","preco":29.9,"categoria":"Os Gigantes"},{"id":153,"nome":"O Gigante Portuguesa (Apresuntado, Calabresa, Bacon, Ovo, Ervilha, Vinagrete e Azeitona)","preco":27.9,"categoria":"Os Gigantes"},{"id":155,"nome":"Brigadeiro","preco":22.9,"categoria":"Pastéis Doces"},{"id":156,"nome":"Banana c/ Canela","preco":18.9,"categoria":"Pastéis Doces"},{"id":157,"nome":"Banana c/ Doce de Leite","preco":22.5,"categoria":"Pastéis Doces"},{"id":158,"nome":"Banana c/ Chocolate Gourmet","preco":22.9,"categoria":"Pastéis Doces"},{"id":159,"nome":"Chocolate Gourmet","preco":23.5,"categoria":"Pastéis Doces"},{"id":161,"nome":"Chocolate ao Leite","preco":23.5,"categoria":"Pastéis Doces"},{"id":163,"nome":"Chocolate Gourmet c/ Cereja","preco":25.5,"categoria":"Pastéis Doces"},{"id":164,"nome":"Chocolate ao Leite c/ Cereja","preco":25.5,"categoria":"Pastéis Doces"},{"id":165,"nome":"Doce de Leite","preco":22.5,"categoria":"Pastéis Doces"},{"id":166,"nome":"Doce de Leite c/ Ameixa","preco":23.9,"categoria":"Pastéis Doces"},{"id":167,"nome":"Doce de Leite c/ Coco","preco":23.9,"categoria":"Pastéis Doces"},{"id":168,"nome":"Laka","preco":23.5,"categoria":"Pastéis Doces"},{"id":170,"nome":"Laka c/ Banana","preco":24.9,"categoria":"Pastéis Doces"},{"id":171,"nome":"Suflair","preco":25.9,"categoria":"Pastéis Doces"},{"id":172,"nome":"Prestígio","preco":24.9,"categoria":"Pastéis Doces"},{"id":173,"nome":"Romeu e Julieta","preco":24.9,"categoria":"Pastéis Doces"},{"id":148,"nome":"Trufado de Maracujá c/ Morango","preco":14.99,"categoria":"Sobremesas - Copo da Felicidade"},{"id":149,"nome":"Trufado de Maracujá com Uva","preco":14.99,"categoria":"Sobremesas - Copo da Felicidade"},{"id":150,"nome":"Oreo com Morango","preco":14.99,"categoria":"Sobremesas - Copo da Felicidade"},{"id":151,"nome":"Ninho com Nutella","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":152,"nome":"Trufado de Maracujá","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":153,"nome":"Trufado de Chocolate","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":154,"nome":"Chocolate com Morango","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":155,"nome":"Prestígio","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":156,"nome":"Brigadeiro","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":157,"nome":"Brigadeiro Gourmet","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":158,"nome":"Hot Dog c/ 2 Salsichas Prensado","preco":24.5,"categoria":"Lanches"},{"id":159,"nome":"Carne Louca","preco":25.5,"categoria":"Lanches"},{"id":160,"nome":"Carne Louca com Azeitona, Vinagrete e Pimentão","preco":27.5,"categoria":"Lanches"},{"id":161,"nome":"Carne Louca com Mussarela","preco":28.9,"categoria":"Lanches"},{"id":162,"nome":"Carne Louca com Azeitona, Vinagrete, Pimentão e Mussarela (2 pães franceses)","preco":30.9,"categoria":"Lanches"},{"id":163,"nome":"Batata Frita Pequena com Sal","preco":17.9,"categoria":"Porções"},{"id":164,"nome":"Batata Frita Grande com Sal","preco":26.9,"categoria":"Porções"},{"id":165,"nome":"Batata Frita Pequena Completa","preco":26.9,"categoria":"Porções"},{"id":166,"nome":"Batata Frita Grande Completa","preco":38.9,"categoria":"Porções"},{"id":167,"nome":"Bolinho de Carne","preco":12.9,"categoria":"Salgados"},{"id":168,"nome":"Coxinha de Frango","preco":12.9,"categoria":"Salgados"},{"id":169,"nome":"Coxinha de Frango com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":170,"nome":"Empada de Frango com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":171,"nome":"Empada de Palmito","preco":12.9,"categoria":"Salgados"},{"id":172,"nome":"Esfiha de Calabresa com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":173,"nome":"Esfiha de Frango com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":174,"nome":"Esfiha de Carne","preco":12.9,"categoria":"Salgados"},{"id":175,"nome":"Kibe","preco":12.5,"categoria":"Salgados"},{"id":176,"nome":"Kibe com Catupiry","preco":14.5,"categoria":"Salgados"},{"id":177,"nome":"Risole de Queijo","preco":12.9,"categoria":"Salgados"},{"id":178,"nome":"Risole de Apresuntado com Queijo","preco":12.9,"categoria":"Salgados"},{"id":179,"nome":"Combo 6 Mini Pasteis de Mussarela","preco":19.9,"categoria":"Salgados"},{"id":180,"nome":"Combo 6 Mini Pasteis Carne c/ Azeitona","preco":19.9,"categoria":"Salgados"},{"id":181,"nome":"Coca Caculinha 200ml","preco":3.5,"categoria":"Bebidas - Refrigerantes"},{"id":182,"nome":"Coca Caculinha Zero 200ml","preco":3.5,"categoria":"Bebidas - Refrigerantes"},{"id":183,"nome":"Guaraná Caculinha 200ml","preco":3.5,"categoria":"Bebidas - Refrigerantes"},{"id":184,"nome":"Coca 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":185,"nome":"Coca Zero 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":186,"nome":"Coca Cola 600ml","preco":9.9,"categoria":"Bebidas - Refrigerantes"},{"id":187,"nome":"Coca Cola Zero 600ml","preco":9.9,"categoria":"Bebidas - Refrigerantes"},{"id":188,"nome":"Coca Cola 1 Litro","preco":15.9,"categoria":"Bebidas - Refrigerantes"},{"id":189,"nome":"Coca Cola Zero 1 Litro","preco":15.9,"categoria":"Bebidas - Refrigerantes"},{"id":190,"nome":"Sprite 350ml","preco":6.9,"categoria":"Bebidas - Refrigerantes"},{"id":191,"nome":"Fanta Laranja 350ml","preco":6.9,"categoria":"Bebidas - Refrigerantes"},{"id":192,"nome":"Fanta Uva 350ml","preco":6.9,"categoria":"Bebidas - Refrigerantes"},{"id":193,"nome":"Guaraná 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":194,"nome":"Guaraná Zero 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":195,"nome":"Guaraná 600ml","preco":12.9,"categoria":"Bebidas - Refrigerantes"},{"id":196,"nome":"Guaraná 1 Litro","preco":13.9,"categoria":"Bebidas - Refrigerantes"},{"id":197,"nome":"H2O Limão 550ml","preco":9.5,"categoria":"Bebidas - Refrigerantes"},{"id":198,"nome":"H2O Limoneto 550ml","preco":9.5,"categoria":"Bebidas - Refrigerantes"},{"id":199,"nome":"Schweppes Citrus 350ml","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":200,"nome":"Del Valle Pêssego","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":201,"nome":"Del Valle Uva","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":202,"nome":"Del Valle Maracujá","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":203,"nome":"Suco Açaí com Água 500ml","preco":17.9,"categoria":"Bebidas - Sucos e Água"},{"id":204,"nome":"Suco Açaí com Leite 500ml","preco":18.9,"categoria":"Bebidas - Sucos e Água"},{"id":205,"nome":"Laranja 500ml","preco":16.5,"categoria":"Bebidas - Sucos e Água"},{"id":206,"nome":"Abacaxi 500ml","preco":15.5,"categoria":"Bebidas - Sucos e Água"},{"id":207,"nome":"Abacaxi com Hortelã 500ml","preco":17.9,"categoria":"Bebidas - Sucos e Água"},{"id":208,"nome":"Maracujá 500ml","preco":17.5,"categoria":"Bebidas - Sucos e Água"},{"id":209,"nome":"Água sem Gás 500ml","preco":4.5,"categoria":"Bebidas - Sucos e Água"},{"id":210,"nome":"Água com Gás 500ml","preco":5.5,"categoria":"Bebidas - Sucos e Água"},{"id":211,"nome":"Água Tônica Antarctica 350ml","preco":7.5,"categoria":"Bebidas - Sucos e Água"},{"id":212,"nome":"Skol 350ml","preco":7.5,"categoria":"Bebidas - Cerveja"},{"id":213,"nome":"Budweiser Long Neck 330ml","preco":11.9,"categoria":"Bebidas - Cerveja"},{"id":214,"nome":"Eisenbahn 350ml","preco":9.5,"categoria":"Bebidas - Cerveja"},{"id":215,"nome":"Heineken Long Neck 330ml","preco":11.9,"categoria":"Bebidas - Cerveja"},{"id":216,"nome":"Beck's Long Neck 330ml","preco":11.9,"categoria":"Bebidas - Cerveja"}];
 
-const DEFAULT_PRODUTOS = [
-  { id:1,  nome:'Pastel de Queijo',          preco:8.00,  categoria:'pasteis', emoji:'🧀' },
-  { id:2,  nome:'Pastel de Carne',           preco:8.00,  categoria:'pasteis', emoji:'🥩' },
-  { id:3,  nome:'Pastel de Frango',          preco:8.00,  categoria:'pasteis', emoji:'🍗' },
-  { id:4,  nome:'Pastel de Calabresa',       preco:9.00,  categoria:'pasteis', emoji:'🌶️' },
-  { id:5,  nome:'Pastel de Pizza',           preco:9.00,  categoria:'pasteis', emoji:'🍕' },
-  { id:6,  nome:'Pastel de Bauru',           preco:10.00, categoria:'pasteis', emoji:'🥪' },
-  { id:7,  nome:'Pastel de Camarão',         preco:12.00, categoria:'pasteis', emoji:'🦐' },
-  { id:8,  nome:'Caldo de Cana 500ml',       preco:7.00,  categoria:'bebidas', emoji:'🥤' },
-  { id:9,  nome:'Caldo de Cana 700ml',       preco:9.00,  categoria:'bebidas', emoji:'🥤' },
-  { id:10, nome:'Coca-Cola Lata',            preco:6.00,  categoria:'bebidas', emoji:'🥫' },
-  { id:11, nome:'Água Mineral',              preco:3.00,  categoria:'bebidas', emoji:'💧' },
-  { id:12, nome:'Suco Natural',              preco:8.00,  categoria:'bebidas', emoji:'🍊' },
-  { id:13, nome:'Combo 1 Pastel + Caldo',   preco:13.00, categoria:'combos',  emoji:'🎁' },
-  { id:14, nome:'Combo 2 Pastéis + Caldo',  preco:20.00, categoria:'combos',  emoji:'⭐' },
-];
-
-const CATEGORIAS = {
-  todas:   { label: 'Todas',   emoji: '🔥' },
-  pasteis: { label: 'Pastéis', emoji: '🥟' },
-  bebidas: { label: 'Bebidas', emoji: '🥤' },
-  combos:  { label: 'Combos',  emoji: '⭐' },
-  outros:  { label: 'Outros',  emoji: '📦' },
+// ========== ESTADO ==========
+var state = {
+  estab: '', operador: '', fundoCaixa: 0,
+  caixaAberto: false, abertura: null,
+  carrinho: [], pgto: 'dinheiro',
+  numPedido: 1, vendas: [],
+  produtos: []
 };
 
-const METODO_NOME  = { dinheiro:'Dinheiro', pix:'PIX', debito:'Débito', credito:'Crédito' };
-const METODO_CLASS = { dinheiro:'badge-dinheiro', pix:'badge-pix', debito:'badge-debito', credito:'badge-credito' };
-const METODO_EMOJI = { dinheiro:'💵', pix:'📱', debito:'💳', credito:'💳' };
-
-// ==================== ESTADO ====================
-let state = {
-  caixa: null,
-  produtos: JSON.parse(JSON.stringify(DEFAULT_PRODUTOS)),
-  vendas: [],
-  carrinho: [],
-  categoriaAtiva: 'todas',
-  proximoId: 15,
-  metodoSelecionado: null,
-  vendaAtual: null,
-  nomeEstab: 'Pastelaria',
-};
-
-// ==================== STORAGE ====================
-function loadState() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    const d = JSON.parse(saved);
-    state.produtos   = d.produtos   || JSON.parse(JSON.stringify(DEFAULT_PRODUTOS));
-    state.vendas     = d.vendas     || [];
-    state.caixa      = d.caixa      || null;
-    state.proximoId  = d.proximoId  || 15;
-    state.nomeEstab  = d.nomeEstab  || 'Pastelaria';
-  } catch(e) { console.error('loadState:', e); }
-}
-
-function saveState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      produtos:  state.produtos,
-      vendas:    state.vendas,
-      caixa:     state.caixa,
-      proximoId: state.proximoId,
-      nomeEstab: state.nomeEstab,
-    }));
-  } catch(e) { console.error('saveState:', e); }
-}
-
-// ==================== UTILITÁRIOS ====================
-function fmt(v) {
-  return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
-}
-function fmtDate(ts) {
-  if (!ts) return '';
-  return new Date(ts).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-function fmtTime(ts) {
-  if (!ts) return '';
-  return new Date(ts).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-}
-function showToast(msg, color) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background = color || 'var(--success)';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function abrirModal(id) { document.getElementById(id).classList.add('active'); }
-function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// ==================== INIT ====================
+// ========== INIT ==========
 function init() {
-  loadState();
-  startClock();
-  if (state.caixa) {
-    showScreen('screen-pdv');
-    renderPDV();
-  } else {
-    showScreen('screen-abertura');
-    document.getElementById('abertura-date').textContent =
-      new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-    if (state.nomeEstab && state.nomeEstab !== 'Pastelaria') {
-      document.getElementById('input-estabelecimento').value = state.nomeEstab;
-    }
+  state.produtos = JSON.parse(localStorage.getItem('pdv_produtos') || 'null') || JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
+  state.vendas = JSON.parse(localStorage.getItem('pdv_vendas') || '[]');
+  state.numPedido = parseInt(localStorage.getItem('pdv_numPedido') || '1');
+  var salvo = JSON.parse(localStorage.getItem('pdv_caixa') || 'null');
+  if (salvo && salvo.aberto) {
+    state.estab = salvo.estab; state.operador = salvo.operador;
+    state.fundoCaixa = salvo.fundo; state.caixaAberto = true;
+    state.abertura = salvo.abertura; state.numPedido = salvo.numPedido || state.numPedido;
+    document.getElementById('nomeEstab').value = state.estab;
+    document.getElementById('nomeOperador').value = state.operador;
+    document.getElementById('fundoCaixa').value = state.fundoCaixa;
+    abrirCaixa();
   }
+  setInterval(atualizarRelogio, 1000);
+  atualizarRelogio();
 }
 
-function startClock() {
-  const tick = () => {
-    const el = document.getElementById('header-clock');
-    if (el) el.textContent = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-  };
-  tick();
-  setInterval(tick, 1000);
+function atualizarRelogio() {
+  var el = document.getElementById('relogioTopo');
+  if (el) el.textContent = new Date().toLocaleString('pt-BR');
 }
 
-// ==================== ABERTURA DE CAIXA ====================
+// ========== CAIXA ==========
 function abrirCaixa() {
-  const estab = document.getElementById('input-estabelecimento').value.trim();
-  const operador = document.getElementById('input-operador').value.trim();
-  const fundo = parseFloat(document.getElementById('input-fundo').value) || 0;
-
-  if (!operador) {
-    showToast('⚠️ Informe o nome do operador', 'var(--action)');
-    document.getElementById('input-operador').focus();
-    return;
-  }
-
-  state.nomeEstab = estab || 'Pastelaria';
-  state.caixa = { operador, fundo, abertura: Date.now() };
-  state.vendas = [];
-  state.carrinho = [];
-  saveState();
-  showScreen('screen-pdv');
-  renderPDV();
-  showToast('✅ Caixa aberto com sucesso!');
-}
-
-function confirmarFechamento() { abrirModal('modal-confirmar-fechamento'); }
-
-function irParaFechamento() {
-  fecharModal('modal-confirmar-fechamento');
-  renderFechamento();
-  showScreen('screen-fechamento');
-}
-
-function voltarPDV() { showScreen('screen-pdv'); }
-
-function fecharCaixa() {
-  if (!confirm('Confirmar fechamento definitivo do caixa? Esta ação não pode ser desfeita.')) return;
-  state.caixa = null;
-  state.carrinho = [];
-  state.vendas = [];
-  saveState();
-  showScreen('screen-abertura');
-  document.getElementById('abertura-date').textContent =
-    new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  showToast('🔒 Caixa fechado com sucesso!');
-}
-
-// ==================== RENDERIZA PDV ====================
-function renderPDV() {
-  document.getElementById('header-operador').textContent = state.caixa?.operador || '—';
-  document.getElementById('header-estab').textContent = state.nomeEstab;
-  renderCategorias();
-  renderProdutosGrid();
+  var estab = document.getElementById('nomeEstab').value.trim();
+  var op = document.getElementById('nomeOperador').value.trim();
+  var fundo = parseFloat(document.getElementById('fundoCaixa').value) || 0;
+  if (!estab || !op) { alert('Preencha o nome do estabelecimento e do operador!'); return; }
+  state.estab = estab; state.operador = op; state.fundoCaixa = fundo;
+  state.caixaAberto = true;
+  if (!state.abertura) state.abertura = new Date().toISOString();
+  localStorage.setItem('pdv_caixa', JSON.stringify({aberto:true,estab:estab,operador:op,fundo:fundo,abertura:state.abertura,numPedido:state.numPedido}));
+  document.getElementById('topEstab').textContent = estab;
+  document.getElementById('topOperador').textContent = op;
+  mostrarTela('pdv');
+  renderFiltros();
+  renderProdutos();
   renderCarrinho();
 }
 
-function renderCategorias() {
-  const cats = ['todas', ...new Set(state.produtos.map(p => p.categoria))];
-  document.getElementById('categorias-list').innerHTML = cats.map(cat => {
-    const info = CATEGORIAS[cat] || { label: cat, emoji: '📦' };
-    return `<button class="cat-btn ${state.categoriaAtiva === cat ? 'active' : ''}" onclick="setCategoria('${cat}')">
-      ${info.emoji} ${info.label}
-    </button>`;
+// ========== NAVEGAÇÃO ==========
+function mostrarTela(t) {
+  ['abertura','pdv','fechamento','historico','produtos'].forEach(function(n){
+    document.getElementById('tela-'+n).style.display='none';
+  });
+  document.getElementById('tela-'+t).style.display = (t==='pdv') ? 'flex' : 'block';
+}
+function voltarPDV(){mostrarTela('pdv');}
+function irParaFechar(){gerarFechamento();mostrarTela('fechamento');}
+function irParaHistorico(){gerarHistorico();mostrarTela('historico');}
+function irParaProdutos(){gerarProdutosAdmin();mostrarTela('produtos');}
+
+// ========== PRODUTOS ==========
+var filtroAtivo = 'Todos';
+function getCategorias() {
+  var cats = ['Todos'];
+  state.produtos.forEach(function(p){ if(cats.indexOf(p.categoria)<0) cats.push(p.categoria); });
+  return cats;
+}
+
+function renderFiltros() {
+  var cats = getCategorias();
+  var el = document.getElementById('filtros');
+  el.innerHTML = cats.map(function(c){
+    return '<button class="filtro-btn'+(c===filtroAtivo?' ativo':'')+'" onclick="setFiltro(\'' + c.replace(/'/g,"\'") + '\')">' + c + '</button>';
   }).join('');
 }
 
-function setCategoria(cat) {
-  state.categoriaAtiva = cat;
-  renderCategorias();
-  renderProdutosGrid();
+function setFiltro(c) {
+  filtroAtivo = c;
+  document.getElementById('busca').value = '';
+  renderFiltros();
+  renderProdutos();
 }
 
-function renderProdutosGrid() {
-  const container = document.getElementById('produtos-grid');
-  const lista = state.categoriaAtiva === 'todas'
-    ? state.produtos
-    : state.produtos.filter(p => p.categoria === state.categoriaAtiva);
+function filtrarProdutos() {
+  filtroAtivo = 'Todos';
+  renderFiltros();
+  renderProdutos();
+}
 
-  if (!lista.length) {
-    container.innerHTML = '<div style="color:var(--muted);padding:40px;text-align:center;grid-column:1/-1;">Nenhum produto nesta categoria</div>';
+function renderProdutos() {
+  var busca = document.getElementById('busca').value.toLowerCase();
+  var lista = state.produtos.filter(function(p){
+    var catOk = filtroAtivo === 'Todos' || p.categoria === filtroAtivo;
+    var buscaOk = !busca || p.nome.toLowerCase().indexOf(busca)>=0 || p.categoria.toLowerCase().indexOf(busca)>=0;
+    return catOk && buscaOk;
+  });
+  var el = document.getElementById('gridProdutos');
+  if (lista.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Nenhum produto encontrado</p></div>';
     return;
   }
-
-  container.innerHTML = lista.map(p => `
-    <div class="produto-card" onclick="adicionarAoCarrinho(${p.id})">
-      <div class="produto-emoji">${p.emoji}</div>
-      <div class="produto-nome">${p.nome}</div>
-      <div class="produto-preco">${fmt(p.preco)}</div>
-    </div>
-  `).join('');
+  el.innerHTML = lista.map(function(p){
+    var numStr = p.id ? p.id+'. ' : '';
+    return '<div class="produto-card" onclick="adicionarAoCarrinho('+JSON.stringify(p.id||p.nome)+')">'+
+      '<div class="cat-tag">'+p.categoria.split(' - ').pop()+'</div>'+
+      '<div class="nome">'+numStr+p.nome+'</div>'+
+      '<div class="preco">R$ '+p.preco.toFixed(2).replace('.',',')+'</div>'+
+      '<button class="add-btn" onclick="event.stopPropagation();adicionarAoCarrinho('+JSON.stringify(p.id||p.nome)+')">+</button>'+
+    '</div>';
+  }).join('');
 }
 
-// ==================== CARRINHO ====================
-function adicionarAoCarrinho(id) {
-  const produto = state.produtos.find(p => p.id === id);
-  if (!produto) return;
-  const existente = state.carrinho.find(i => i.id === id);
-  if (existente) { existente.qtd++; }
-  else { state.carrinho.push({ ...produto, qtd: 1 }); }
-  renderCarrinho();
-  showToast(`+1 ${produto.emoji} ${produto.nome}`);
+function getProduto(key) {
+  return state.produtos.find(function(p){ return p.id===key||p.nome===key; });
 }
 
-function removerDoCarrinho(id) {
-  state.carrinho = state.carrinho.filter(i => i.id !== id);
-  renderCarrinho();
-}
-
-function alterarQtd(id, delta) {
-  const item = state.carrinho.find(i => i.id === id);
-  if (!item) return;
-  item.qtd = Math.max(0, item.qtd + delta);
-  if (item.qtd === 0) removerDoCarrinho(id);
-  else renderCarrinho();
-}
-
-function limparCarrinho() {
-  if (!state.carrinho.length) return;
-  if (!confirm('Limpar o pedido atual?')) return;
-  state.carrinho = [];
+function adicionarAoCarrinho(key) {
+  var prod = getProduto(key);
+  if (!prod) return;
+  var key2 = prod.id||prod.nome;
+  var item = state.carrinho.find(function(i){ return (i.id||i.nome)===key2; });
+  if (item) { item.qty++; }
+  else { state.carrinho.push({id:prod.id,nome:prod.nome,preco:prod.preco,categoria:prod.categoria,qty:1,obs:''}); }
   renderCarrinho();
 }
 
-function getTotal() { return state.carrinho.reduce((s, i) => s + i.preco * i.qtd, 0); }
-function getTotalItens() { return state.carrinho.reduce((s, i) => s + i.qtd, 0); }
-
+// ========== CARRINHO ==========
 function renderCarrinho() {
-  const total = getTotal();
-  const qtd = getTotalItens();
-  document.getElementById('carrinho-count').textContent = qtd;
-  document.getElementById('cart-total').textContent = fmt(total);
-  const container = document.getElementById('carrinho-itens');
-
-  if (!state.carrinho.length) {
-    container.innerHTML = `<div class="carrinho-empty">
-      <div class="carrinho-empty-icon">🛒</div>
-      <div>Nenhum item</div>
-      <div style="font-size:11px;color:var(--muted);">Toque nos produtos para adicionar</div>
-    </div>`;
-    return;
-  }
-
-  container.innerHTML = state.carrinho.map(item => `
-    <div class="cart-item">
-      <div class="cart-item-top">
-        <span class="cart-item-emoji">${item.emoji}</span>
-        <span class="cart-item-nome">${item.nome}</span>
-        <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})">✕</button>
-      </div>
-      <div class="cart-item-bottom">
-        <div class="qty-control">
-          <button class="qty-btn" onclick="alterarQtd(${item.id}, -1)">−</button>
-          <span class="qty-value">${item.qtd}</span>
-          <button class="qty-btn" onclick="alterarQtd(${item.id}, +1)">+</button>
-        </div>
-        <span class="cart-item-subtotal">${fmt(item.preco * item.qtd)}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ==================== PAGAMENTO ====================
-function abrirPagamento(metodo) {
-  if (!state.carrinho.length) {
-    showToast('⚠️ Adicione itens ao pedido', 'var(--action)');
-    return;
-  }
-  state.metodoSelecionado = metodo || null;
-  document.getElementById('pay-total-display').textContent = fmt(getTotal());
-  document.getElementById('input-recebido').value = '';
-  document.getElementById('troco-value').textContent = fmt(0);
-  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
-  if (metodo) {
-    const btn = document.querySelector(`[data-metodo="${metodo}"]`);
-    if (btn) btn.classList.add('selected');
-  }
-  document.getElementById('troco-section').classList.toggle('visible', metodo === 'dinheiro');
-  abrirModal('modal-pagamento');
-}
-
-function selecionarMetodo(metodo) {
-  state.metodoSelecionado = metodo;
-  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('selected'));
-  const btn = document.querySelector(`[data-metodo="${metodo}"]`);
-  if (btn) btn.classList.add('selected');
-  document.getElementById('troco-section').classList.toggle('visible', metodo === 'dinheiro');
-  if (metodo !== 'dinheiro') {
-    document.getElementById('input-recebido').value = '';
-    document.getElementById('troco-value').textContent = fmt(0);
-  }
-}
-
-function calcularTroco() {
-  const total = getTotal();
-  const recebido = parseFloat(document.getElementById('input-recebido').value) || 0;
-  const troco = Math.max(0, recebido - total);
-  const el = document.getElementById('troco-value');
-  el.textContent = fmt(troco);
-  el.style.color = troco > 0 ? 'var(--success)' : 'var(--muted)';
-}
-
-function confirmarPagamento() {
-  if (!state.metodoSelecionado) {
-    showToast('⚠️ Selecione a forma de pagamento', 'var(--action)');
-    return;
-  }
-  const total = getTotal();
-  let recebido = total;
-  let troco = 0;
-
-  if (state.metodoSelecionado === 'dinheiro') {
-    recebido = parseFloat(document.getElementById('input-recebido').value) || 0;
-    if (recebido < total) {
-      showToast('⚠️ Valor recebido menor que o total', 'var(--danger)');
-      return;
-    }
-    troco = recebido - total;
-  }
-
-  const venda = {
-    id:        state.vendas.length + 1,
-    timestamp: Date.now(),
-    itens:     JSON.parse(JSON.stringify(state.carrinho)),
-    total,
-    metodo:    state.metodoSelecionado,
-    recebido,
-    troco,
-    operador:  state.caixa?.operador || '',
-  };
-
-  state.vendas.push(venda);
-  state.vendaAtual = venda;
-  state.carrinho = [];
-  saveState();
-
-  fecharModal('modal-pagamento');
-  renderCarrinho();
-  mostrarComprovante(venda);
-  showToast(`✅ Venda #${venda.id} — ${fmt(total)}`);
-}
-
-// ==================== COMPROVANTE ====================
-function mostrarComprovante(venda) {
-  const itensHtml = venda.itens.map(i => `
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
-      <div>${i.emoji} ${i.nome} <span style="color:var(--muted);font-size:11px;">x${i.qtd}</span></div>
-      <div style="font-family:var(--font-display);color:var(--accent);">${fmt(i.preco * i.qtd)}</div>
-    </div>
-  `).join('');
-
-  const trocoHtml = venda.metodo === 'dinheiro' ? `
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px;"><span style="color:var(--muted);">Recebido</span><span>${fmt(venda.recebido)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px;"><span style="color:var(--muted);">Troco</span><span style="color:var(--success);font-weight:700;">${fmt(venda.troco)}</span></div>
-  ` : '';
-
-  document.getElementById('comprovante-preview').innerHTML = `
-    <div style="background:var(--card);border-radius:var(--radius);padding:16px;">
-      <div style="text-align:center;margin-bottom:14px;">
-        <div style="font-size:28px;">🧾</div>
-        <div style="font-family:var(--font-display);font-size:24px;color:var(--accent);">${state.nomeEstab}</div>
-        <div style="color:var(--muted);font-size:11px;">Venda #${venda.id} • ${fmtDate(venda.timestamp)}</div>
-        <div style="color:var(--muted);font-size:11px;">Operador: ${venda.operador}</div>
-      </div>
-      ${itensHtml}
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:2px solid var(--border);margin-top:4px;">
-        <span style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">TOTAL</span>
-        <span style="font-family:var(--font-display);font-size:26px;color:var(--accent);">${fmt(venda.total)}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--muted);">Pagamento</span><span class="metodo-badge ${METODO_CLASS[venda.metodo]}">${METODO_EMOJI[venda.metodo]} ${METODO_NOME[venda.metodo]}</span></div>
-      ${trocoHtml}
-    </div>
-    <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:12px;">Obrigado pela preferência! 😊</div>
-  `;
-  prepararImpressaoVenda(venda);
-  abrirModal('modal-comprovante');
-}
-
-function prepararImpressaoVenda(venda) {
-  const linhas = venda.itens.map(i => `
-    <div>${i.emoji} ${i.nome}</div>
-    <div class="receipt-row"><span>${i.qtd} x ${fmt(i.preco)}</span><span>${fmt(i.preco * i.qtd)}</span></div>
-  `).join('');
-
-  const trocoHtml = venda.metodo === 'dinheiro' ? `
-    <div class="receipt-row"><span>Recebido:</span><span>${fmt(venda.recebido)}</span></div>
-    <div class="receipt-row"><span><b>Troco:</b></span><span><b>${fmt(venda.troco)}</b></span></div>
-  ` : '';
-
-  document.getElementById('receipt-content').innerHTML = `
-    <div class="receipt-header">
-      <div class="receipt-shop">${state.nomeEstab}</div>
-      <div class="receipt-sub">CUPOM NÃO FISCAL</div>
-      <div class="receipt-sub">Venda #${venda.id}</div>
-      <div class="receipt-sub">${fmtDate(venda.timestamp)}</div>
-      <div class="receipt-sub">Op: ${venda.operador}</div>
-    </div>
-    <div class="receipt-line"></div>
-    ${linhas}
-    <div class="receipt-line"></div>
-    <div class="receipt-row receipt-total"><span>TOTAL</span><span>${fmt(venda.total)}</span></div>
-    <div class="receipt-row"><span>Pagamento:</span><span>${METODO_NOME[venda.metodo]}</span></div>
-    ${trocoHtml}
-    <div class="receipt-line"></div>
-    <div class="receipt-footer">
-      <div>Obrigado pela preferencia!</div>
-      <div>Volte sempre! :-)</div>
-    </div>
-  `;
-}
-
-function imprimirComprovante() {
-  if (state.vendaAtual) prepararImpressaoVenda(state.vendaAtual);
-  document.getElementById('print-area').style.display = 'block';
-  window.print();
-  document.getElementById('print-area').style.display = 'none';
-}
-
-// ==================== HISTÓRICO ====================
-function abrirHistorico() {
-  const container = document.getElementById('historico-body');
-  const totalDia = state.vendas.reduce((s, v) => s + v.total, 0);
-
-  let html = `
-    <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Total do Dia</div>
-        <div style="font-family:var(--font-display);font-size:26px;color:var(--accent);">${fmt(totalDia)}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Vendas</div>
-        <div style="font-family:var(--font-display);font-size:26px;">${state.vendas.length}</div>
-      </div>
-    </div>
-  `;
-
-  if (!state.vendas.length) {
-    html += `<div style="text-align:center;padding:40px;color:var(--muted);">
-      <div style="font-size:40px;margin-bottom:10px;">📋</div>
-      <div>Nenhuma venda registrada</div>
-    </div>`;
+  var el = document.getElementById('carrinho');
+  if (state.carrinho.length===0){
+    el.innerHTML='<div class="empty-state"><div class="icon">🛒</div><p>Carrinho vazio</p></div>';
   } else {
-    const vendas = [...state.vendas].reverse();
-    html += vendas.map(v => `
-      <div class="venda-item">
-        <div class="venda-header">
-          <span class="venda-num">#${v.id}</span>
-          <span class="metodo-badge ${METODO_CLASS[v.metodo]}">${METODO_EMOJI[v.metodo]} ${METODO_NOME[v.metodo]}</span>
-          <span class="venda-time">${fmtTime(v.timestamp)}</span>
-          <button onclick="reimprimirVenda(${v.id})" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;padding:3px 8px;font-size:11px;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🖨️</button>
-        </div>
-        <div class="venda-total">${fmt(v.total)}</div>
-        <div class="venda-itens-list">${v.itens.map(i => `${i.emoji} ${i.nome} x${i.qtd}`).join(' • ')}</div>
-      </div>
-    `).join('');
+    el.innerHTML = state.carrinho.map(function(item,i){
+      return '<div class="item-carrinho">'+
+        '<div class="nome">'+item.nome+'</div>'+
+        '<div class="item-ctrl">'+
+          '<div class="qty-ctrl">'+
+            '<button class="qty-btn minus" onclick="mudarQty('+i+',-1)">-</button>'+
+            '<span class="qty-num">'+item.qty+'</span>'+
+            '<button class="qty-btn plus" onclick="mudarQty('+i+',1)">+</button>'+
+          '</div>'+
+          '<span class="item-preco">R$ '+(item.preco*item.qty).toFixed(2).replace('.',',')+'</span>'+
+          '<button class="item-del" onclick="removerItem('+i+')">🗑️</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
   }
-
-  container.innerHTML = html;
-  abrirModal('modal-historico');
+  var total = state.carrinho.reduce(function(s,i){return s+i.preco*i.qty;},0);
+  document.getElementById('subtotal').textContent = 'R$ '+total.toFixed(2).replace('.',',');
+  document.getElementById('total').textContent = 'R$ '+total.toFixed(2).replace('.',',');
+  document.getElementById('numPedido').textContent = '#'+state.numPedido;
+  calcTroco();
 }
 
-function reimprimirVenda(id) {
-  const venda = state.vendas.find(v => v.id === id);
-  if (!venda) return;
-  state.vendaAtual = venda;
-  fecharModal('modal-historico');
+function mudarQty(i,d){
+  state.carrinho[i].qty+=d;
+  if(state.carrinho[i].qty<=0) state.carrinho.splice(i,1);
+  renderCarrinho();
+}
+function removerItem(i){state.carrinho.splice(i,1);renderCarrinho();}
+function limparCarrinho(){if(state.carrinho.length&&!confirm('Limpar carrinho?'))return;state.carrinho=[];renderCarrinho();}
 
-  // Show reimprimir modal
-  const itensHtml = venda.itens.map(i => `
-    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);">
-      <div>${i.emoji} ${i.nome} <span style="color:var(--muted);font-size:11px;">x${i.qtd}</span></div>
-      <div style="font-family:var(--font-display);color:var(--accent);">${fmt(i.preco * i.qtd)}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('reimprimir-body').innerHTML = `
-    <div style="background:var(--card);border-radius:var(--radius);padding:14px;">
-      <div style="text-align:center;margin-bottom:12px;">
-        <div style="font-family:var(--font-display);font-size:22px;color:var(--accent);">Venda #${venda.id}</div>
-        <div style="color:var(--muted);font-size:11px;">${fmtDate(venda.timestamp)}</div>
-      </div>
-      ${itensHtml}
-      <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid var(--border);margin-top:4px;">
-        <span style="color:var(--muted);font-size:12px;text-transform:uppercase;">TOTAL</span>
-        <span style="font-family:var(--font-display);font-size:22px;color:var(--accent);">${fmt(venda.total)}</span>
-      </div>
-    </div>
-  `;
-  prepararImpressaoVenda(venda);
-  abrirModal('modal-reimprimir');
+// ========== PAGAMENTO ==========
+function selecionarPgto(p){
+  state.pgto=p;
+  ['dinheiro','pix','debito','credito'].forEach(function(x){
+    document.getElementById('pgto-'+x).classList.toggle('ativo',x===p);
+  });
+  document.getElementById('troco-field').style.display = p==='dinheiro'?'block':'none';
+  calcTroco();
 }
 
-// ==================== FECHAMENTO ====================
-function renderFechamento() {
-  const totalGeral = state.vendas.reduce((s, v) => s + v.total, 0);
-  const metodos = {};
-  state.vendas.forEach(v => { metodos[v.metodo] = (metodos[v.metodo] || 0) + v.total; });
-
-  const fundo = state.caixa?.fundo || 0;
-  const saldo = fundo + (metodos.dinheiro || 0);
-
-  const metodosHtml = Object.entries(metodos).length
-    ? Object.entries(metodos).map(([m, v]) => `
-        <div class="metodo-row">
-          <span class="metodo-badge ${METODO_CLASS[m]}">${METODO_EMOJI[m]} ${METODO_NOME[m]}</span>
-          <span class="metodo-valor">${fmt(v)}</span>
-        </div>
-      `).join('')
-    : '<div style="color:var(--muted);text-align:center;padding:14px;font-size:13px;">Nenhuma venda registrada</div>';
-
-  document.getElementById('fechamento-body').innerHTML = `
-    <div style="color:var(--muted);font-size:12px;margin-bottom:16px;line-height:1.8;">
-      <div>🏪 Estabelecimento: <strong style="color:var(--text);">${state.nomeEstab}</strong></div>
-      <div>👤 Operador: <strong style="color:var(--text);">${state.caixa?.operador || ''}</strong></div>
-      <div>⏰ Abertura: <strong style="color:var(--text);">${fmtDate(state.caixa?.abertura)}</strong></div>
-      <div>⏰ Fechamento: <strong style="color:var(--text);">${fmtDate(Date.now())}</strong></div>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total de Vendas</div>
-        <div class="stat-value">${state.vendas.length}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Faturado</div>
-        <div class="stat-value" style="font-size:18px;">${fmt(totalGeral)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Fundo de Caixa</div>
-        <div class="stat-value" style="font-size:18px;">${fmt(fundo)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Dinheiro no Caixa</div>
-        <div class="stat-value" style="font-size:18px;color:var(--success);">${fmt(saldo)}</div>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Por Forma de Pagamento</div>
-    <div class="metodo-list">${metodosHtml}</div>
-  `;
-
-  prepararImpressaoFechamento(totalGeral, metodos, fundo, saldo);
+function calcTroco(){
+  if(state.pgto!=='dinheiro')return;
+  var total=state.carrinho.reduce(function(s,i){return s+i.preco*i.qty;},0);
+  var rec=parseFloat(document.getElementById('valorRecebido').value)||0;
+  var el=document.getElementById('trocoResult');
+  if(rec>0){ var tr=rec-total; el.textContent=(tr>=0?'Troco: R$ '+tr.toFixed(2).replace('.',','):'⚠️ Valor insuficiente'); }
+  else el.textContent='';
 }
 
-function prepararImpressaoFechamento(total, metodos, fundo, saldo) {
-  const metodosHtml = Object.entries(metodos)
-    .map(([m, v]) => `<div class="receipt-row"><span>${METODO_NOME[m]}:</span><span>${fmt(v)}</span></div>`)
-    .join('');
-
-  document.getElementById('receipt-content').innerHTML = `
-    <div class="receipt-header">
-      <div class="receipt-shop">${state.nomeEstab}</div>
-      <div class="receipt-sub">*** FECHAMENTO DE CAIXA ***</div>
-      <div class="receipt-sub">${fmtDate(Date.now())}</div>
-      <div class="receipt-sub">Operador: ${state.caixa?.operador || ''}</div>
-    </div>
-    <div class="receipt-line"></div>
-    <div class="receipt-row"><span>Abertura:</span><span>${fmtDate(state.caixa?.abertura)}</span></div>
-    <div class="receipt-row"><span>Total de Vendas:</span><span>${state.vendas.length}</span></div>
-    <div class="receipt-line"></div>
-    ${metodosHtml}
-    <div class="receipt-line"></div>
-    <div class="receipt-row receipt-total"><span>TOTAL FATURADO</span><span>${fmt(total)}</span></div>
-    <div class="receipt-row"><span>Fundo de Caixa:</span><span>${fmt(fundo)}</span></div>
-    <div class="receipt-row receipt-total"><span>DINHEIRO NO CAIXA</span><span>${fmt(saldo)}</span></div>
-    <div class="receipt-line"></div>
-    <div class="receipt-footer">
-      <div>Conferido e aprovado</div>
-      <div>Assinatura: _______________</div>
-    </div>
-  `;
+// ========== VENDA ==========
+function finalizarVenda(){
+  if(state.carrinho.length===0){alert('Carrinho vazio!');return;}
+  var total=state.carrinho.reduce(function(s,i){return s+i.preco*i.qty;},0);
+  var obs=document.getElementById('obsVenda').value;
+  var venda={
+    id:state.numPedido, data:new Date().toISOString(),
+    operador:state.operador, estab:state.estab,
+    itens:JSON.parse(JSON.stringify(state.carrinho)),
+    total:total, pgto:state.pgto, obs:obs
+  };
+  if(state.pgto==='dinheiro'){
+    var rec=parseFloat(document.getElementById('valorRecebido').value)||0;
+    venda.recebido=rec; venda.troco=rec-total;
+  }
+  state.vendas.push(venda);
+  localStorage.setItem('pdv_vendas',JSON.stringify(state.vendas));
+  state.numPedido++;
+  localStorage.setItem('pdv_numPedido',state.numPedido);
+  localStorage.setItem('pdv_caixa',JSON.stringify({aberto:true,estab:state.estab,operador:state.operador,fundo:state.fundoCaixa,abertura:state.abertura,numPedido:state.numPedido}));
+  mostrarRecibo(venda);
+  state.carrinho=[];
+  document.getElementById('obsVenda').value='';
+  document.getElementById('valorRecebido').value='';
+  document.getElementById('trocoResult').textContent='';
+  renderCarrinho();
 }
 
-function imprimirFechamento() {
-  document.getElementById('print-area').style.display = 'block';
-  window.print();
-  document.getElementById('print-area').style.display = 'none';
+function mostrarRecibo(v){
+  var itensStr=v.itens.map(function(i){
+    return i.qty+'x '+i.nome+' = R$ '+(i.preco*i.qty).toFixed(2).replace('.',',');
+  }).join('<br>');
+  var extra='';
+  if(v.pgto==='dinheiro'&&v.recebido){
+    extra='<br>Recebido: R$ '+v.recebido.toFixed(2).replace('.',',')+
+    '<br>Troco: R$ '+(v.troco>=0?v.troco:0).toFixed(2).replace('.',',');
+  }
+  var pgtoNomes={dinheiro:'💵 Dinheiro',pix:'📱 PIX',debito:'💳 Débito',credito:'💳 Crédito'};
+  document.getElementById('reciboConteudo').innerHTML=
+    '<div style="font-family:monospace;font-size:0.85em;line-height:1.8">'+
+    '<div style="text-align:center;font-weight:700;font-size:1.1em">'+v.estab+'</div>'+
+    '<div style="text-align:center;color:#aaa">PDV Pastelaria</div>'+
+    '<hr style="border-color:#333;margin:10px 0">'+
+    'Pedido: #'+v.id+'<br>'+
+    'Data: '+new Date(v.data).toLocaleString('pt-BR')+'<br>'+
+    'Operador: '+v.operador+
+    '<hr style="border-color:#333;margin:10px 0">'+
+    itensStr+
+    '<hr style="border-color:#333;margin:10px 0">'+
+    '<strong>TOTAL: R$ '+v.total.toFixed(2).replace('.',',')+'</strong><br>'+
+    'Pagamento: '+(pgtoNomes[v.pgto]||v.pgto)+extra+
+    (v.obs?'<br>Obs: '+v.obs:'')+
+    '</div>';
+  document.getElementById('modalRecibo').classList.add('show');
 }
 
-// ==================== GERENCIAR PRODUTOS ====================
-function abrirGerenciarProdutos() {
-  renderProdutosList();
-  abrirModal('modal-produtos');
+function fecharModal(id){document.getElementById(id).classList.remove('show');}
+
+// ========== FECHAMENTO ==========
+function gerarFechamento(){
+  var agora=new Date();
+  var totalVendas=state.vendas.reduce(function(s,v){return s+v.total;},0);
+  var porPgto={dinheiro:0,pix:0,debito:0,credito:0};
+  state.vendas.forEach(function(v){if(porPgto[v.pgto]!==undefined)porPgto[v.pgto]+=v.total;});
+  var pgtoNomes={dinheiro:'💵 Dinheiro',pix:'📱 PIX',debito:'💳 Débito',credito:'💳 Crédito'};
+  var resumoPgto=Object.keys(porPgto).map(function(k){
+    return '<div class="resumo-item"><div class="label">'+pgtoNomes[k]+'</div><div class="valor">R$ '+porPgto[k].toFixed(2).replace('.',',')+'</div></div>';
+  }).join('');
+  document.getElementById('fechamentoConteudo').innerHTML=
+    '<div style="margin-bottom:15px;color:#aaa;font-size:0.85em">'+
+    'Abertura: '+new Date(state.abertura).toLocaleString('pt-BR')+'<br>'+
+    'Fechamento: '+agora.toLocaleString('pt-BR')+'<br>'+
+    'Operador: '+state.operador+
+    '</div>'+
+    '<div class="resumo-grid">'+
+    '<div class="resumo-item"><div class="label">Fundo de Caixa</div><div class="valor">R$ '+state.fundoCaixa.toFixed(2).replace('.',',')+'</div></div>'+
+    '<div class="resumo-item"><div class="label">Nº de Vendas</div><div class="valor">'+state.vendas.length+'</div></div>'+
+    '<div class="resumo-item"><div class="label">Total Vendas</div><div class="valor">R$ '+totalVendas.toFixed(2).replace('.',',')+'</div></div>'+
+    '<div class="resumo-item"><div class="label">Total Geral</div><div class="valor destaque">R$ '+(state.fundoCaixa+totalVendas).toFixed(2).replace('.',',')+'</div></div>'+
+    resumoPgto+
+    '</div>';
 }
 
-function renderProdutosList() {
-  document.getElementById('produtos-list').innerHTML = state.produtos.map(p => `
-    <div class="produto-list-item">
-      <span class="produto-list-emoji">${p.emoji}</span>
-      <div class="produto-list-info">
-        <div class="produto-list-nome">${p.nome}</div>
-        <div class="produto-list-preco">${fmt(p.preco)} <span style="color:var(--muted);font-size:10px;font-family:var(--font-body);text-transform:uppercase;">${p.categoria}</span></div>
-      </div>
-      <div class="produto-list-actions">
-        <button class="btn btn-ghost" style="padding:7px 11px;font-size:12px;" onclick="editarProduto(${p.id})">✏️</button>
-        <button class="btn btn-danger" style="padding:7px 11px;font-size:12px;" onclick="removerProduto(${p.id})">🗑️</button>
-      </div>
-    </div>
-  `).join('');
+function fecharCaixaDefinitivo(){
+  if(!confirm('Fechar o caixa e reiniciar o sistema?'))return;
+  localStorage.removeItem('pdv_caixa');
+  localStorage.removeItem('pdv_vendas');
+  localStorage.removeItem('pdv_numPedido');
+  state.caixaAberto=false; state.vendas=[]; state.carrinho=[]; state.numPedido=1; state.abertura=null;
+  mostrarTela('abertura');
 }
 
-function adicionarProduto() {
-  const nome = document.getElementById('np-nome').value.trim();
-  const preco = parseFloat(document.getElementById('np-preco').value);
-  const emoji = document.getElementById('np-emoji').value.trim() || '📦';
-  const categoria = document.getElementById('np-categoria').value;
-
-  if (!nome || isNaN(preco) || preco <= 0) {
-    showToast('⚠️ Preencha nome e preço', 'var(--action)');
+// ========== HISTÓRICO ==========
+function gerarHistorico(){
+  var pgtoNomes={dinheiro:'Dinheiro',pix:'PIX',debito:'Débito',credito:'Crédito'};
+  if(state.vendas.length===0){
+    document.getElementById('historicoConteudo').innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Nenhuma venda registrada</p></div>';
     return;
   }
-
-  state.produtos.push({ id: state.proximoId++, nome, preco, emoji, categoria });
-  saveState();
-  document.getElementById('np-nome').value = '';
-  document.getElementById('np-preco').value = '';
-  document.getElementById('np-emoji').value = '';
-  renderProdutosList();
-  renderProdutosGrid();
-  renderCategorias();
-  showToast(`✅ "${nome}" adicionado!`);
+  var rows=state.vendas.slice().reverse().map(function(v){
+    return '<tr><td>#'+v.id+'</td><td>'+new Date(v.data).toLocaleTimeString('pt-BR')+'</td>'+
+    '<td>'+v.itens.length+' item(s)</td><td>R$ '+v.total.toFixed(2).replace('.',',')+'</td>'+
+    '<td>'+(pgtoNomes[v.pgto]||v.pgto)+'</td>'+
+    '<td><button class="btn btn-secondary btn-sm" onclick="mostrarRecibo('+JSON.stringify(JSON.stringify(v)).slice(1,-1)+')">🧾 Ver</button></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('historicoConteudo').innerHTML=
+    '<table><thead><tr><th>#</th><th>Hora</th><th>Itens</th><th>Total</th><th>Pagamento</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
-function editarProduto(id) {
-  const p = state.produtos.find(x => x.id === id);
-  if (!p) return;
-  const novoNome = prompt('Nome do produto:', p.nome);
-  if (novoNome === null) return;
-  const novoPreco = parseFloat(prompt('Preço (R$):', p.preco.toFixed(2)));
-  if (isNaN(novoPreco) || novoPreco < 0) { showToast('⚠️ Preço inválido', 'var(--action)'); return; }
-  const novoEmoji = prompt('Emoji:', p.emoji);
-  if (novoEmoji === null) return;
-  p.nome = novoNome.trim() || p.nome;
-  p.preco = novoPreco;
-  p.emoji = novoEmoji.trim() || p.emoji;
-  saveState();
-  renderProdutosList();
-  renderProdutosGrid();
-  showToast('✅ Produto atualizado!');
+// ========== PRODUTOS ADMIN ==========
+function gerarProdutosAdmin(){
+  var cats=[...new Set(state.produtos.map(function(p){return p.categoria;}))];
+  var html='';
+  cats.forEach(function(cat){
+    var itens=state.produtos.filter(function(p){return p.categoria===cat;});
+    html+='<div style="margin-bottom:20px"><h4 style="color:#c0392b;margin-bottom:8px">'+cat+'</h4>'+
+    '<table><thead><tr><th>#</th><th>Produto</th><th>Preço</th><th></th></tr></thead><tbody>'+
+    itens.map(function(p){
+      var idx=state.produtos.indexOf(p);
+      return '<tr><td style="color:#666">'+(p.id||'-')+'</td>'+
+      '<td>'+p.nome+'</td>'+
+      '<td><input type="number" value="'+p.preco+'" step="0.01" min="0" style="width:90px;background:#1a1a2e;border:1px solid #c0392b33;border-radius:5px;color:#fff;padding:4px 8px" onchange="atualizarPreco('+idx+',this.value)"></td>'+
+      '<td><button class="btn btn-danger btn-sm" onclick="removerProduto('+idx+')">🗑️</button></td></tr>';
+    }).join('')+'</tbody></table></div>';
+  });
+  html+='<button class="btn btn-primary" onclick="resetarProdutos()" style="margin-top:10px">🔄 Restaurar padrão</button>';
+  document.getElementById('produtosAdminConteudo').innerHTML=html;
 }
 
-function removerProduto(id) {
-  const p = state.produtos.find(x => x.id === id);
-  if (!p || !confirm(`Remover "${p.nome}"?`)) return;
-  state.produtos = state.produtos.filter(x => x.id !== id);
-  state.carrinho = state.carrinho.filter(i => i.id !== id);
-  saveState();
-  renderProdutosList();
-  renderProdutosGrid();
-  renderCategorias();
-  renderCarrinho();
-  showToast('🗑️ Produto removido');
+function atualizarPreco(idx,val){
+  state.produtos[idx].preco=parseFloat(val)||0;
+  localStorage.setItem('pdv_produtos',JSON.stringify(state.produtos));
+}
+function removerProduto(idx){
+  if(!confirm('Remover este produto?'))return;
+  state.produtos.splice(idx,1);
+  localStorage.setItem('pdv_produtos',JSON.stringify(state.produtos));
+  gerarProdutosAdmin();
+}
+function resetarProdutos(){
+  if(!confirm('Restaurar todos os produtos para o padrão?'))return;
+  state.produtos=JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
+  localStorage.setItem('pdv_produtos',JSON.stringify(state.produtos));
+  gerarProdutosAdmin();
 }
 
-// ==================== START ====================
-init();
+// Iniciar filtro padrão de pagamento
+selecionarPgto('dinheiro');
+window.onload = init;
 </script>
 </body>
 </html>
