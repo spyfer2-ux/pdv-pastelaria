@@ -322,7 +322,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
     <div id="div-itens-lista"></div>
     <div class="div-subtotal">
       <div class="tl"><span class="lab" style="color:#aaa;font-size:.85em">Subtotal selecionado</span><span class="val" id="div-sub" style="font-weight:700;color:var(--green)">R$ 0,00</span></div>
-<div class="tl" style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(192,57,43,.2)"><span class="lab" style="color:#ff9800;font-size:.85em;font-weight:700">⏳ Ainda falta pagar na mesa</span><span id="div-restante" style="font-weight:800;color:#ff9800;font-size:1.05em">R$ 0,00</span></div>
+      <div class="tl" style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(192,57,43,.15)"><span class="lab" style="color:#ff9800;font-size:.85em;font-weight:700">⏳ Ainda falta pagar na mesa</span><span id="div-restante" style="font-weight:800;color:#ff9800;font-size:1.05em">R$ 0,00</span></div>
     </div>
     <div class="pgto-grid" style="margin-top:10px">
       <button class="pbtn on" id="dpb-dinheiro" onclick="selDivPgto('dinheiro')">💵 Dinheiro</button>
@@ -671,9 +671,8 @@ function toggleDivItem(uid) {
 function atualizarDivSub() {
 var mesa = state.mesas[state.mesaAtual];
 var sub = mesa.itens.filter(function(i){ return i._divSel; }).reduce(function(s,i){return s+i.preco*i.qty;},0);
-var totalMesa = calcTotalMesa(mesa);
-var jaPago = mesa.pagos.reduce(function(s,p){return s+p.valor;},0);
-var restanteAposPagar = Math.max(0, totalMesa - jaPago - sub);
+var totalPendente = calcPendenteMesa(mesa);
+var restanteAposPagar = Math.max(0, totalPendente - sub);
 document.getElementById('div-sub').textContent = 'R$ ' + sub.toFixed(2).replace('.',',');
 var elRest = document.getElementById('div-restante');
 if (elRest) elRest.textContent = 'R$ ' + restanteAposPagar.toFixed(2).replace('.',',');
@@ -735,7 +734,22 @@ function registrarPagamentoParcial() {
       fecharModal('modal-recibo');
       irMesas();
     }
+  } else {
+    var pendenteFinal = calcPendenteMesa(mesa);
+    mostrarToastRestante(pendenteFinal);
   }
+}
+
+function mostrarToastRestante(valor) {
+  var ex = document.getElementById('toast-restante');
+  if (ex) ex.remove();
+  var t = document.createElement('div');
+  t.id = 'toast-restante';
+  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:2px solid #ff9800;border-radius:14px;padding:18px 28px;color:#fff;font-weight:700;z-index:9999;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.6);min-width:280px;cursor:pointer';
+  t.innerHTML = '<div style="font-size:.82em;color:#aaa;margin-bottom:4px">✅ Pagamento registrado!</div>' + (valor > 0 ? '<div style="font-size:.9em">⏳ Ainda falta pagar nesta mesa:</div><div style="color:#ff9800;font-size:1.5em;margin-top:4px">R$ ' + valor.toFixed(2).replace('.',',') + '</div>' : '<div style="color:#27ae60;font-size:1.1em">✅ Mesa totalmente paga!</div>') + '<div style="font-size:.7em;color:#555;margin-top:6px">(toque para fechar)</div>';
+  t.onclick = function(){ t.remove(); };
+  document.body.appendChild(t);
+  setTimeout(function(){ if (t.parentNode) t.remove(); }, 7000);
 }
 
 // ======= FINALIZAR VENDA =======
