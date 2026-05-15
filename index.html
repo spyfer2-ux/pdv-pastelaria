@@ -317,7 +317,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
 <!-- MODAL DIVISÃO -->
 <div class="modal" id="modal-div">
   <div class="mbox" style="max-width:550px">
-    <h3>⚖️ Dividir Conta</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0"><h3>⚖️ Dividir Conta</h3><button class="btn btn-gray btn-sm" onclick="abrirCalculadoraFlutuante()" style="font-size:.85em;padding:6px 10px" title="Calculadora">Calc</button></div>
     <p style="color:#888;font-size:.82em;margin-bottom:12px">Selecione os itens que serão pagos nesta parte:</p>
     <div id="div-itens-lista"></div>
     <div class="div-subtotal">
@@ -850,6 +850,7 @@ function mostrarRecibo(v) {
   }).join('<br>');
   document.getElementById('recibo-conteudo').innerHTML =
     '<div class="recibo-print">' +
+    '<div class="rc-center" style="margin-bottom:4px"><img src="logo.png" style="max-width:120px;max-height:80px" onerror="this.style.display=\'none\'"></div>' +
     '<div class="rc-center rc-bold">' + ESTAB + '</div>' +
     '<div class="rc-center">COMPROVANTE DE VENDA</div>' +
     '<hr>' +
@@ -1116,6 +1117,58 @@ function resetProds() {
 
 // ======= START =======
 window.onload = init;
+
+function abrirCalculadoraFlutuante() {
+  if (document.getElementById('calc-flutuante')) {
+    document.getElementById('calc-flutuante').remove();
+    return;
+  }
+  var c = document.createElement('div');
+  c.id = 'calc-flutuante';
+  c.style.cssText = 'position:fixed;bottom:80px;right:20px;z-index:9999;background:#222;border-radius:12px;padding:12px;box-shadow:0 4px 20px rgba(0,0,0,.6);min-width:220px;user-select:none';
+  var display = '0';
+  var expr = '';
+  var justCalc = false;
+  function render() {
+    c.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<span style="color:#aaa;font-size:.8em">Calculadora</span>' +
+      '<button onclick="document.getElementById(\'calc-flutuante\').remove()" style="background:none;border:none;color:#aaa;font-size:1.2em;cursor:pointer;padding:0">x</button>' +
+      '</div>' +
+      '<div id="calc-display" style="background:#111;color:#fff;font-size:1.4em;text-align:right;padding:8px 10px;border-radius:6px;margin-bottom:8px;min-height:44px;word-break:break-all">' + (expr || display) + '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">' +
+      [['C','+-','%','/'],['7','8','9','x'],['4','5','6','-'],['1','2','3','+'],['0','.','=','=']].map(function(row,ri) {
+        return row.map(function(k,ki) {
+          if (ri === 4 && ki >= 2 && ki <= 3) return ki === 2 ? '' : '<button onclick="calcKey(\'=\')" style="background:#ff9800;color:#fff;border:none;border-radius:7px;padding:12px;font-size:1em;cursor:pointer;grid-column:span 2">= </button>';
+          var bg = (k==='=')?'#ff9800':(k==='/'||k==='x'||k==='-'||k==='+')?'#555':'#333';
+          return '<button onclick="calcKey(\''+k+'\')" style="background:'+bg+';color:#fff;border:none;border-radius:7px;padding:12px;font-size:1em;cursor:pointer">' + k + '</button>';
+        }).join('');
+      }).join('') +
+      '</div>';
+  }
+  window.calcKey = function(k) {
+    if (k === 'C') { display = '0'; expr = ''; justCalc = false; }
+    else if (k === '=') {
+      try {
+        var e2 = expr.replace(/x/g,'*');
+        var res = eval(e2);
+        display = isNaN(res) ? 'Erro' : String(Math.round(res * 100) / 100);
+        expr = '';
+        justCalc = true;
+      } catch(e) { display = 'Erro'; expr = ''; }
+    }
+    else if (k === '+-') { if (expr) { expr = expr.charAt(0)==='-' ? expr.substring(1) : '-'+expr; } else { display = display.charAt(0)==='-' ? display.substring(1) : '-'+display; } }
+    else if (k === '%') { try { var v = eval(expr || display); expr = ''; display = String(Math.round(v/100 * 10000)/10000); justCalc = true; } catch(e){} }
+    else {
+      if (justCalc && !'+-x/'.includes(k)) { expr = ''; display = '0'; }
+      justCalc = false;
+      expr += (expr==='' && '+-x/'.includes(k)) ? (display + k) : k;
+    }
+    render();
+  };
+  render();
+  document.body.appendChild(c);
+}
+
 </script>
 </body>
 </html>
