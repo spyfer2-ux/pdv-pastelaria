@@ -322,6 +322,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
     <div id="div-itens-lista"></div>
     <div class="div-subtotal">
       <div class="tl"><span class="lab" style="color:#aaa;font-size:.85em">Subtotal selecionado</span><span class="val" id="div-sub" style="font-weight:700;color:var(--green)">R$ 0,00</span></div>
+<div class="tl" style="margin-top:6px"><span class="lab" style="color:#ff9800;font-size:.85em;font-weight:700">⏳ Ainda falta pagar na mesa</span><span id="div-restante" style="font-weight:800;color:#ff9800;font-size:1em">R$ 0,00</span></div>
     </div>
     <div class="pgto-grid" style="margin-top:10px">
       <button class="pbtn on" id="dpb-dinheiro" onclick="selDivPgto('dinheiro')">💵 Dinheiro</button>
@@ -668,10 +669,15 @@ function toggleDivItem(uid) {
 }
 
 function atualizarDivSub() {
-  var mesa = state.mesas[state.mesaAtual];
-  var sub = mesa.itens.filter(function(i){ return i._divSel; }).reduce(function(s,i){return s+i.preco*i.qty;},0);
-  document.getElementById('div-sub').textContent = 'R$ ' + sub.toFixed(2).replace('.',',');
-  calcDivTroco();
+var mesa = state.mesas[state.mesaAtual];
+var sub = mesa.itens.filter(function(i){ return i._divSel; }).reduce(function(s,i){return s+i.preco*i.qty;},0);
+var totalMesa = calcTotalMesa(mesa);
+var jaPago = mesa.pagos.reduce(function(s,p){return s+p.valor;},0);
+var restanteAposPagar = Math.max(0, totalMesa - jaPago - sub);
+document.getElementById('div-sub').textContent = 'R$ ' + sub.toFixed(2).replace('.',',');
+var elRest = document.getElementById('div-restante');
+if (elRest) elRest.textContent = 'R$ ' + restanteAposPagar.toFixed(2).replace('.',',');
+calcDivTroco();
 }
 
 function selDivPgto(p) {
