@@ -828,7 +828,7 @@ function mostrarRecibo(v) {
   }).join('<br>');
   var itensStr = v.todosItens.map(function(i){
     return i.qty + 'x ' + i.nome + ' = R$ ' + (i.preco*i.qty).toFixed(2).replace('.',',') +
-    (i.obs ? ' <span style='font-size:.85em;color:#888'>('+i.obs+')</span>' : '');
+    (i.obs ? ' <span style="font-size:.85em;color:#888">('+i.obs+')</span>' : '');
   }).join('<br>');
   document.getElementById('recibo-conteudo').innerHTML =
     '<div class="recibo-print">' +
