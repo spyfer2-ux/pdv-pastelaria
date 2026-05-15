@@ -153,11 +153,16 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f0f0;color:#222;min-height:
 
 /* RECIBO IMPRESSÃO */
 @media print{
-  .no-print{display:none!important}
-  body{background:#fff;color:#000}
-  .recibo-print{display:block!important}
+*{box-sizing:border-box!important}
+.no-print{display:none!important}
+html,body{width:100%!important;background:#fff!important;color:#000!important;margin:0!important;padding:0!important}
+.modal.show{display:block!important;position:static!important;background:none!important;padding:0!important;margin:0!important}
+.mbox{border:none!important;border-radius:0!important;padding:0!important;max-width:100%!important;width:100%!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;margin:0!important}
+.mbox h3{display:none!important}
+.mbtns{display:none!important}
+.recibo-print{display:block!important;width:100%!important;max-width:100%!important;padding:0!important}
 }
-.recibo-print{font-family:'Courier New',monospace;font-size:.82em;line-height:1.7;color:#000;background:#fff;padding:10px}
+.recibo-print{font-family:'Courier New',monospace;font-size:.82em;line-height:1.7;color:#000;background:#fff;padding:0;width:100%;max-width:100%}
 .recibo-print hr{border:none;border-top:1px dashed #000;margin:8px 0}
 .recibo-print .rc-center{text-align:center}
 .recibo-print .rc-bold{font-weight:700}
