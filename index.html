@@ -3,574 +3,1100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🥟 PDV Pastelaria</title>
+<title>🥟 O Pastel Gigante - PDV</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
-.header{background:linear-gradient(135deg,#c0392b,#8e1a12);padding:15px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 15px rgba(0,0,0,0.4)}
-.header h1{font-size:1.4em;font-weight:700;color:#fff;letter-spacing:1px}
-.header .info{font-size:0.8em;color:#ffcccc;text-align:right}
-#tela-abertura{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e,#16213e)}
-.abertura-box{background:#16213e;border:2px solid #c0392b;border-radius:20px;padding:40px;max-width:450px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.abertura-box h2{color:#c0392b;font-size:1.8em;margin-bottom:8px}
-.abertura-box p{color:#aaa;margin-bottom:25px;font-size:0.9em}
-.form-group{margin-bottom:18px;text-align:left}
-.form-group label{display:block;color:#ccc;font-size:0.85em;margin-bottom:6px;font-weight:600}
-.form-group input{width:100%;padding:12px 15px;background:#0f3460;border:2px solid #c0392b33;border-radius:10px;color:#fff;font-size:1em;transition:border-color 0.3s}
-.form-group input:focus{outline:none;border-color:#c0392b}
-.btn{padding:14px 28px;border:none;border-radius:10px;cursor:pointer;font-size:1em;font-weight:700;transition:all 0.3s;letter-spacing:1px}
-.btn-primary{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;width:100%;margin-top:10px}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(192,57,43,0.4)}
-.btn-success{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff}
-.btn-success:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(39,174,96,0.4)}
-.btn-danger{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}
-.btn-warning{background:linear-gradient(135deg,#e67e22,#f39c12);color:#fff}
-.btn-secondary{background:#2c3e50;color:#ccc}
-.btn-sm{padding:8px 14px;font-size:0.82em}
-#tela-pdv{display:none;height:100vh;flex-direction:column}
-.pdv-top{background:#16213e;padding:10px 15px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #c0392b33;flex-wrap:wrap;gap:8px}
-.pdv-top .operador{font-size:0.85em;color:#aaa}
-.pdv-top .data-hora{font-size:0.85em;color:#c0392b;font-weight:600}
-.pdv-body{display:flex;flex:1;overflow:hidden}
-.col-produtos{flex:1.5;overflow-y:auto;padding:15px;background:#1a1a2e}
-.col-carrinho{width:360px;background:#16213e;display:flex;flex-direction:column;border-left:2px solid #c0392b33}
-.search-bar{position:relative;margin-bottom:12px}
-.search-bar input{width:100%;padding:10px 15px 10px 40px;background:#16213e;border:2px solid #c0392b33;border-radius:10px;color:#fff;font-size:0.9em}
-.search-bar input:focus{outline:none;border-color:#c0392b}
-.search-bar .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#c0392b;font-size:1.1em}
-.filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.filtro-btn{padding:5px 12px;border:2px solid #c0392b33;border-radius:20px;background:transparent;color:#aaa;cursor:pointer;font-size:0.75em;transition:all 0.2s;white-space:nowrap}
-.filtro-btn.ativo{background:#c0392b;border-color:#c0392b;color:#fff}
-.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.produto-card{background:#16213e;border:2px solid #c0392b22;border-radius:12px;padding:12px;cursor:pointer;transition:all 0.2s;position:relative}
-.produto-card:hover{border-color:#c0392b;transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,57,43,0.2)}
-.produto-card .cat-tag{font-size:0.65em;color:#c0392b;font-weight:600;text-transform:uppercase;margin-bottom:4px}
-.produto-card .num{font-size:0.7em;color:#666;margin-bottom:2px}
-.produto-card .nome{font-size:0.85em;font-weight:600;color:#eee;line-height:1.3;margin-bottom:8px}
-.produto-card .preco{font-size:1.1em;font-weight:700;color:#27ae60}
-.produto-card .add-btn{position:absolute;bottom:10px;right:10px;width:28px;height:28px;background:#c0392b;border:none;border-radius:50%;color:#fff;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.produto-card .add-btn:hover{background:#e74c3c;transform:scale(1.1)}
-.carrinho-header{padding:15px;border-bottom:2px solid #c0392b33;display:flex;align-items:center;justify-content:space-between}
-.carrinho-header h3{color:#c0392b;font-size:1em}
-.carrinho-items{flex:1;overflow-y:auto;padding:10px}
-.item-carrinho{background:#1a1a2e;border-radius:10px;padding:10px;margin-bottom:8px;border:1px solid #c0392b22}
-.item-carrinho .nome{font-size:0.82em;color:#eee;margin-bottom:6px;line-height:1.3}
-.item-ctrl{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.qty-ctrl{display:flex;align-items:center;gap:6px}
-.qty-btn{width:24px;height:24px;border:none;border-radius:6px;cursor:pointer;font-size:0.9em;display:flex;align-items:center;justify-content:center}
-.qty-btn.minus{background:#c0392b;color:#fff}
-.qty-btn.plus{background:#27ae60;color:#fff}
-.qty-num{min-width:22px;text-align:center;font-weight:700;color:#fff;font-size:0.9em}
-.item-preco{font-weight:700;color:#27ae60;font-size:0.9em}
-.item-del{background:transparent;border:none;color:#c0392b44;cursor:pointer;font-size:1em;transition:color 0.2s}
-.item-del:hover{color:#c0392b}
-.carrinho-footer{padding:15px;border-top:2px solid #c0392b33;background:#0f3460}
-.total-linha{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.total-linha .label{color:#aaa;font-size:0.85em}
-.total-linha .valor{font-weight:700;color:#27ae60;font-size:1em}
-.total-linha.grande .valor{font-size:1.5em;color:#fff}
-.pgto-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
-.pgto-btn{padding:10px 6px;border:2px solid transparent;border-radius:8px;background:#1a1a2e;color:#aaa;cursor:pointer;font-size:0.75em;text-align:center;transition:all 0.2s}
-.pgto-btn.ativo{border-color:#c0392b;color:#c0392b;background:#c0392b11}
-.pgto-btn:hover{border-color:#c0392b66}
-.troco-field{margin-top:8px;display:none}
-.troco-field input{width:100%;padding:8px 12px;background:#1a1a2e;border:2px solid #c0392b33;border-radius:8px;color:#fff;font-size:0.9em}
-.troco-result{color:#f39c12;font-size:0.85em;margin-top:4px;text-align:right}
-.finalizar-btn{width:100%;margin-top:12px;padding:14px;font-size:1em}
-#tela-fechamento{display:none;padding:20px;max-width:700px;margin:0 auto}
-#tela-historico{display:none;padding:20px;max-width:900px;margin:0 auto}
-#tela-produtos{display:none;padding:20px;max-width:900px;margin:0 auto}
-.card{background:#16213e;border-radius:15px;padding:20px;margin-bottom:20px;border:1px solid #c0392b22}
-.card h3{color:#c0392b;margin-bottom:15px;font-size:1.1em}
-.resumo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.resumo-item{background:#1a1a2e;border-radius:10px;padding:15px;text-align:center}
-.resumo-item .label{font-size:0.8em;color:#aaa;margin-bottom:5px}
-.resumo-item .valor{font-size:1.4em;font-weight:700;color:#27ae60}
-.resumo-item .valor.destaque{color:#c0392b}
-table{width:100%;border-collapse:collapse;font-size:0.85em}
-table th{background:#c0392b;color:#fff;padding:10px 12px;text-align:left}
-table td{padding:8px 12px;border-bottom:1px solid #c0392b11;color:#ccc}
-table tr:hover td{background:#c0392b11}
-.nav-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center}
+body{font-family:'Segoe UI',sans-serif;background:#0f0f1a;color:#eee;min-height:100vh}
+:root{--red:#c0392b;--red2:#e74c3c;--green:#27ae60;--green2:#2ecc71;--blue:#2980b9;--gold:#f39c12;--dark:#16213e;--darker:#0f3460;--surface:#1a1a2e}
+
+/* TELAS */
+.tela{display:none!important}
+.tela.ativa{display:flex!important;flex-direction:column}
+.tela.bloco{display:none!important}
+.tela.bloco.ativa{display:block!important}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#8e1a12,#c0392b);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 15px rgba(0,0,0,.5);flex-wrap:wrap;gap:8px}
+.hdr-logo{font-size:1.3em;font-weight:800;color:#fff;letter-spacing:1px}
+.hdr-info{font-size:.8em;color:#ffcccc}
+.hdr-btns{display:flex;gap:8px;flex-wrap:wrap}
+
+/* BOTÕES */
+.btn{padding:10px 18px;border:none;border-radius:10px;cursor:pointer;font-size:.9em;font-weight:700;transition:all .2s;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.btn:active{transform:translateY(0)}
+.btn-red{background:linear-gradient(135deg,var(--red),var(--red2));color:#fff}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#3498db);color:#fff}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#f1c40f);color:#1a1a2e}
+.btn-gray{background:#2c3e50;color:#aaa}
+.btn-sm{padding:7px 12px;font-size:.8em}
+.btn-lg{padding:14px 24px;font-size:1.05em}
+.btn-full{width:100%}
+
+/* FORMULÁRIOS */
+.fg{margin-bottom:14px}
+.fg label{display:block;color:#bbb;font-size:.82em;margin-bottom:5px;font-weight:600}
+.fg input,.fg textarea,.fg select{width:100%;padding:10px 14px;background:var(--darker);border:2px solid rgba(192,57,43,.3);border-radius:9px;color:#fff;font-size:.9em;transition:border-color .2s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--red)}
+
+/* TELA MESAS */
+#tela-mesas{min-height:100vh}
+.mesas-body{flex:1;padding:20px;display:flex;flex-direction:column;align-items:center}
+.mesas-titulo{font-size:1.1em;color:#aaa;margin-bottom:20px}
+.mesas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:700px;width:100%}
+.mesa-card{background:var(--dark);border:3px solid rgba(192,57,43,.3);border-radius:18px;padding:22px 12px;cursor:pointer;transition:all .25s;text-align:center;position:relative}
+.mesa-card:hover{border-color:var(--red);transform:translateY(-3px);box-shadow:0 12px 30px rgba(192,57,43,.3)}
+.mesa-card.ocupada{border-color:var(--gold);background:rgba(243,156,18,.08)}
+.mesa-card.ocupada:hover{border-color:#f1c40f;box-shadow:0 12px 30px rgba(243,156,18,.3)}
+.mesa-icon{font-size:2.8em;margin-bottom:8px}
+.mesa-num{font-size:1.1em;font-weight:700;color:#eee;margin-bottom:4px}
+.mesa-status{font-size:.75em;color:#666;font-weight:600}
+.mesa-card.ocupada .mesa-status{color:var(--gold)}
+.mesa-total{font-size:.9em;color:var(--green);font-weight:700;margin-top:4px}
+.mesa-itens-badge{position:absolute;top:10px;right:10px;background:var(--red);color:#fff;border-radius:50%;width:22px;height:22px;font-size:.72em;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+/* TELA PDV */
+#tela-pdv{height:100vh}
+.pdv-hdr{background:var(--dark);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(192,57,43,.2);flex-wrap:wrap;gap:8px}
+.pdv-mesa-info{font-weight:700;color:var(--gold);font-size:1em}
+.pdv-body{display:flex;flex:1;overflow:hidden;min-height:0}
+.col-prods{flex:1;overflow-y:auto;padding:12px;background:var(--surface)}
+.col-cart{width:380px;background:var(--dark);display:flex;flex-direction:column;border-left:2px solid rgba(192,57,43,.2)}
+
+/* BUSCA + FILTROS */
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap input{width:100%;padding:10px 14px 10px 38px;background:var(--dark);border:2px solid rgba(192,57,43,.2);border-radius:10px;color:#fff;font-size:.9em}
+.search-wrap input:focus{outline:none;border-color:var(--red)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--red)}
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ftag{padding:5px 11px;border:2px solid rgba(192,57,43,.25);border-radius:20px;background:transparent;color:#999;cursor:pointer;font-size:.75em;transition:all .2s;white-space:nowrap}
+.ftag:hover{border-color:rgba(192,57,43,.6);color:#ccc}
+.ftag.on{background:var(--red);border-color:var(--red);color:#fff}
+
+/* GRID PRODUTOS */
+.prods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.pcard{background:var(--dark);border:2px solid rgba(192,57,43,.15);border-radius:14px;padding:14px 12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.pcard:hover{border-color:var(--red);transform:translateY(-2px);box-shadow:0 8px 22px rgba(192,57,43,.2)}
+.pcard-cat{font-size:.65em;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:3px;letter-spacing:.5px}
+.pcard-num{font-size:.68em;color:#555;margin-bottom:2px}
+.pcard-nome{font-size:.88em;font-weight:600;color:#ddd;line-height:1.35;margin-bottom:8px}
+.pcard-preco{font-size:1.15em;font-weight:800;color:var(--green)}
+.pcard-add{position:absolute;bottom:10px;right:10px;width:30px;height:30px;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:1.3em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.pcard-add:hover{background:var(--red2);transform:scale(1.15)}
+
+/* CARRINHO */
+.cart-hdr{padding:13px 15px;border-bottom:2px solid rgba(192,57,43,.2);display:flex;align-items:center;justify-content:space-between}
+.cart-hdr h3{color:var(--red);font-size:.95em}
+.cart-items{flex:1;overflow-y:auto;padding:8px}
+.citem{background:var(--surface);border-radius:10px;padding:10px;margin-bottom:7px;border:1px solid rgba(192,57,43,.15)}
+.citem-nome{font-size:.82em;color:#ddd;margin-bottom:5px;line-height:1.3;font-weight:600}
+.citem-obs{font-size:.73em;color:#888;font-style:italic;margin-bottom:5px}
+.citem-ctrl{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.qty-wrap{display:flex;align-items:center;gap:6px}
+.qty-btn{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;font-size:.9em;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.qty-btn.m{background:var(--red);color:#fff}
+.qty-btn.p{background:var(--green);color:#fff}
+.qty-n{min-width:22px;text-align:center;font-weight:700;font-size:.9em}
+.citem-preco{font-weight:700;color:var(--green);font-size:.9em}
+.citem-del{background:none;border:none;color:rgba(192,57,43,.4);cursor:pointer;font-size:1em;transition:color .2s;padding:2px}
+.citem-del:hover{color:var(--red)}
+.cart-obs-btn{font-size:.7em;color:#666;background:none;border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:2px 7px;cursor:pointer;margin-top:4px;transition:all .2s}
+.cart-obs-btn:hover{color:#aaa;border-color:rgba(255,255,255,.3)}
+
+/* FOOTER CARRINHO */
+.cart-foot{padding:12px 15px;border-top:2px solid rgba(192,57,43,.2);background:var(--darker)}
+.tl{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.tl .lab{color:#aaa;font-size:.83em}
+.tl .val{font-weight:700;color:var(--green)}
+.tl.big .lab{font-size:.95em;color:#fff}
+.tl.big .val{font-size:1.4em;color:#fff}
+.pgto-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0}
+.pbtn{padding:9px 5px;border:2px solid rgba(192,57,43,.2);border-radius:8px;background:var(--surface);color:#888;cursor:pointer;font-size:.75em;text-align:center;transition:all .2s;font-weight:600}
+.pbtn.on{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.1)}
+.pbtn:hover{border-color:rgba(192,57,43,.5)}
+.troco-wrap{margin:5px 0;display:none}
+.troco-wrap input{width:100%;padding:7px 11px;background:var(--surface);border:2px solid rgba(192,57,43,.2);border-radius:7px;color:#fff;font-size:.88em}
+.troco-res{color:var(--gold);font-size:.82em;margin-top:3px;text-align:right}
+.div-pgto-btn{width:100%;margin:5px 0;padding:9px;border:2px dashed rgba(192,57,43,.4);border-radius:9px;background:transparent;color:rgba(192,57,43,.8);cursor:pointer;font-size:.8em;font-weight:700;transition:all .2s}
+.div-pgto-btn:hover{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.05)}
+
+/* MODAIS */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center;padding:15px}
 .modal.show{display:flex}
-.modal-box{background:#16213e;border-radius:15px;padding:30px;max-width:500px;width:90%;border:2px solid #c0392b33;max-height:90vh;overflow-y:auto}
-.modal-box h3{color:#c0392b;margin-bottom:20px;font-size:1.2em}
-.modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
-.badge{background:#c0392b;color:#fff;border-radius:20px;padding:2px 8px;font-size:0.7em;margin-left:5px}
-.empty-state{text-align:center;padding:40px;color:#555}
-.empty-state .icon{font-size:3em;margin-bottom:10px}
-.obs-input{width:100%;margin-top:6px;padding:6px 10px;background:#0f3460;border:1px solid #c0392b33;border-radius:6px;color:#ccc;font-size:0.8em;resize:none}
-@media(max-width:768px){.pdv-body{flex-direction:column}.col-carrinho{width:100%;max-height:45vh}.produtos-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
-@media print{body{background:#fff;color:#000}.no-print{display:none!important}.recibo{color:#000}}
+.mbox{background:var(--dark);border-radius:16px;padding:25px;max-width:520px;width:100%;border:2px solid rgba(192,57,43,.3);max-height:90vh;overflow-y:auto}
+.mbox h3{color:var(--red);margin-bottom:18px;font-size:1.1em}
+.mbtns{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap}
+
+/* DIVISÃO PAGAMENTO */
+.div-item{background:var(--surface);border-radius:9px;padding:10px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.div-item.sel{border-color:var(--green);background:rgba(39,174,96,.08)}
+.div-item-cb{width:20px;height:20px;border:2px solid #555;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.div-item.sel .div-item-cb{background:var(--green);border-color:var(--green);color:#fff}
+.div-item-info{flex:1;font-size:.83em}
+.div-item-nome{color:#ddd;font-weight:600}
+.div-item-preco{color:var(--green);font-weight:700}
+.div-subtotal{padding:10px;background:var(--surface);border-radius:9px;margin-top:5px}
+
+/* RELATÓRIOS */
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.rel-card{background:var(--surface);border-radius:11px;padding:15px;text-align:center;border:1px solid rgba(192,57,43,.15)}
+.rel-card .rl{font-size:.78em;color:#888;margin-bottom:4px}
+.rel-card .rv{font-size:1.4em;font-weight:800;color:var(--green)}
+.rel-card .rv.red{color:var(--red)}
+.chart-bar-wrap{margin-bottom:20px}
+.chart-bar-item{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.chart-bar-label{font-size:.78em;color:#aaa;min-width:140px;text-align:right}
+.chart-bar-track{flex:1;background:rgba(255,255,255,.07);border-radius:20px;height:22px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:8px;font-size:.72em;font-weight:700;color:#fff;transition:width .5s}
+.chart-bar-val{font-size:.78em;color:#aaa;min-width:60px}
+
+/* RECIBO IMPRESSÃO */
+@media print{
+  .no-print{display:none!important}
+  body{background:#fff;color:#000}
+  .recibo-print{display:block!important}
+}
+.recibo-print{font-family:'Courier New',monospace;font-size:.82em;line-height:1.7;color:#000;background:#fff;padding:10px}
+.recibo-print hr{border:none;border-top:1px dashed #000;margin:8px 0}
+.recibo-print .rc-center{text-align:center}
+.recibo-print .rc-bold{font-weight:700}
+
+/* MISC */
+.empty{text-align:center;padding:40px 20px;color:#444}
+.empty .ei{font-size:3em;margin-bottom:10px}
+.badge{background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;font-size:.7em;font-weight:700;margin-left:4px}
+.tabs{display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:8px 16px;border:2px solid rgba(192,57,43,.2);border-radius:9px;background:transparent;color:#888;cursor:pointer;font-size:.82em;font-weight:700;transition:all .2s}
+.tab.on{background:var(--red);border-color:var(--red);color:#fff}
+.sep{border:none;border-top:1px solid rgba(255,255,255,.07);margin:15px 0}
+table{width:100%;border-collapse:collapse;font-size:.83em}
+table th{background:rgba(192,57,43,.8);color:#fff;padding:9px 11px;text-align:left}
+table td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.05);color:#ccc}
+table tr:hover td{background:rgba(192,57,43,.06)}
+.login-box{max-width:360px;margin:60px auto;background:var(--dark);border:2px solid rgba(192,57,43,.3);border-radius:18px;padding:35px;text-align:center}
+.login-box h2{color:var(--red);margin-bottom:8px}
+.login-box p{color:#888;font-size:.85em;margin-bottom:22px}
 </style>
 </head>
 <body>
-<!-- TELA ABERTURA -->
-<div id="tela-abertura">
-<div class="abertura-box">
-  <div style="font-size:3em;margin-bottom:10px">🥟</div>
-  <h2>PDV PASTELARIA</h2>
-  <p>Sistema de Ponto de Venda</p>
-  <div class="form-group">
-    <label>Nome do Estabelecimento</label>
-    <input type="text" id="nomeEstab" placeholder="Ex: Pastelaria do João" value="">
+<!-- TELA MESAS -->
+<div id="tela-mesas" class="tela ativa">
+  <div class="hdr no-print">
+    <div class="hdr-logo">🥟 O Pastel Gigante</div>
+    <div id="hdr-relogio" style="color:#ffcccc;font-size:.85em;font-weight:600"></div>
+    <div class="hdr-btns">
+      <button class="btn btn-gray btn-sm" onclick="irAdmin()">⚙️ Gerencial</button>
+    </div>
   </div>
-  <div class="form-group">
-    <label>Nome do Operador</label>
-    <input type="text" id="nomeOperador" placeholder="Ex: Maria">
+  <div class="mesas-body">
+    <div class="mesas-titulo">Selecione uma mesa para iniciar o atendimento</div>
+    <div class="mesas-grid" id="mesas-grid"></div>
   </div>
-  <div class="form-group">
-    <label>Fundo de Caixa (R$)</label>
-    <input type="number" id="fundoCaixa" placeholder="0,00" min="0" step="0.01">
-  </div>
-  <button class="btn btn-primary" onclick="abrirCaixa()">🔓 ABRIR CAIXA</button>
-  <div style="margin-top:15px;display:flex;gap:8px;justify-content:center">
-    <button class="btn btn-secondary btn-sm" onclick="irParaHistorico()">📋 Histórico</button>
-    <button class="btn btn-secondary btn-sm" onclick="irParaProdutos()">🛒 Produtos</button>
-  </div>
-</div>
 </div>
 
-<!-- TELA PDV PRINCIPAL -->
-<div id="tela-pdv">
-<div class="pdv-top no-print">
-  <div>
-    <div style="font-weight:700;color:#c0392b;font-size:1.1em">🥟 <span id="topEstab">PDV Pastelaria</span></div>
-    <div class="operador">Operador: <span id="topOperador">-</span></div>
-  </div>
-  <div class="data-hora" id="relogioTopo"></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn btn-warning btn-sm" onclick="irParaFechar()">💰 Fechar Caixa</button>
-    <button class="btn btn-secondary btn-sm" onclick="irParaHistorico()">📋 Histórico</button>
-    <button class="btn btn-secondary btn-sm" onclick="irParaProdutos()">⚙️ Produtos</button>
-  </div>
-</div>
-<div class="pdv-body">
-  <!-- COLUNA PRODUTOS -->
-  <div class="col-produtos no-print">
-    <div class="search-bar">
-      <span class="icon">🔍</span>
-      <input type="text" id="busca" placeholder="Buscar produto..." oninput="filtrarProdutos()">
+<!-- TELA PDV -->
+<div id="tela-pdv" class="tela">
+  <div class="pdv-hdr no-print">
+    <div>
+      <div class="pdv-mesa-info" id="pdv-mesa-label">Mesa 1</div>
+      <div style="font-size:.75em;color:#888">O Pastel Gigante</div>
     </div>
-    <div class="filtros" id="filtros"></div>
-    <div class="produtos-grid" id="gridProdutos"></div>
-  </div>
-  <!-- COLUNA CARRINHO -->
-  <div class="col-carrinho no-print">
-    <div class="carrinho-header">
-      <h3>🛒 Pedido <span id="numPedido">#1</span></h3>
-      <button class="btn btn-danger btn-sm" onclick="limparCarrinho()">🗑️ Limpar</button>
+    <div id="pdv-relogio" style="color:var(--gold);font-size:.85em;font-weight:600"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-gold btn-sm" onclick="abrirDivisao()">💳 Dividir</button>
+      <button class="btn btn-blue btn-sm" onclick="imprimirComanda()">🖨️ Comanda</button>
+      <button class="btn btn-gray btn-sm" onclick="voltarMesas()">🏠 Mesas</button>
     </div>
-    <div class="carrinho-items" id="carrinho"></div>
-    <div class="carrinho-footer">
-      <div class="total-linha"><span class="label">Subtotal</span><span class="valor" id="subtotal">R$ 0,00</span></div>
-      <div class="total-linha grande"><span class="label" style="font-size:1em;color:#fff">TOTAL</span><span class="valor" id="total">R$ 0,00</span></div>
-      <div class="pgto-btns">
-        <button class="pgto-btn" onclick="selecionarPgto('dinheiro')" id="pgto-dinheiro">💵 Dinheiro</button>
-        <button class="pgto-btn" onclick="selecionarPgto('pix')" id="pgto-pix">📱 PIX</button>
-        <button class="pgto-btn" onclick="selecionarPgto('debito')" id="pgto-debito">💳 Débito</button>
-        <button class="pgto-btn" onclick="selecionarPgto('credito')" id="pgto-credito">💳 Crédito</button>
+  </div>
+  <div class="pdv-body">
+    <div class="col-prods no-print">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="busca" placeholder="Buscar produto..." oninput="filtrarProds()">
       </div>
-      <div class="troco-field" id="troco-field">
-        <input type="number" id="valorRecebido" placeholder="Valor recebido..." oninput="calcTroco()" step="0.01" min="0">
-        <div class="troco-result" id="trocoResult"></div>
+      <div class="filtros" id="filtros-wrap"></div>
+      <div class="prods-grid" id="prods-grid"></div>
+    </div>
+    <div class="col-cart no-print">
+      <div class="cart-hdr">
+        <h3>🛒 <span id="cart-mesa-label">Mesa 1</span></h3>
+        <button class="btn btn-red btn-sm" onclick="limparMesa()">🗑️ Limpar</button>
       </div>
-      <div class="form-group" style="margin-top:8px">
-        <textarea class="obs-input" id="obsVenda" placeholder="Observação (opcional)..." rows="2"></textarea>
+      <div class="cart-items" id="cart-items"></div>
+      <div class="cart-foot">
+        <div class="tl"><span class="lab">Subtotal</span><span class="val" id="sub-total">R$ 0,00</span></div>
+        <div class="tl big"><span class="lab">TOTAL</span><span class="val" id="cart-total">R$ 0,00</span></div>
+        <div class="pgto-grid">
+          <button class="pbtn on" id="pb-dinheiro" onclick="selPgto('dinheiro')">💵 Dinheiro</button>
+          <button class="pbtn" id="pb-pix" onclick="selPgto('pix')">📱 PIX</button>
+          <button class="pbtn" id="pb-debito" onclick="selPgto('debito')">💳 Débito</button>
+          <button class="pbtn" id="pb-credito" onclick="selPgto('credito')">💳 Crédito</button>
+        </div>
+        <div class="troco-wrap" id="troco-wrap">
+          <input type="number" id="val-recebido" placeholder="Valor recebido..." oninput="calcTroco()" step=".01" min="0">
+          <div class="troco-res" id="troco-res"></div>
+        </div>
+        <button class="div-pgto-btn" onclick="abrirDivisao()">⚖️ Dividir conta por itens</button>
+        <div class="fg" style="margin-top:5px">
+          <textarea class="fg" id="obs-venda" placeholder="Obs. geral da venda..." rows="2" style="width:100%;padding:7px 10px;background:var(--surface);border:2px solid rgba(192,57,43,.2);border-radius:8px;color:#ccc;font-size:.8em;resize:none"></textarea>
+        </div>
+        <button class="btn btn-green btn-full btn-lg" onclick="finalizarVenda()">✅ FINALIZAR VENDA</button>
       </div>
-      <button class="btn btn-success finalizar-btn" onclick="finalizarVenda()">✅ FINALIZAR VENDA</button>
     </div>
   </div>
 </div>
-</div>
 
-<!-- TELA FECHAMENTO -->
-<div id="tela-fechamento">
-<div class="nav-btns no-print">
-  <button class="btn btn-secondary btn-sm" onclick="voltarPDV()">← Voltar ao PDV</button>
-  <button class="btn btn-warning btn-sm" onclick="window.print()">🖨️ Imprimir</button>
-</div>
-<div class="card">
-  <h3>💰 Fechamento de Caixa</h3>
-  <div id="fechamentoConteudo"></div>
-</div>
-<button class="btn btn-danger no-print" onclick="fecharCaixaDefinitivo()" style="width:100%;padding:14px;font-size:1em;margin-top:10px">🔒 FECHAR CAIXA E REINICIAR</button>
-</div>
-
-<!-- TELA HISTÓRICO -->
-<div id="tela-historico">
-<div class="nav-btns no-print">
-  <button class="btn btn-secondary btn-sm" onclick="voltarPDV()">← Voltar</button>
-  <button class="btn btn-warning btn-sm" onclick="window.print()">🖨️ Imprimir</button>
-</div>
-<div class="card">
-  <h3>📋 Histórico de Vendas</h3>
-  <div id="historicoConteudo"></div>
-</div>
-</div>
-
-<!-- TELA PRODUTOS -->
-<div id="tela-produtos">
-<div class="nav-btns no-print">
-  <button class="btn btn-secondary btn-sm" onclick="voltarPDV()">← Voltar</button>
-</div>
-<div class="card">
-  <h3>⚙️ Gerenciar Produtos</h3>
-  <p style="color:#aaa;font-size:0.85em;margin-bottom:15px">Edite preços diretamente na tabela. As alterações ficam salvas no navegador.</p>
-  <div id="produtosAdminConteudo"></div>
-</div>
-</div>
-
-<!-- MODAL RECIBO -->
-<div class="modal" id="modalRecibo">
-<div class="modal-box">
-  <h3>🧾 Comprovante</h3>
-  <div id="reciboConteudo" class="recibo"></div>
-  <div class="modal-btns no-print">
-    <button class="btn btn-secondary btn-sm" onclick="fecharModal('modalRecibo')">Fechar</button>
-    <button class="btn btn-warning btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+<!-- TELA ADMIN LOGIN -->
+<div id="tela-admin-login" class="tela bloco">
+  <div class="hdr no-print">
+    <div class="hdr-logo">🥟 O Pastel Gigante</div>
+    <button class="btn btn-gray btn-sm" onclick="irMesas()">← Voltar</button>
+  </div>
+  <div class="login-box">
+    <div style="font-size:2.5em;margin-bottom:10px">🔐</div>
+    <h2>Área Gerencial</h2>
+    <p>Insira a senha de administrador</p>
+    <div class="fg">
+      <label>Senha</label>
+      <input type="password" id="admin-senha" placeholder="Digite a senha..." onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div id="login-erro" style="color:var(--red);font-size:.82em;margin-bottom:10px;display:none">Senha incorreta!</div>
+    <button class="btn btn-red btn-full" onclick="fazerLogin()">🔓 Entrar</button>
   </div>
 </div>
+
+<!-- TELA ADMIN PAINEL -->
+<div id="tela-admin" class="tela bloco">
+  <div class="hdr no-print">
+    <div class="hdr-logo">⚙️ Gerencial - O Pastel Gigante</div>
+    <div class="hdr-btns">
+      <button class="btn btn-gray btn-sm" onclick="irMesas()">🏠 Sair</button>
+    </div>
+  </div>
+  <div style="padding:20px;max-width:1000px;margin:0 auto">
+    <div class="tabs no-print">
+      <button class="tab on" onclick="showAdminTab('rel')">📊 Relatórios</button>
+      <button class="tab" onclick="showAdminTab('hist')">📋 Histórico</button>
+      <button class="tab" onclick="showAdminTab('prods')">🛒 Produtos</button>
+    </div>
+    <div id="admin-rel"></div>
+    <div id="admin-hist" style="display:none"></div>
+    <div id="admin-prods" style="display:none"></div>
+  </div>
+</div>
+
+<!-- MODAL OBS ITEM -->
+<div class="modal" id="modal-obs">
+  <div class="mbox">
+    <h3>📝 Observações do item</h3>
+    <div id="modal-obs-nome" style="color:#aaa;font-size:.88em;margin-bottom:12px"></div>
+    <div class="fg">
+      <label>Observação para a comanda</label>
+      <textarea id="obs-item-txt" rows="4" placeholder="Ex: sem cebola, sem azeitona, ponto bem passado..."></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="btn btn-gray btn-sm" onclick="fecharModal('modal-obs')">Cancelar</button>
+      <button class="btn btn-green btn-sm" onclick="salvarObsItem()">✅ Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMANDA -->
+<div class="modal" id="modal-comanda">
+  <div class="mbox" style="max-width:420px">
+    <h3 class="no-print">🖨️ Comanda</h3>
+    <div id="comanda-conteudo"></div>
+    <div class="mbtns no-print">
+      <button class="btn btn-gray btn-sm" onclick="fecharModal('modal-comanda')">Fechar</button>
+      <button class="btn btn-gold btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DIVISÃO -->
+<div class="modal" id="modal-div">
+  <div class="mbox" style="max-width:550px">
+    <h3>⚖️ Dividir Conta</h3>
+    <p style="color:#888;font-size:.82em;margin-bottom:12px">Selecione os itens que serão pagos nesta parte:</p>
+    <div id="div-itens-lista"></div>
+    <div class="div-subtotal">
+      <div class="tl"><span class="lab" style="color:#aaa;font-size:.85em">Subtotal selecionado</span><span class="val" id="div-sub" style="font-weight:700;color:var(--green)">R$ 0,00</span></div>
+    </div>
+    <div class="pgto-grid" style="margin-top:10px">
+      <button class="pbtn on" id="dpb-dinheiro" onclick="selDivPgto('dinheiro')">💵 Dinheiro</button>
+      <button class="pbtn" id="dpb-pix" onclick="selDivPgto('pix')">📱 PIX</button>
+      <button class="pbtn" id="dpb-debito" onclick="selDivPgto('debito')">💳 Débito</button>
+      <button class="pbtn" id="dpb-credito" onclick="selDivPgto('credito')">💳 Crédito</button>
+    </div>
+    <div class="troco-wrap show" id="div-troco-wrap" style="display:block;margin-top:6px">
+      <input type="number" id="div-val-rec" placeholder="Valor recebido (dinheiro)..." oninput="calcDivTroco()" step=".01" min="0">
+      <div class="troco-res" id="div-troco-res"></div>
+    </div>
+    <div class="mbtns">
+      <button class="btn btn-gray btn-sm" onclick="fecharModal('modal-div')">Cancelar</button>
+      <button class="btn btn-green btn-sm" onclick="registrarPagamentoParcial()">✅ Registrar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECIBO FINAL -->
+<div class="modal" id="modal-recibo">
+  <div class="mbox" style="max-width:420px">
+    <h3 class="no-print">🧾 Venda Finalizada</h3>
+    <div id="recibo-conteudo"></div>
+    <div class="mbtns no-print">
+      <button class="btn btn-gray btn-sm" onclick="fecharModal('modal-recibo');irMesas()">🏠 Mesas</button>
+      <button class="btn btn-gold btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+    </div>
+  </div>
 </div>
 
 <script>
-// ========== DADOS ==========
-var PRODUTOS_DEFAULT = [{"id":20,"nome":"Brócolis c/ Mussarela","preco":21.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":21,"nome":"Brócolis c/ Catupiry","preco":21.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":22,"nome":"Brócolis c/ Mussarela e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":23,"nome":"Brócolis c/ Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":24,"nome":"Brócolis c/ Mussarela e Ovo","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":25,"nome":"Brócolis c/ Catupiry e Ovo","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":26,"nome":"Brócolis c/ Mussarela e Milho","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":27,"nome":"Brócolis c/ Catupiry e Milho","preco":23.5,"categoria":"Pastéis Salgados - Brócolis"},{"id":28,"nome":"Brócolis c/ Mussarela e Frango","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":29,"nome":"Brócolis c/ Catupiry e Frango","preco":23.9,"categoria":"Pastéis Salgados - Brócolis"},{"id":30,"nome":"Bauru","preco":16.9,"categoria":"Pastéis Salgados - Bauru"},{"id":31,"nome":"Bauru c/ Catupiry","preco":20.9,"categoria":"Pastéis Salgados - Bauru"},{"id":32,"nome":"Bauru c/ Cheddar","preco":19.9,"categoria":"Pastéis Salgados - Bauru"},{"id":33,"nome":"Bauru c/ Salame","preco":21.9,"categoria":"Pastéis Salgados - Bauru"},{"id":34,"nome":"Bauru c/ Provolone","preco":20.9,"categoria":"Pastéis Salgados - Bauru"},{"id":35,"nome":"Bauru c/ Bacon","preco":20.9,"categoria":"Pastéis Salgados - Bauru"},{"id":36,"nome":"Bauru c/ Milho","preco":18.9,"categoria":"Pastéis Salgados - Bauru"},{"id":37,"nome":"Bauru c/ Catupiry e Milho","preco":21.9,"categoria":"Pastéis Salgados - Bauru"},{"id":38,"nome":"Bauru c/ Cheddar e Milho","preco":20.5,"categoria":"Pastéis Salgados - Bauru"},{"id":39,"nome":"Bauru c/ Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Bauru"},{"id":40,"nome":"Bauru c/ Cheddar e Bacon","preco":23.5,"categoria":"Pastéis Salgados - Bauru"},{"id":41,"nome":"Carne c/ Azeitona","preco":18.9,"categoria":"Pastéis Salgados - Carne"},{"id":42,"nome":"Carne c/ Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":43,"nome":"Carne c/ Catupiry","preco":19.5,"categoria":"Pastéis Salgados - Carne"},{"id":44,"nome":"Carne c/ Cheddar","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":45,"nome":"Carne c/ Milho","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":46,"nome":"Carne c/ Ovo","preco":18.5,"categoria":"Pastéis Salgados - Carne"},{"id":47,"nome":"Carne c/ Mussarela e Ovo","preco":21.5,"categoria":"Pastéis Salgados - Carne"},{"id":48,"nome":"Carne c/ Catupiry e Ovo","preco":21.9,"categoria":"Pastéis Salgados - Carne"},{"id":49,"nome":"Carne c/ Mussarela e Bacon","preco":22.9,"categoria":"Pastéis Salgados - Carne"},{"id":50,"nome":"Carne c/ Catupiry e Bacon","preco":23.5,"categoria":"Pastéis Salgados - Carne"},{"id":51,"nome":"Carne Louca Pura","preco":22.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":52,"nome":"Carne Louca c/ Mussarela","preco":21.5,"categoria":"Pastéis Salgados - Carne Louca"},{"id":53,"nome":"Carne Louca c/ Catupiry","preco":21.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":54,"nome":"Carne Louca c/ Mussarela e Milho","preco":22.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":55,"nome":"Carne Louca c/ Catupiry e Milho","preco":22.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":56,"nome":"Carne Louca c/ Mussarela e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":57,"nome":"Carne Louca c/ Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":58,"nome":"Carne Louca c/ Escarola e Mussarela","preco":24.9,"categoria":"Pastéis Salgados - Carne Louca"},{"id":59,"nome":"Carne Louca c/ Escarola e Catupiry","preco":25.5,"categoria":"Pastéis Salgados - Carne Louca"},{"id":61,"nome":"Carne Seca com Mussarela","preco":23.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":62,"nome":"Carne Seca com Catupiry","preco":24.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":63,"nome":"Carne Seca com Escarola e Mussarela","preco":27.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":64,"nome":"Carne Seca com Escarola e Catupiry","preco":28.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":65,"nome":"Carne Seca com Mussarela e Bacon","preco":26.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":66,"nome":"Carne Seca com Catupiry e Bacon","preco":28.5,"categoria":"Pastéis Salgados - Carne Seca"},{"id":67,"nome":"Carne Seca com Purê de Batata e Mussarela","preco":26.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":68,"nome":"Carne Seca com Purê de Batata e Catupiry","preco":27.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":69,"nome":"Carne Seca com Mussarela e Ovo","preco":24.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":70,"nome":"Carne Seca com Catupiry e Ovo","preco":24.9,"categoria":"Pastéis Salgados - Carne Seca"},{"id":71,"nome":"Escarola com Mussarela","preco":20.5,"categoria":"Pastéis Salgados - Escarola"},{"id":72,"nome":"Escarola com Catupiry","preco":20.5,"categoria":"Pastéis Salgados - Escarola"},{"id":73,"nome":"Escarola com Mussarela e Bacon","preco":23.5,"categoria":"Pastéis Salgados - Escarola"},{"id":74,"nome":"Escarola com Catupiry e Bacon","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":75,"nome":"Escarola com Mussarela e Milho","preco":21.9,"categoria":"Pastéis Salgados - Escarola"},{"id":76,"nome":"Escarola com Catupiry e Milho","preco":21.9,"categoria":"Pastéis Salgados - Escarola"},{"id":77,"nome":"Escarola com Mussarela e Carne","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":78,"nome":"Escarola com Catupiry e Carne","preco":24.9,"categoria":"Pastéis Salgados - Escarola"},{"id":79,"nome":"Escarola com Mussarela e Frango","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":80,"nome":"Escarola com Catupiry e Frango","preco":24.9,"categoria":"Pastéis Salgados - Escarola"},{"id":81,"nome":"Escarola com Mussarela e Palmito","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":82,"nome":"Escarola com Catupiry e Palmito","preco":23.9,"categoria":"Pastéis Salgados - Escarola"},{"id":83,"nome":"Calabresa c/ Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Calabresa"},{"id":84,"nome":"Calabresa c/ Catupiry","preco":18.5,"categoria":"Pastéis Salgados - Calabresa"},{"id":85,"nome":"Calabresa c/ Mussarela e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":86,"nome":"Calabresa c/ Catupiry e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":87,"nome":"Calabresa c/ Ovo e Cebola","preco":18.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":88,"nome":"Calabresa c/ Mussarela e Escarola","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":89,"nome":"Calabresa c/ Catupiry e Escarola","preco":21.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":90,"nome":"Calabresa c/ Mussarela e Milho","preco":20.5,"categoria":"Pastéis Salgados - Calabresa"},{"id":91,"nome":"Calabresa c/ Catupiry e Milho","preco":20.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":92,"nome":"Calabresa c/ Mussarela e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":93,"nome":"Calabresa c/ Catupiry e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Calabresa"},{"id":96,"nome":"Frango c/ Catupiry","preco":19.9,"categoria":"Pastéis Salgados - Frango"},{"id":97,"nome":"Frango c/ Mussarela","preco":19.5,"categoria":"Pastéis Salgados - Frango"},{"id":98,"nome":"Frango c/ Cheddar","preco":18.9,"categoria":"Pastéis Salgados - Frango"},{"id":99,"nome":"Frango c/ Milho","preco":18.5,"categoria":"Pastéis Salgados - Frango"},{"id":100,"nome":"Frango c/ Mussarela e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Frango"},{"id":101,"nome":"Frango c/ Catupiry e Ovo","preco":21.5,"categoria":"Pastéis Salgados - Frango"},{"id":102,"nome":"Frango c/ Mussarela e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":103,"nome":"Frango c/ Catupiry e Bacon","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":104,"nome":"Frango c/ Mussarela e Apresuntado","preco":20.9,"categoria":"Pastéis Salgados - Frango"},{"id":105,"nome":"Frango c/ Catupiry e Apresuntado","preco":20.9,"categoria":"Pastéis Salgados - Frango"},{"id":106,"nome":"Frango c/ Mussarela e Calabresa","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":107,"nome":"Frango c/ Catupiry e Calabresa","preco":21.9,"categoria":"Pastéis Salgados - Frango"},{"id":108,"nome":"Frango, Mussarela, Catupiry e Milho","preco":25.5,"categoria":"Pastéis Salgados - Frango"},{"id":109,"nome":"Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Mussarela"},{"id":110,"nome":"Mussarela c/ Bacon","preco":21.5,"categoria":"Pastéis Salgados - Mussarela"},{"id":111,"nome":"Mussarela c/ Milho","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":112,"nome":"Mussarela c/ Provolone","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":113,"nome":"Catupiry c/ Milho","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":114,"nome":"Mussarela c/ Catupiry","preco":20.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":115,"nome":"4 Queijos (Mussarela, Catupiry, Queijo Prato, Provolone)","preco":25.5,"categoria":"Pastéis Salgados - Mussarela"},{"id":116,"nome":"5 Queijos (Mussarela, Catupiry, Prato, Provolone, Cheddar)","preco":26.9,"categoria":"Pastéis Salgados - Mussarela"},{"id":117,"nome":"Palmito","preco":18.9,"categoria":"Pastéis Salgados - Palmito"},{"id":118,"nome":"Palmito c/ Mussarela","preco":18.5,"categoria":"Pastéis Salgados - Palmito"},{"id":119,"nome":"Palmito c/ Catupiry","preco":18.5,"categoria":"Pastéis Salgados - Palmito"},{"id":120,"nome":"Palmito c/ Ovo","preco":18.5,"categoria":"Pastéis Salgados - Palmito"},{"id":121,"nome":"Palmito c/ Mussarela e Escarola","preco":21.9,"categoria":"Pastéis Salgados - Palmito"},{"id":122,"nome":"Palmito c/ Catupiry e Escarola","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":123,"nome":"Palmito c/ Mussarela e Bacon","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":124,"nome":"Palmito c/ Catupiry e Bacon","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":125,"nome":"Palmito c/ Mussarela e Brócolis","preco":21.9,"categoria":"Pastéis Salgados - Palmito"},{"id":126,"nome":"Palmito c/ Catupiry e Brócolis","preco":22.9,"categoria":"Pastéis Salgados - Palmito"},{"id":127,"nome":"Palmito c/ Mussarela e Ovo","preco":20.9,"categoria":"Pastéis Salgados - Palmito"},{"id":128,"nome":"Palmito c/ Catupiry e Ovo","preco":21.9,"categoria":"Pastéis Salgados - Palmito"},{"id":129,"nome":"Pizza c/ Azeitona","preco":16.9,"categoria":"Pastéis Salgados - Pizza"},{"id":130,"nome":"Pizza c/ Catupiry","preco":19.9,"categoria":"Pastéis Salgados - Pizza"},{"id":131,"nome":"Pizza c/ Bacon","preco":19.9,"categoria":"Pastéis Salgados - Pizza"},{"id":132,"nome":"Pizza c/ Calabresa","preco":19.5,"categoria":"Pastéis Salgados - Pizza"},{"id":133,"nome":"Pizza c/ Cheddar","preco":18.9,"categoria":"Pastéis Salgados - Pizza"},{"id":134,"nome":"Pizza c/ Salame","preco":20.9,"categoria":"Pastéis Salgados - Pizza"},{"id":135,"nome":"Pizza c/ Catupiry e Milho","preco":21.9,"categoria":"Pastéis Salgados - Pizza"},{"id":136,"nome":"Pizza c/ Bacon e Catupiry","preco":23.9,"categoria":"Pastéis Salgados - Pizza"},{"id":137,"nome":"Salame c/ Mussarela","preco":21.5,"categoria":"Pastéis Salgados - Salame"},{"id":138,"nome":"Salame c/ Catupiry","preco":21.5,"categoria":"Pastéis Salgados - Salame"},{"id":139,"nome":"Salame c/ Bacon e Cheddar","preco":21.5,"categoria":"Pastéis Salgados - Salame"},{"id":140,"nome":"Salame c/ Bacon e Catupiry","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":141,"nome":"Salame c/ Mussarela e Bacon","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":142,"nome":"Salame c/ Mussarela e Provolone","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":143,"nome":"Salame c/ Catupiry e Provolone","preco":24.5,"categoria":"Pastéis Salgados - Salame"},{"id":144,"nome":"Vegano Berinjela / Palmito / Tomate Seco","preco":26.9,"categoria":"Pastéis Salgados - Vegano"},{"id":145,"nome":"Vegano Escarola / Brócolis / Azeitona","preco":26.9,"categoria":"Pastéis Salgados - Vegano"},{"id":146,"nome":"Vegano Palmito / Milho / Ervilha / Escarola","preco":26.9,"categoria":"Pastéis Salgados - Vegano"},{"id":147,"nome":"Vegano Brócolis / Vinagrete / Milho","preco":21.9,"categoria":"Pastéis Salgados - Vegano"},{"id":148,"nome":"Vegano Escarola / Tomate Seco","preco":21.9,"categoria":"Pastéis Salgados - Vegano"},{"id":149,"nome":"Hot Dog com 2 Salsichas, Purê de Batata e Batata Palha","preco":21.9,"categoria":"Pastéis de Hot Dog"},{"id":150,"nome":"Gigante de Hot Dog com 2 Salsichas, Purê, Batata Palha, Mussarela, Calabresa e Bacon","preco":27.9,"categoria":"Pastéis de Hot Dog"},{"id":151,"nome":"O Gigante Tradicional (Carne, Mussarela, Ovo, Apresuntado, Calabresa, Bacon, Vinagrete e Azeitona)","preco":29.9,"categoria":"Os Gigantes"},{"id":152,"nome":"O Gigante de Frango (Frango, Mussarela, Ovo, Apresuntado, Calabresa, Bacon, Vinagrete e Azeitona)","preco":29.9,"categoria":"Os Gigantes"},{"id":153,"nome":"O Gigante Portuguesa (Apresuntado, Calabresa, Bacon, Ovo, Ervilha, Vinagrete e Azeitona)","preco":27.9,"categoria":"Os Gigantes"},{"id":155,"nome":"Brigadeiro","preco":22.9,"categoria":"Pastéis Doces"},{"id":156,"nome":"Banana c/ Canela","preco":18.9,"categoria":"Pastéis Doces"},{"id":157,"nome":"Banana c/ Doce de Leite","preco":22.5,"categoria":"Pastéis Doces"},{"id":158,"nome":"Banana c/ Chocolate Gourmet","preco":22.9,"categoria":"Pastéis Doces"},{"id":159,"nome":"Chocolate Gourmet","preco":23.5,"categoria":"Pastéis Doces"},{"id":161,"nome":"Chocolate ao Leite","preco":23.5,"categoria":"Pastéis Doces"},{"id":163,"nome":"Chocolate Gourmet c/ Cereja","preco":25.5,"categoria":"Pastéis Doces"},{"id":164,"nome":"Chocolate ao Leite c/ Cereja","preco":25.5,"categoria":"Pastéis Doces"},{"id":165,"nome":"Doce de Leite","preco":22.5,"categoria":"Pastéis Doces"},{"id":166,"nome":"Doce de Leite c/ Ameixa","preco":23.9,"categoria":"Pastéis Doces"},{"id":167,"nome":"Doce de Leite c/ Coco","preco":23.9,"categoria":"Pastéis Doces"},{"id":168,"nome":"Laka","preco":23.5,"categoria":"Pastéis Doces"},{"id":170,"nome":"Laka c/ Banana","preco":24.9,"categoria":"Pastéis Doces"},{"id":171,"nome":"Suflair","preco":25.9,"categoria":"Pastéis Doces"},{"id":172,"nome":"Prestígio","preco":24.9,"categoria":"Pastéis Doces"},{"id":173,"nome":"Romeu e Julieta","preco":24.9,"categoria":"Pastéis Doces"},{"id":148,"nome":"Trufado de Maracujá c/ Morango","preco":14.99,"categoria":"Sobremesas - Copo da Felicidade"},{"id":149,"nome":"Trufado de Maracujá com Uva","preco":14.99,"categoria":"Sobremesas - Copo da Felicidade"},{"id":150,"nome":"Oreo com Morango","preco":14.99,"categoria":"Sobremesas - Copo da Felicidade"},{"id":151,"nome":"Ninho com Nutella","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":152,"nome":"Trufado de Maracujá","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":153,"nome":"Trufado de Chocolate","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":154,"nome":"Chocolate com Morango","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":155,"nome":"Prestígio","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":156,"nome":"Brigadeiro","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":157,"nome":"Brigadeiro Gourmet","preco":14.99,"categoria":"Sobremesas - Bolos de Pote"},{"id":158,"nome":"Hot Dog c/ 2 Salsichas Prensado","preco":24.5,"categoria":"Lanches"},{"id":159,"nome":"Carne Louca","preco":25.5,"categoria":"Lanches"},{"id":160,"nome":"Carne Louca com Azeitona, Vinagrete e Pimentão","preco":27.5,"categoria":"Lanches"},{"id":161,"nome":"Carne Louca com Mussarela","preco":28.9,"categoria":"Lanches"},{"id":162,"nome":"Carne Louca com Azeitona, Vinagrete, Pimentão e Mussarela (2 pães franceses)","preco":30.9,"categoria":"Lanches"},{"id":163,"nome":"Batata Frita Pequena com Sal","preco":17.9,"categoria":"Porções"},{"id":164,"nome":"Batata Frita Grande com Sal","preco":26.9,"categoria":"Porções"},{"id":165,"nome":"Batata Frita Pequena Completa","preco":26.9,"categoria":"Porções"},{"id":166,"nome":"Batata Frita Grande Completa","preco":38.9,"categoria":"Porções"},{"id":167,"nome":"Bolinho de Carne","preco":12.9,"categoria":"Salgados"},{"id":168,"nome":"Coxinha de Frango","preco":12.9,"categoria":"Salgados"},{"id":169,"nome":"Coxinha de Frango com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":170,"nome":"Empada de Frango com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":171,"nome":"Empada de Palmito","preco":12.9,"categoria":"Salgados"},{"id":172,"nome":"Esfiha de Calabresa com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":173,"nome":"Esfiha de Frango com Catupiry","preco":12.9,"categoria":"Salgados"},{"id":174,"nome":"Esfiha de Carne","preco":12.9,"categoria":"Salgados"},{"id":175,"nome":"Kibe","preco":12.5,"categoria":"Salgados"},{"id":176,"nome":"Kibe com Catupiry","preco":14.5,"categoria":"Salgados"},{"id":177,"nome":"Risole de Queijo","preco":12.9,"categoria":"Salgados"},{"id":178,"nome":"Risole de Apresuntado com Queijo","preco":12.9,"categoria":"Salgados"},{"id":179,"nome":"Combo 6 Mini Pasteis de Mussarela","preco":19.9,"categoria":"Salgados"},{"id":180,"nome":"Combo 6 Mini Pasteis Carne c/ Azeitona","preco":19.9,"categoria":"Salgados"},{"id":181,"nome":"Coca Caculinha 200ml","preco":3.5,"categoria":"Bebidas - Refrigerantes"},{"id":182,"nome":"Coca Caculinha Zero 200ml","preco":3.5,"categoria":"Bebidas - Refrigerantes"},{"id":183,"nome":"Guaraná Caculinha 200ml","preco":3.5,"categoria":"Bebidas - Refrigerantes"},{"id":184,"nome":"Coca 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":185,"nome":"Coca Zero 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":186,"nome":"Coca Cola 600ml","preco":9.9,"categoria":"Bebidas - Refrigerantes"},{"id":187,"nome":"Coca Cola Zero 600ml","preco":9.9,"categoria":"Bebidas - Refrigerantes"},{"id":188,"nome":"Coca Cola 1 Litro","preco":15.9,"categoria":"Bebidas - Refrigerantes"},{"id":189,"nome":"Coca Cola Zero 1 Litro","preco":15.9,"categoria":"Bebidas - Refrigerantes"},{"id":190,"nome":"Sprite 350ml","preco":6.9,"categoria":"Bebidas - Refrigerantes"},{"id":191,"nome":"Fanta Laranja 350ml","preco":6.9,"categoria":"Bebidas - Refrigerantes"},{"id":192,"nome":"Fanta Uva 350ml","preco":6.9,"categoria":"Bebidas - Refrigerantes"},{"id":193,"nome":"Guaraná 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":194,"nome":"Guaraná Zero 350ml","preco":7.5,"categoria":"Bebidas - Refrigerantes"},{"id":195,"nome":"Guaraná 600ml","preco":12.9,"categoria":"Bebidas - Refrigerantes"},{"id":196,"nome":"Guaraná 1 Litro","preco":13.9,"categoria":"Bebidas - Refrigerantes"},{"id":197,"nome":"H2O Limão 550ml","preco":9.5,"categoria":"Bebidas - Refrigerantes"},{"id":198,"nome":"H2O Limoneto 550ml","preco":9.5,"categoria":"Bebidas - Refrigerantes"},{"id":199,"nome":"Schweppes Citrus 350ml","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":200,"nome":"Del Valle Pêssego","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":201,"nome":"Del Valle Uva","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":202,"nome":"Del Valle Maracujá","preco":7.9,"categoria":"Bebidas - Refrigerantes"},{"id":203,"nome":"Suco Açaí com Água 500ml","preco":17.9,"categoria":"Bebidas - Sucos e Água"},{"id":204,"nome":"Suco Açaí com Leite 500ml","preco":18.9,"categoria":"Bebidas - Sucos e Água"},{"id":205,"nome":"Laranja 500ml","preco":16.5,"categoria":"Bebidas - Sucos e Água"},{"id":206,"nome":"Abacaxi 500ml","preco":15.5,"categoria":"Bebidas - Sucos e Água"},{"id":207,"nome":"Abacaxi com Hortelã 500ml","preco":17.9,"categoria":"Bebidas - Sucos e Água"},{"id":208,"nome":"Maracujá 500ml","preco":17.5,"categoria":"Bebidas - Sucos e Água"},{"id":209,"nome":"Água sem Gás 500ml","preco":4.5,"categoria":"Bebidas - Sucos e Água"},{"id":210,"nome":"Água com Gás 500ml","preco":5.5,"categoria":"Bebidas - Sucos e Água"},{"id":211,"nome":"Água Tônica Antarctica 350ml","preco":7.5,"categoria":"Bebidas - Sucos e Água"},{"id":212,"nome":"Skol 350ml","preco":7.5,"categoria":"Bebidas - Cerveja"},{"id":213,"nome":"Budweiser Long Neck 330ml","preco":11.9,"categoria":"Bebidas - Cerveja"},{"id":214,"nome":"Eisenbahn 350ml","preco":9.5,"categoria":"Bebidas - Cerveja"},{"id":215,"nome":"Heineken Long Neck 330ml","preco":11.9,"categoria":"Bebidas - Cerveja"},{"id":216,"nome":"Beck's Long Neck 330ml","preco":11.9,"categoria":"Bebidas - Cerveja"}];
+// ======= DADOS =======
+var PRODUTOS_DEFAULT = [{"id":20,"nome":"Brócolis c/ Mussarela","preco":21.5,"cat":"Brócolis"},{"id":21,"nome":"Brócolis c/ Catupiry","preco":21.5,"cat":"Brócolis"},{"id":22,"nome":"Brócolis c/ Mussarela e Bacon","preco":23.9,"cat":"Brócolis"},{"id":23,"nome":"Brócolis c/ Catupiry e Bacon","preco":23.9,"cat":"Brócolis"},{"id":24,"nome":"Brócolis c/ Mussarela e Ovo","preco":23.5,"cat":"Brócolis"},{"id":25,"nome":"Brócolis c/ Catupiry e Ovo","preco":23.5,"cat":"Brócolis"},{"id":26,"nome":"Brócolis c/ Mussarela e Milho","preco":23.5,"cat":"Brócolis"},{"id":27,"nome":"Brócolis c/ Catupiry e Milho","preco":23.5,"cat":"Brócolis"},{"id":28,"nome":"Brócolis c/ Mussarela e Frango","preco":23.9,"cat":"Brócolis"},{"id":29,"nome":"Brócolis c/ Catupiry e Frango","preco":23.9,"cat":"Brócolis"},{"id":30,"nome":"Bauru","preco":16.9,"cat":"Bauru"},{"id":31,"nome":"Bauru c/ Catupiry","preco":20.9,"cat":"Bauru"},{"id":32,"nome":"Bauru c/ Cheddar","preco":19.9,"cat":"Bauru"},{"id":33,"nome":"Bauru c/ Salame","preco":21.9,"cat":"Bauru"},{"id":34,"nome":"Bauru c/ Provolone","preco":20.9,"cat":"Bauru"},{"id":35,"nome":"Bauru c/ Bacon","preco":20.9,"cat":"Bauru"},{"id":36,"nome":"Bauru c/ Milho","preco":18.9,"cat":"Bauru"},{"id":37,"nome":"Bauru c/ Catupiry e Milho","preco":21.9,"cat":"Bauru"},{"id":38,"nome":"Bauru c/ Cheddar e Milho","preco":20.5,"cat":"Bauru"},{"id":39,"nome":"Bauru c/ Catupiry e Bacon","preco":23.9,"cat":"Bauru"},{"id":40,"nome":"Bauru c/ Cheddar e Bacon","preco":23.5,"cat":"Bauru"},{"id":41,"nome":"Carne c/ Azeitona","preco":18.9,"cat":"Carne"},{"id":42,"nome":"Carne c/ Mussarela","preco":18.5,"cat":"Carne"},{"id":43,"nome":"Carne c/ Catupiry","preco":19.5,"cat":"Carne"},{"id":44,"nome":"Carne c/ Cheddar","preco":18.5,"cat":"Carne"},{"id":45,"nome":"Carne c/ Milho","preco":18.5,"cat":"Carne"},{"id":46,"nome":"Carne c/ Ovo","preco":18.5,"cat":"Carne"},{"id":47,"nome":"Carne c/ Mussarela e Ovo","preco":21.5,"cat":"Carne"},{"id":48,"nome":"Carne c/ Catupiry e Ovo","preco":21.9,"cat":"Carne"},{"id":49,"nome":"Carne c/ Mussarela e Bacon","preco":22.9,"cat":"Carne"},{"id":50,"nome":"Carne c/ Catupiry e Bacon","preco":23.5,"cat":"Carne"},{"id":51,"nome":"Carne Louca Pura","preco":22.9,"cat":"Carne Louca"},{"id":52,"nome":"Carne Louca c/ Mussarela","preco":21.5,"cat":"Carne Louca"},{"id":53,"nome":"Carne Louca c/ Catupiry","preco":21.9,"cat":"Carne Louca"},{"id":54,"nome":"Carne Louca c/ Mussarela e Milho","preco":22.9,"cat":"Carne Louca"},{"id":55,"nome":"Carne Louca c/ Catupiry e Milho","preco":22.9,"cat":"Carne Louca"},{"id":56,"nome":"Carne Louca c/ Mussarela e Bacon","preco":23.9,"cat":"Carne Louca"},{"id":57,"nome":"Carne Louca c/ Catupiry e Bacon","preco":23.9,"cat":"Carne Louca"},{"id":58,"nome":"Carne Louca c/ Escarola e Mussarela","preco":24.9,"cat":"Carne Louca"},{"id":59,"nome":"Carne Louca c/ Escarola e Catupiry","preco":25.5,"cat":"Carne Louca"},{"id":61,"nome":"Carne Seca com Mussarela","preco":23.9,"cat":"Carne Seca"},{"id":62,"nome":"Carne Seca com Catupiry","preco":24.9,"cat":"Carne Seca"},{"id":63,"nome":"Carne Seca com Escarola e Mussarela","preco":27.9,"cat":"Carne Seca"},{"id":64,"nome":"Carne Seca com Escarola e Catupiry","preco":28.9,"cat":"Carne Seca"},{"id":65,"nome":"Carne Seca com Mussarela e Bacon","preco":26.9,"cat":"Carne Seca"},{"id":66,"nome":"Carne Seca com Catupiry e Bacon","preco":28.5,"cat":"Carne Seca"},{"id":67,"nome":"Carne Seca com Purê de Batata e Mussarela","preco":26.9,"cat":"Carne Seca"},{"id":68,"nome":"Carne Seca com Purê de Batata e Catupiry","preco":27.9,"cat":"Carne Seca"},{"id":69,"nome":"Carne Seca com Mussarela e Ovo","preco":24.9,"cat":"Carne Seca"},{"id":70,"nome":"Carne Seca com Catupiry e Ovo","preco":24.9,"cat":"Carne Seca"},{"id":71,"nome":"Escarola com Mussarela","preco":20.5,"cat":"Escarola"},{"id":72,"nome":"Escarola com Catupiry","preco":20.5,"cat":"Escarola"},{"id":73,"nome":"Escarola com Mussarela e Bacon","preco":23.5,"cat":"Escarola"},{"id":74,"nome":"Escarola com Catupiry e Bacon","preco":23.9,"cat":"Escarola"},{"id":75,"nome":"Escarola com Mussarela e Milho","preco":21.9,"cat":"Escarola"},{"id":76,"nome":"Escarola com Catupiry e Milho","preco":21.9,"cat":"Escarola"},{"id":77,"nome":"Escarola com Mussarela e Carne","preco":23.9,"cat":"Escarola"},{"id":78,"nome":"Escarola com Catupiry e Carne","preco":24.9,"cat":"Escarola"},{"id":79,"nome":"Escarola com Mussarela e Frango","preco":23.9,"cat":"Escarola"},{"id":80,"nome":"Escarola com Catupiry e Frango","preco":24.9,"cat":"Escarola"},{"id":81,"nome":"Escarola com Mussarela e Palmito","preco":23.9,"cat":"Escarola"},{"id":82,"nome":"Escarola com Catupiry e Palmito","preco":23.9,"cat":"Escarola"},{"id":83,"nome":"Calabresa c/ Mussarela","preco":18.5,"cat":"Calabresa"},{"id":84,"nome":"Calabresa c/ Catupiry","preco":18.5,"cat":"Calabresa"},{"id":85,"nome":"Calabresa c/ Mussarela e Bacon","preco":21.9,"cat":"Calabresa"},{"id":86,"nome":"Calabresa c/ Catupiry e Bacon","preco":21.9,"cat":"Calabresa"},{"id":87,"nome":"Calabresa c/ Ovo e Cebola","preco":18.9,"cat":"Calabresa"},{"id":88,"nome":"Calabresa c/ Mussarela e Escarola","preco":21.9,"cat":"Calabresa"},{"id":89,"nome":"Calabresa c/ Catupiry e Escarola","preco":21.9,"cat":"Calabresa"},{"id":90,"nome":"Calabresa c/ Mussarela e Milho","preco":20.5,"cat":"Calabresa"},{"id":91,"nome":"Calabresa c/ Catupiry e Milho","preco":20.9,"cat":"Calabresa"},{"id":92,"nome":"Calabresa c/ Mussarela e Ovo","preco":20.9,"cat":"Calabresa"},{"id":93,"nome":"Calabresa c/ Catupiry e Ovo","preco":20.9,"cat":"Calabresa"},{"id":96,"nome":"Frango c/ Catupiry","preco":19.9,"cat":"Frango"},{"id":97,"nome":"Frango c/ Mussarela","preco":19.5,"cat":"Frango"},{"id":98,"nome":"Frango c/ Cheddar","preco":18.9,"cat":"Frango"},{"id":99,"nome":"Frango c/ Milho","preco":18.5,"cat":"Frango"},{"id":100,"nome":"Frango c/ Mussarela e Ovo","preco":20.9,"cat":"Frango"},{"id":101,"nome":"Frango c/ Catupiry e Ovo","preco":21.5,"cat":"Frango"},{"id":102,"nome":"Frango c/ Mussarela e Bacon","preco":21.9,"cat":"Frango"},{"id":103,"nome":"Frango c/ Catupiry e Bacon","preco":21.9,"cat":"Frango"},{"id":104,"nome":"Frango c/ Mussarela e Apresuntado","preco":20.9,"cat":"Frango"},{"id":105,"nome":"Frango c/ Catupiry e Apresuntado","preco":20.9,"cat":"Frango"},{"id":106,"nome":"Frango c/ Mussarela e Calabresa","preco":21.9,"cat":"Frango"},{"id":107,"nome":"Frango c/ Catupiry e Calabresa","preco":21.9,"cat":"Frango"},{"id":108,"nome":"Frango, Mussarela, Catupiry e Milho","preco":25.5,"cat":"Frango"},{"id":109,"nome":"Mussarela","preco":18.5,"cat":"Mussarela"},{"id":110,"nome":"Mussarela c/ Bacon","preco":21.5,"cat":"Mussarela"},{"id":111,"nome":"Mussarela c/ Milho","preco":20.9,"cat":"Mussarela"},{"id":112,"nome":"Mussarela c/ Provolone","preco":20.9,"cat":"Mussarela"},{"id":113,"nome":"Catupiry c/ Milho","preco":20.9,"cat":"Mussarela"},{"id":114,"nome":"Mussarela c/ Catupiry","preco":20.9,"cat":"Mussarela"},{"id":115,"nome":"4 Queijos (Mussarela, Catupiry, Queijo Prato, Provolone)","preco":25.5,"cat":"Mussarela"},{"id":116,"nome":"5 Queijos (Mussarela, Catupiry, Prato, Provolone, Cheddar)","preco":26.9,"cat":"Mussarela"},{"id":117,"nome":"Palmito","preco":18.9,"cat":"Palmito"},{"id":118,"nome":"Palmito c/ Mussarela","preco":18.5,"cat":"Palmito"},{"id":119,"nome":"Palmito c/ Catupiry","preco":18.5,"cat":"Palmito"},{"id":120,"nome":"Palmito c/ Ovo","preco":18.5,"cat":"Palmito"},{"id":121,"nome":"Palmito c/ Mussarela e Escarola","preco":21.9,"cat":"Palmito"},{"id":122,"nome":"Palmito c/ Catupiry e Escarola","preco":22.9,"cat":"Palmito"},{"id":123,"nome":"Palmito c/ Mussarela e Bacon","preco":22.9,"cat":"Palmito"},{"id":124,"nome":"Palmito c/ Catupiry e Bacon","preco":22.9,"cat":"Palmito"},{"id":125,"nome":"Palmito c/ Mussarela e Brócolis","preco":21.9,"cat":"Palmito"},{"id":126,"nome":"Palmito c/ Catupiry e Brócolis","preco":22.9,"cat":"Palmito"},{"id":127,"nome":"Palmito c/ Mussarela e Ovo","preco":20.9,"cat":"Palmito"},{"id":128,"nome":"Palmito c/ Catupiry e Ovo","preco":21.9,"cat":"Palmito"},{"id":129,"nome":"Pizza c/ Azeitona","preco":16.9,"cat":"Pizza"},{"id":130,"nome":"Pizza c/ Catupiry","preco":19.9,"cat":"Pizza"},{"id":131,"nome":"Pizza c/ Bacon","preco":19.9,"cat":"Pizza"},{"id":132,"nome":"Pizza c/ Calabresa","preco":19.5,"cat":"Pizza"},{"id":133,"nome":"Pizza c/ Cheddar","preco":18.9,"cat":"Pizza"},{"id":134,"nome":"Pizza c/ Salame","preco":20.9,"cat":"Pizza"},{"id":135,"nome":"Pizza c/ Catupiry e Milho","preco":21.9,"cat":"Pizza"},{"id":136,"nome":"Pizza c/ Bacon e Catupiry","preco":23.9,"cat":"Pizza"},{"id":137,"nome":"Salame c/ Mussarela","preco":21.5,"cat":"Salame"},{"id":138,"nome":"Salame c/ Catupiry","preco":21.5,"cat":"Salame"},{"id":139,"nome":"Salame c/ Bacon e Cheddar","preco":21.5,"cat":"Salame"},{"id":140,"nome":"Salame c/ Bacon e Catupiry","preco":24.5,"cat":"Salame"},{"id":141,"nome":"Salame c/ Mussarela e Bacon","preco":24.5,"cat":"Salame"},{"id":142,"nome":"Salame c/ Mussarela e Provolone","preco":24.5,"cat":"Salame"},{"id":143,"nome":"Salame c/ Catupiry e Provolone","preco":24.5,"cat":"Salame"},{"id":144,"nome":"Vegano Berinjela / Palmito / Tomate Seco","preco":26.9,"cat":"Vegano"},{"id":145,"nome":"Vegano Escarola / Brócolis / Azeitona","preco":26.9,"cat":"Vegano"},{"id":146,"nome":"Vegano Palmito / Milho / Ervilha / Escarola","preco":26.9,"cat":"Vegano"},{"id":147,"nome":"Vegano Brócolis / Vinagrete / Milho","preco":21.9,"cat":"Vegano"},{"id":148,"nome":"Vegano Escarola / Tomate Seco","preco":21.9,"cat":"Vegano"},{"id":149,"nome":"Hot Dog com 2 Salsichas, Purê e Batata Palha","preco":21.9,"cat":"Hot Dog"},{"id":150,"nome":"Gigante de Hot Dog (2 Salsichas, Purê, Batata Palha, Mussarela, Calabresa, Bacon)","preco":27.9,"cat":"Hot Dog"},{"id":151,"nome":"O Gigante Tradicional (Carne, Mussarela, Ovo, Apresuntado, Calabresa, Bacon, Vinagrete, Azeitona)","preco":29.9,"cat":"Os Gigantes"},{"id":152,"nome":"O Gigante de Frango (Frango, Mussarela, Ovo, Apresuntado, Calabresa, Bacon, Vinagrete, Azeitona)","preco":29.9,"cat":"Os Gigantes"},{"id":153,"nome":"O Gigante Portuguesa (Apresuntado, Calabresa, Bacon, Ovo, Ervilha, Vinagrete, Azeitona)","preco":27.9,"cat":"Os Gigantes"},{"id":155,"nome":"Brigadeiro","preco":22.9,"cat":"Doces"},{"id":156,"nome":"Banana c/ Canela","preco":18.9,"cat":"Doces"},{"id":157,"nome":"Banana c/ Doce de Leite","preco":22.5,"cat":"Doces"},{"id":158,"nome":"Banana c/ Chocolate Gourmet","preco":22.9,"cat":"Doces"},{"id":159,"nome":"Chocolate Gourmet","preco":23.5,"cat":"Doces"},{"id":161,"nome":"Chocolate ao Leite","preco":23.5,"cat":"Doces"},{"id":163,"nome":"Chocolate Gourmet c/ Cereja","preco":25.5,"cat":"Doces"},{"id":164,"nome":"Chocolate ao Leite c/ Cereja","preco":25.5,"cat":"Doces"},{"id":165,"nome":"Doce de Leite","preco":22.5,"cat":"Doces"},{"id":166,"nome":"Doce de Leite c/ Ameixa","preco":23.9,"cat":"Doces"},{"id":167,"nome":"Doce de Leite c/ Coco","preco":23.9,"cat":"Doces"},{"id":168,"nome":"Laka","preco":23.5,"cat":"Doces"},{"id":170,"nome":"Laka c/ Banana","preco":24.9,"cat":"Doces"},{"id":171,"nome":"Suflair","preco":25.9,"cat":"Doces"},{"id":172,"nome":"Prestígio","preco":24.9,"cat":"Doces"},{"id":173,"nome":"Romeu e Julieta","preco":24.9,"cat":"Doces"},{"nome":"Copo da Felicidade - Trufado de Maracujá c/ Morango","preco":14.99,"cat":"Sobremesas","id":1000},{"nome":"Copo da Felicidade - Trufado de Maracujá com Uva","preco":14.99,"cat":"Sobremesas","id":1001},{"nome":"Copo da Felicidade - Oreo com Morango","preco":14.99,"cat":"Sobremesas","id":1002},{"nome":"Bolo de Pote - Ninho com Nutella","preco":14.99,"cat":"Sobremesas","id":1003},{"nome":"Bolo de Pote - Trufado de Maracujá","preco":14.99,"cat":"Sobremesas","id":1004},{"nome":"Bolo de Pote - Trufado de Chocolate","preco":14.99,"cat":"Sobremesas","id":1005},{"nome":"Bolo de Pote - Chocolate com Morango","preco":14.99,"cat":"Sobremesas","id":1006},{"nome":"Bolo de Pote - Prestígio","preco":14.99,"cat":"Sobremesas","id":1007},{"nome":"Bolo de Pote - Brigadeiro","preco":14.99,"cat":"Sobremesas","id":1008},{"nome":"Bolo de Pote - Brigadeiro Gourmet","preco":14.99,"cat":"Sobremesas","id":1009},{"nome":"Hot Dog c/ 2 Salsichas Prensado","preco":24.5,"cat":"Lanches","id":1010},{"nome":"Lanche Carne Louca","preco":25.5,"cat":"Lanches","id":1011},{"nome":"Lanche Carne Louca com Azeitona, Vinagrete e Pimentão","preco":27.5,"cat":"Lanches","id":1012},{"nome":"Lanche Carne Louca com Mussarela","preco":28.9,"cat":"Lanches","id":1013},{"nome":"Lanche Carne Louca com Azeitona, Vinagrete, Pimentão e Mussarela (2 pães)","preco":30.9,"cat":"Lanches","id":1014},{"nome":"Batata Frita Pequena com Sal","preco":17.9,"cat":"Porções","id":1015},{"nome":"Batata Frita Grande com Sal","preco":26.9,"cat":"Porções","id":1016},{"nome":"Batata Frita Pequena Completa","preco":26.9,"cat":"Porções","id":1017},{"nome":"Batata Frita Grande Completa","preco":38.9,"cat":"Porções","id":1018},{"nome":"Bolinho de Carne","preco":12.9,"cat":"Salgados","id":1019},{"nome":"Coxinha de Frango","preco":12.9,"cat":"Salgados","id":1020},{"nome":"Coxinha de Frango com Catupiry","preco":12.9,"cat":"Salgados","id":1021},{"nome":"Empada de Frango com Catupiry","preco":12.9,"cat":"Salgados","id":1022},{"nome":"Empada de Palmito","preco":12.9,"cat":"Salgados","id":1023},{"nome":"Esfiha de Calabresa com Catupiry","preco":12.9,"cat":"Salgados","id":1024},{"nome":"Esfiha de Frango com Catupiry","preco":12.9,"cat":"Salgados","id":1025},{"nome":"Esfiha de Carne","preco":12.9,"cat":"Salgados","id":1026},{"nome":"Kibe","preco":12.5,"cat":"Salgados","id":1027},{"nome":"Kibe com Catupiry","preco":14.5,"cat":"Salgados","id":1028},{"nome":"Risole de Queijo","preco":12.9,"cat":"Salgados","id":1029},{"nome":"Risole de Apresuntado com Queijo","preco":12.9,"cat":"Salgados","id":1030},{"nome":"Combo 6 Mini Pasteis de Mussarela","preco":19.9,"cat":"Salgados","id":1031},{"nome":"Combo 6 Mini Pasteis Carne c/ Azeitona","preco":19.9,"cat":"Salgados","id":1032},{"nome":"Coca Caculinha 200ml","preco":3.5,"cat":"Refrigerantes","id":1033},{"nome":"Coca Caculinha Zero 200ml","preco":3.5,"cat":"Refrigerantes","id":1034},{"nome":"Guaraná Caculinha 200ml","preco":3.5,"cat":"Refrigerantes","id":1035},{"nome":"Coca 350ml","preco":7.5,"cat":"Refrigerantes","id":1036},{"nome":"Coca Zero 350ml","preco":7.5,"cat":"Refrigerantes","id":1037},{"nome":"Coca Cola 600ml","preco":9.9,"cat":"Refrigerantes","id":1038},{"nome":"Coca Cola Zero 600ml","preco":9.9,"cat":"Refrigerantes","id":1039},{"nome":"Coca Cola 1 Litro","preco":15.9,"cat":"Refrigerantes","id":1040},{"nome":"Coca Cola Zero 1 Litro","preco":15.9,"cat":"Refrigerantes","id":1041},{"nome":"Sprite 350ml","preco":6.9,"cat":"Refrigerantes","id":1042},{"nome":"Fanta Laranja 350ml","preco":6.9,"cat":"Refrigerantes","id":1043},{"nome":"Fanta Uva 350ml","preco":6.9,"cat":"Refrigerantes","id":1044},{"nome":"Guaraná 350ml","preco":7.5,"cat":"Refrigerantes","id":1045},{"nome":"Guaraná Zero 350ml","preco":7.5,"cat":"Refrigerantes","id":1046},{"nome":"Guaraná 600ml","preco":12.9,"cat":"Refrigerantes","id":1047},{"nome":"Guaraná 1 Litro","preco":13.9,"cat":"Refrigerantes","id":1048},{"nome":"H2O Limão 550ml","preco":9.5,"cat":"Refrigerantes","id":1049},{"nome":"H2O Limoneto 550ml","preco":9.5,"cat":"Refrigerantes","id":1050},{"nome":"Schweppes Citrus 350ml","preco":7.9,"cat":"Refrigerantes","id":1051},{"nome":"Del Valle Pêssego","preco":7.9,"cat":"Refrigerantes","id":1052},{"nome":"Del Valle Uva","preco":7.9,"cat":"Refrigerantes","id":1053},{"nome":"Del Valle Maracujá","preco":7.9,"cat":"Refrigerantes","id":1054},{"nome":"Suco Açaí com Água 500ml","preco":17.9,"cat":"Sucos e Água","id":1055},{"nome":"Suco Açaí com Leite 500ml","preco":18.9,"cat":"Sucos e Água","id":1056},{"nome":"Laranja 500ml","preco":16.5,"cat":"Sucos e Água","id":1057},{"nome":"Abacaxi 500ml","preco":15.5,"cat":"Sucos e Água","id":1058},{"nome":"Abacaxi com Hortelã 500ml","preco":17.9,"cat":"Sucos e Água","id":1059},{"nome":"Maracujá 500ml","preco":17.5,"cat":"Sucos e Água","id":1060},{"nome":"Água sem Gás 500ml","preco":4.5,"cat":"Sucos e Água","id":1061},{"nome":"Água com Gás 500ml","preco":5.5,"cat":"Sucos e Água","id":1062},{"nome":"Água Tônica Antarctica 350ml","preco":7.5,"cat":"Sucos e Água","id":1063},{"nome":"Skol 350ml","preco":7.5,"cat":"Cervejas","id":1064},{"nome":"Budweiser Long Neck 330ml","preco":11.9,"cat":"Cervejas","id":1065},{"nome":"Eisenbahn 350ml","preco":9.5,"cat":"Cervejas","id":1066},{"nome":"Heineken Long Neck 330ml","preco":11.9,"cat":"Cervejas","id":1067},{"nome":"Beck's Long Neck 330ml","preco":11.9,"cat":"Cervejas","id":1068}];
+var NUM_MESAS = 8;
+var ADMIN_SENHA = '123456789';
+var ESTAB = 'O Pastel Gigante';
 
-// ========== ESTADO ==========
+// ======= ESTADO =======
 var state = {
-  estab: '', operador: '', fundoCaixa: 0,
-  caixaAberto: false, abertura: null,
-  carrinho: [], pgto: 'dinheiro',
-  numPedido: 1, vendas: [],
-  produtos: []
+  mesas: Array.from({length:NUM_MESAS}, function(_,i){return {num:i+1, itens:[], pagos:[]}}),
+  mesaAtual: 0,
+  filtroAtivo: 'Todos',
+  pgto: 'dinheiro',
+  divPgto: 'dinheiro',
+  vendas: [],
+  produtos: [],
+  obsItemIdx: -1
 };
 
-// ========== INIT ==========
+// ======= INIT =======
 function init() {
-  state.produtos = JSON.parse(localStorage.getItem('pdv_produtos') || 'null') || JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
-  state.vendas = JSON.parse(localStorage.getItem('pdv_vendas') || '[]');
-  state.numPedido = parseInt(localStorage.getItem('pdv_numPedido') || '1');
-  var salvo = JSON.parse(localStorage.getItem('pdv_caixa') || 'null');
-  if (salvo && salvo.aberto) {
-    state.estab = salvo.estab; state.operador = salvo.operador;
-    state.fundoCaixa = salvo.fundo; state.caixaAberto = true;
-    state.abertura = salvo.abertura; state.numPedido = salvo.numPedido || state.numPedido;
-    document.getElementById('nomeEstab').value = state.estab;
-    document.getElementById('nomeOperador').value = state.operador;
-    document.getElementById('fundoCaixa').value = state.fundoCaixa;
-    abrirCaixa();
-  }
-  setInterval(atualizarRelogio, 1000);
-  atualizarRelogio();
+  state.produtos = JSON.parse(localStorage.getItem('opg_produtos') || 'null') || JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
+  state.vendas = JSON.parse(localStorage.getItem('opg_vendas') || '[]');
+  var mSalvas = JSON.parse(localStorage.getItem('opg_mesas') || 'null');
+  if (mSalvas) state.mesas = mSalvas;
+  setInterval(atualizarRelogios, 1000);
+  atualizarRelogios();
+  renderMesas();
 }
 
-function atualizarRelogio() {
-  var el = document.getElementById('relogioTopo');
-  if (el) el.textContent = new Date().toLocaleString('pt-BR');
-}
-
-// ========== CAIXA ==========
-function abrirCaixa() {
-  var estab = document.getElementById('nomeEstab').value.trim();
-  var op = document.getElementById('nomeOperador').value.trim();
-  var fundo = parseFloat(document.getElementById('fundoCaixa').value) || 0;
-  if (!estab || !op) { alert('Preencha o nome do estabelecimento e do operador!'); return; }
-  state.estab = estab; state.operador = op; state.fundoCaixa = fundo;
-  state.caixaAberto = true;
-  if (!state.abertura) state.abertura = new Date().toISOString();
-  localStorage.setItem('pdv_caixa', JSON.stringify({aberto:true,estab:estab,operador:op,fundo:fundo,abertura:state.abertura,numPedido:state.numPedido}));
-  document.getElementById('topEstab').textContent = estab;
-  document.getElementById('topOperador').textContent = op;
-  mostrarTela('pdv');
-  renderFiltros();
-  renderProdutos();
-  renderCarrinho();
-}
-
-// ========== NAVEGAÇÃO ==========
-function mostrarTela(t) {
-  ['abertura','pdv','fechamento','historico','produtos'].forEach(function(n){
-    document.getElementById('tela-'+n).style.display='none';
+function atualizarRelogios() {
+  var t = new Date().toLocaleString('pt-BR');
+  ['hdr-relogio','pdv-relogio'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.textContent = t;
   });
-  document.getElementById('tela-'+t).style.display = (t==='pdv') ? 'flex' : 'block';
 }
-function voltarPDV(){mostrarTela('pdv');}
-function irParaFechar(){gerarFechamento();mostrarTela('fechamento');}
-function irParaHistorico(){gerarHistorico();mostrarTela('historico');}
-function irParaProdutos(){gerarProdutosAdmin();mostrarTela('produtos');}
 
-// ========== PRODUTOS ==========
-var filtroAtivo = 'Todos';
-function getCategorias() {
+function salvarMesas() {
+  localStorage.setItem('opg_mesas', JSON.stringify(state.mesas));
+}
+
+// ======= NAVEGAÇÃO =======
+function mostrarTela(id) {
+  document.querySelectorAll('.tela').forEach(function(el){
+    el.classList.remove('ativa');
+  });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('ativa');
+}
+
+function irMesas() { mostrarTela('tela-mesas'); renderMesas(); }
+function voltarMesas() { irMesas(); }
+function irAdmin() { mostrarTela('tela-admin-login'); document.getElementById('admin-senha').value=''; document.getElementById('login-erro').style.display='none'; }
+
+function fazerLogin() {
+  var s = document.getElementById('admin-senha').value;
+  if (s === ADMIN_SENHA) {
+    mostrarTela('tela-admin');
+    showAdminTab('rel');
+  } else {
+    document.getElementById('login-erro').style.display = 'block';
+  }
+}
+
+// ======= MESAS =======
+function renderMesas() {
+  var grid = document.getElementById('mesas-grid');
+  grid.innerHTML = state.mesas.map(function(m){
+    var total = calcTotalMesa(m);
+    var ocupada = m.itens.length > 0 || m.pagos.length > 0;
+    var pendente = calcPendenteMesa(m);
+    return '<div class="mesa-card' + (ocupada?' ocupada':'') + '" onclick="abrirMesa(' + m.num + ')">' +
+      (ocupada && m.itens.length > 0 ? '<div class="mesa-itens-badge">' + m.itens.reduce(function(s,i){return s+i.qty;},0) + '</div>' : '') +
+      '<div class="mesa-icon">' + (ocupada ? '🟡' : '🪑') + '</div>' +
+      '<div class="mesa-num">Mesa ' + m.num + '</div>' +
+      '<div class="mesa-status">' + (ocupada ? 'Em atendimento' : 'Livre') + '</div>' +
+      (ocupada ? '<div class="mesa-total">' + (pendente > 0 ? 'Pendente: R$ ' + pendente.toFixed(2).replace('.',',') : '✅ Paga') + '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+
+function calcTotalMesa(m) {
+  return m.itens.reduce(function(s,i){return s+i.preco*i.qty;},0);
+}
+
+function calcPendenteMesa(m) {
+  var total = calcTotalMesa(m);
+  var pago = m.pagos.reduce(function(s,p){return s+p.valor;},0);
+  return Math.max(0, total - pago);
+}
+
+function abrirMesa(num) {
+  state.mesaAtual = num - 1;
+  state.pgto = 'dinheiro';
+  document.getElementById('pdv-mesa-label').textContent = 'Mesa ' + num;
+  document.getElementById('cart-mesa-label').textContent = 'Mesa ' + num;
+  mostrarTela('tela-pdv');
+  renderFiltros();
+  renderProds();
+  renderCart();
+  selPgto('dinheiro');
+}
+
+function limparMesa() {
+  var m = state.mesas[state.mesaAtual];
+  if (!confirm('Limpar todos os itens da Mesa ' + m.num + '?')) return;
+  m.itens = []; m.pagos = [];
+  salvarMesas();
+  renderCart();
+  renderMesas();
+}
+
+// ======= PRODUTOS =======
+function getCats() {
   var cats = ['Todos'];
-  state.produtos.forEach(function(p){ if(cats.indexOf(p.categoria)<0) cats.push(p.categoria); });
+  state.produtos.forEach(function(p){ if (cats.indexOf(p.cat) < 0) cats.push(p.cat); });
   return cats;
 }
 
 function renderFiltros() {
-  var cats = getCategorias();
-  var el = document.getElementById('filtros');
-  el.innerHTML = cats.map(function(c){
-    return '<button class="filtro-btn'+(c===filtroAtivo?' ativo':'')+'" onclick="setFiltro(\'' + c.replace(/'/g,"\'") + '\')">' + c + '</button>';
+  var cats = getCats();
+  document.getElementById('filtros-wrap').innerHTML = cats.map(function(c){
+    return '<button class="ftag' + (c===state.filtroAtivo?' on':'') + '" onclick="setFiltro(' + JSON.stringify(c) + ')">' + c + '</button>';
   }).join('');
 }
 
 function setFiltro(c) {
-  filtroAtivo = c;
+  state.filtroAtivo = c;
   document.getElementById('busca').value = '';
   renderFiltros();
-  renderProdutos();
+  renderProds();
 }
 
-function filtrarProdutos() {
-  filtroAtivo = 'Todos';
+function filtrarProds() {
+  state.filtroAtivo = 'Todos';
   renderFiltros();
-  renderProdutos();
+  renderProds();
 }
 
-function renderProdutos() {
+function renderProds() {
   var busca = document.getElementById('busca').value.toLowerCase();
   var lista = state.produtos.filter(function(p){
-    var catOk = filtroAtivo === 'Todos' || p.categoria === filtroAtivo;
-    var buscaOk = !busca || p.nome.toLowerCase().indexOf(busca)>=0 || p.categoria.toLowerCase().indexOf(busca)>=0;
-    return catOk && buscaOk;
+    var catOk = state.filtroAtivo === 'Todos' || p.cat === state.filtroAtivo;
+    var bOk = !busca || p.nome.toLowerCase().indexOf(busca) >= 0 || (p.cat||'').toLowerCase().indexOf(busca) >= 0;
+    return catOk && bOk;
   });
-  var el = document.getElementById('gridProdutos');
-  if (lista.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Nenhum produto encontrado</p></div>';
+  var el = document.getElementById('prods-grid');
+  if (!lista.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">🔍</div><p>Nenhum produto encontrado</p></div>';
     return;
   }
   el.innerHTML = lista.map(function(p){
-    var numStr = p.id ? p.id+'. ' : '';
-    return '<div class="produto-card" onclick="adicionarAoCarrinho('+JSON.stringify(p.id||p.nome)+')">'+
-      '<div class="cat-tag">'+p.categoria.split(' - ').pop()+'</div>'+
-      '<div class="nome">'+numStr+p.nome+'</div>'+
-      '<div class="preco">R$ '+p.preco.toFixed(2).replace('.',',')+'</div>'+
-      '<button class="add-btn" onclick="event.stopPropagation();adicionarAoCarrinho('+JSON.stringify(p.id||p.nome)+')">+</button>'+
-    '</div>';
+    return '<div class="pcard" onclick="adicionarItem(' + p.id + ')">' +
+      '<div class="pcard-cat">' + p.cat + '</div>' +
+      (p.id < 1000 ? '<div class="pcard-num">' + p.id + '</div>' : '') +
+      '<div class="pcard-nome">' + p.nome + '</div>' +
+      '<div class="pcard-preco">R$ ' + p.preco.toFixed(2).replace('.',',') + '</div>' +
+      '<button class="pcard-add" onclick="event.stopPropagation();adicionarItem(' + p.id + ')">+</button>' +
+      '</div>';
   }).join('');
 }
 
-function getProduto(key) {
-  return state.produtos.find(function(p){ return p.id===key||p.nome===key; });
+function getProdById(id) {
+  return state.produtos.find(function(p){ return p.id === id; });
 }
 
-function adicionarAoCarrinho(key) {
-  var prod = getProduto(key);
+// ======= CARRINHO =======
+function adicionarItem(id) {
+  var prod = getProdById(id);
   if (!prod) return;
-  var key2 = prod.id||prod.nome;
-  var item = state.carrinho.find(function(i){ return (i.id||i.nome)===key2; });
-  if (item) { item.qty++; }
-  else { state.carrinho.push({id:prod.id,nome:prod.nome,preco:prod.preco,categoria:prod.categoria,qty:1,obs:''}); }
-  renderCarrinho();
+  var mesa = state.mesas[state.mesaAtual];
+  // Abre modal de obs antes de adicionar
+  state._pendingProd = prod;
+  document.getElementById('modal-obs-nome').textContent = prod.nome + ' - R$ ' + prod.preco.toFixed(2).replace('.',',');
+  document.getElementById('obs-item-txt').value = '';
+  state.obsItemIdx = -1; // novo item
+  abrirModal('modal-obs');
 }
 
-// ========== CARRINHO ==========
-function renderCarrinho() {
-  var el = document.getElementById('carrinho');
-  if (state.carrinho.length===0){
-    el.innerHTML='<div class="empty-state"><div class="icon">🛒</div><p>Carrinho vazio</p></div>';
+function salvarObsItem() {
+  var obs = document.getElementById('obs-item-txt').value.trim();
+  fecharModal('modal-obs');
+  if (state.obsItemIdx >= 0) {
+    // editar obs existente
+    state.mesas[state.mesaAtual].itens[state.obsItemIdx].obs = obs;
   } else {
-    el.innerHTML = state.carrinho.map(function(item,i){
-      return '<div class="item-carrinho">'+
-        '<div class="nome">'+item.nome+'</div>'+
-        '<div class="item-ctrl">'+
-          '<div class="qty-ctrl">'+
-            '<button class="qty-btn minus" onclick="mudarQty('+i+',-1)">-</button>'+
-            '<span class="qty-num">'+item.qty+'</span>'+
-            '<button class="qty-btn plus" onclick="mudarQty('+i+',1)">+</button>'+
-          '</div>'+
-          '<span class="item-preco">R$ '+(item.preco*item.qty).toFixed(2).replace('.',',')+'</span>'+
-          '<button class="item-del" onclick="removerItem('+i+')">🗑️</button>'+
-        '</div>'+
-      '</div>';
+    // novo item
+    var prod = state._pendingProd;
+    if (!prod) return;
+    var mesa = state.mesas[state.mesaAtual];
+    // Sempre adiciona novo item (para obs diferentes)
+    mesa.itens.push({uid: Date.now() + Math.random(), id: prod.id, nome: prod.nome, preco: prod.preco, cat: prod.cat, qty: 1, obs: obs});
+  }
+  state._pendingProd = null;
+  salvarMesas();
+  renderCart();
+}
+
+function editarObs(uidItem) {
+  var mesa = state.mesas[state.mesaAtual];
+  var idx = mesa.itens.findIndex(function(i){ return i.uid === uidItem; });
+  if (idx < 0) return;
+  var item = mesa.itens[idx];
+  state.obsItemIdx = idx;
+  document.getElementById('modal-obs-nome').textContent = item.nome;
+  document.getElementById('obs-item-txt').value = item.obs || '';
+  abrirModal('modal-obs');
+}
+
+function mudarQty(uid, d) {
+  var mesa = state.mesas[state.mesaAtual];
+  var idx = mesa.itens.findIndex(function(i){ return i.uid === uid; });
+  if (idx < 0) return;
+  mesa.itens[idx].qty += d;
+  if (mesa.itens[idx].qty <= 0) mesa.itens.splice(idx, 1);
+  salvarMesas();
+  renderCart();
+}
+
+function removerItem(uid) {
+  var mesa = state.mesas[state.mesaAtual];
+  mesa.itens = mesa.itens.filter(function(i){ return i.uid !== uid; });
+  salvarMesas();
+  renderCart();
+}
+
+function renderCart() {
+  var mesa = state.mesas[state.mesaAtual];
+  if (!mesa) return;
+  var el = document.getElementById('cart-items');
+  if (!mesa.itens.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">🛒</div><p>Carrinho vazio</p></div>';
+  } else {
+    el.innerHTML = mesa.itens.map(function(item){
+      var uid = item.uid;
+      return '<div class="citem">' +
+        '<div class="citem-nome">' + item.nome + '</div>' +
+        (item.obs ? '<div class="citem-obs">📝 ' + item.obs + '</div>' : '') +
+        '<button class="cart-obs-btn" onclick="editarObs(' + uid + ')">✏️ Obs</button>' +
+        '<div class="citem-ctrl">' +
+          '<div class="qty-wrap">' +
+            '<button class="qty-btn m" onclick="mudarQty(' + uid + ',-1)">-</button>' +
+            '<span class="qty-n">' + item.qty + '</span>' +
+            '<button class="qty-btn p" onclick="mudarQty(' + uid + ',1)">+</button>' +
+          '</div>' +
+          '<span class="citem-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</span>' +
+          '<button class="citem-del" onclick="removerItem(' + uid + ')">🗑️</button>' +
+        '</div>' +
+        '</div>';
     }).join('');
   }
-  var total = state.carrinho.reduce(function(s,i){return s+i.preco*i.qty;},0);
-  document.getElementById('subtotal').textContent = 'R$ '+total.toFixed(2).replace('.',',');
-  document.getElementById('total').textContent = 'R$ '+total.toFixed(2).replace('.',',');
-  document.getElementById('numPedido').textContent = '#'+state.numPedido;
+  var total = calcTotalMesa(mesa);
+  var pago = mesa.pagos.reduce(function(s,p){return s+p.valor;},0);
+  var pendente = Math.max(0, total - pago);
+  document.getElementById('sub-total').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  document.getElementById('cart-total').textContent = 'R$ ' + pendente.toFixed(2).replace('.',',');
   calcTroco();
 }
 
-function mudarQty(i,d){
-  state.carrinho[i].qty+=d;
-  if(state.carrinho[i].qty<=0) state.carrinho.splice(i,1);
-  renderCarrinho();
-}
-function removerItem(i){state.carrinho.splice(i,1);renderCarrinho();}
-function limparCarrinho(){if(state.carrinho.length&&!confirm('Limpar carrinho?'))return;state.carrinho=[];renderCarrinho();}
-
-// ========== PAGAMENTO ==========
-function selecionarPgto(p){
-  state.pgto=p;
+// ======= PAGAMENTO =======
+function selPgto(p) {
+  state.pgto = p;
   ['dinheiro','pix','debito','credito'].forEach(function(x){
-    document.getElementById('pgto-'+x).classList.toggle('ativo',x===p);
+    var el = document.getElementById('pb-' + x);
+    if (el) el.classList.toggle('on', x === p);
   });
-  document.getElementById('troco-field').style.display = p==='dinheiro'?'block':'none';
+  document.getElementById('troco-wrap').style.display = p === 'dinheiro' ? 'block' : 'none';
   calcTroco();
 }
 
-function calcTroco(){
-  if(state.pgto!=='dinheiro')return;
-  var total=state.carrinho.reduce(function(s,i){return s+i.preco*i.qty;},0);
-  var rec=parseFloat(document.getElementById('valorRecebido').value)||0;
-  var el=document.getElementById('trocoResult');
-  if(rec>0){ var tr=rec-total; el.textContent=(tr>=0?'Troco: R$ '+tr.toFixed(2).replace('.',','):'⚠️ Valor insuficiente'); }
-  else el.textContent='';
+function calcTroco() {
+  if (state.pgto !== 'dinheiro') return;
+  var mesa = state.mesas[state.mesaAtual];
+  if (!mesa) return;
+  var pendente = calcPendenteMesa(mesa);
+  var rec = parseFloat(document.getElementById('val-recebido').value) || 0;
+  var el = document.getElementById('troco-res');
+  if (rec > 0) {
+    var tr = rec - pendente;
+    el.textContent = tr >= 0 ? 'Troco: R$ ' + tr.toFixed(2).replace('.',',') : '⚠️ Valor insuficiente';
+  } else { el.textContent = ''; }
 }
 
-// ========== VENDA ==========
-function finalizarVenda(){
-  if(state.carrinho.length===0){alert('Carrinho vazio!');return;}
-  var total=state.carrinho.reduce(function(s,i){return s+i.preco*i.qty;},0);
-  var obs=document.getElementById('obsVenda').value;
-  var venda={
-    id:state.numPedido, data:new Date().toISOString(),
-    operador:state.operador, estab:state.estab,
-    itens:JSON.parse(JSON.stringify(state.carrinho)),
-    total:total, pgto:state.pgto, obs:obs
-  };
-  if(state.pgto==='dinheiro'){
-    var rec=parseFloat(document.getElementById('valorRecebido').value)||0;
-    venda.recebido=rec; venda.troco=rec-total;
-  }
-  state.vendas.push(venda);
-  localStorage.setItem('pdv_vendas',JSON.stringify(state.vendas));
-  state.numPedido++;
-  localStorage.setItem('pdv_numPedido',state.numPedido);
-  localStorage.setItem('pdv_caixa',JSON.stringify({aberto:true,estab:state.estab,operador:state.operador,fundo:state.fundoCaixa,abertura:state.abertura,numPedido:state.numPedido}));
-  mostrarRecibo(venda);
-  state.carrinho=[];
-  document.getElementById('obsVenda').value='';
-  document.getElementById('valorRecebido').value='';
-  document.getElementById('trocoResult').textContent='';
-  renderCarrinho();
+// ======= DIVISÃO DE PAGAMENTO =======
+function abrirDivisao() {
+  var mesa = state.mesas[state.mesaAtual];
+  if (!mesa.itens.length) { alert('Adicione itens à mesa primeiro!'); return; }
+  // marca todos como selecionados por default
+  mesa.itens.forEach(function(i){ i._divSel = true; });
+  renderDivItens();
+  selDivPgto('dinheiro');
+  document.getElementById('div-val-rec').value = '';
+  document.getElementById('div-troco-res').textContent = '';
+  abrirModal('modal-div');
 }
 
-function mostrarRecibo(v){
-  var itensStr=v.itens.map(function(i){
-    return i.qty+'x '+i.nome+' = R$ '+(i.preco*i.qty).toFixed(2).replace('.',',');
-  }).join('<br>');
-  var extra='';
-  if(v.pgto==='dinheiro'&&v.recebido){
-    extra='<br>Recebido: R$ '+v.recebido.toFixed(2).replace('.',',')+
-    '<br>Troco: R$ '+(v.troco>=0?v.troco:0).toFixed(2).replace('.',',');
-  }
-  var pgtoNomes={dinheiro:'💵 Dinheiro',pix:'📱 PIX',debito:'💳 Débito',credito:'💳 Crédito'};
-  document.getElementById('reciboConteudo').innerHTML=
-    '<div style="font-family:monospace;font-size:0.85em;line-height:1.8">'+
-    '<div style="text-align:center;font-weight:700;font-size:1.1em">'+v.estab+'</div>'+
-    '<div style="text-align:center;color:#aaa">PDV Pastelaria</div>'+
-    '<hr style="border-color:#333;margin:10px 0">'+
-    'Pedido: #'+v.id+'<br>'+
-    'Data: '+new Date(v.data).toLocaleString('pt-BR')+'<br>'+
-    'Operador: '+v.operador+
-    '<hr style="border-color:#333;margin:10px 0">'+
-    itensStr+
-    '<hr style="border-color:#333;margin:10px 0">'+
-    '<strong>TOTAL: R$ '+v.total.toFixed(2).replace('.',',')+'</strong><br>'+
-    'Pagamento: '+(pgtoNomes[v.pgto]||v.pgto)+extra+
-    (v.obs?'<br>Obs: '+v.obs:'')+
+function renderDivItens() {
+  var mesa = state.mesas[state.mesaAtual];
+  var html = mesa.itens.map(function(item){
+    return '<div class="div-item ' + (item._divSel ? 'sel' : '') + '" onclick="toggleDivItem(' + item.uid + ')">' +
+      '<div class="div-item-cb">' + (item._divSel ? '✓' : '') + '</div>' +
+      '<div class="div-item-info">' +
+        '<div class="div-item-nome">' + item.qty + 'x ' + item.nome + (item.obs ? ' <small style='color:#666'>('+item.obs+')</small>' : '') + '</div>' +
+        '<div class="div-item-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</div>' +
+      '</div>' +
     '</div>';
-  document.getElementById('modalRecibo').classList.add('show');
-}
-
-function fecharModal(id){document.getElementById(id).classList.remove('show');}
-
-// ========== FECHAMENTO ==========
-function gerarFechamento(){
-  var agora=new Date();
-  var totalVendas=state.vendas.reduce(function(s,v){return s+v.total;},0);
-  var porPgto={dinheiro:0,pix:0,debito:0,credito:0};
-  state.vendas.forEach(function(v){if(porPgto[v.pgto]!==undefined)porPgto[v.pgto]+=v.total;});
-  var pgtoNomes={dinheiro:'💵 Dinheiro',pix:'📱 PIX',debito:'💳 Débito',credito:'💳 Crédito'};
-  var resumoPgto=Object.keys(porPgto).map(function(k){
-    return '<div class="resumo-item"><div class="label">'+pgtoNomes[k]+'</div><div class="valor">R$ '+porPgto[k].toFixed(2).replace('.',',')+'</div></div>';
   }).join('');
-  document.getElementById('fechamentoConteudo').innerHTML=
-    '<div style="margin-bottom:15px;color:#aaa;font-size:0.85em">'+
-    'Abertura: '+new Date(state.abertura).toLocaleString('pt-BR')+'<br>'+
-    'Fechamento: '+agora.toLocaleString('pt-BR')+'<br>'+
-    'Operador: '+state.operador+
-    '</div>'+
-    '<div class="resumo-grid">'+
-    '<div class="resumo-item"><div class="label">Fundo de Caixa</div><div class="valor">R$ '+state.fundoCaixa.toFixed(2).replace('.',',')+'</div></div>'+
-    '<div class="resumo-item"><div class="label">Nº de Vendas</div><div class="valor">'+state.vendas.length+'</div></div>'+
-    '<div class="resumo-item"><div class="label">Total Vendas</div><div class="valor">R$ '+totalVendas.toFixed(2).replace('.',',')+'</div></div>'+
-    '<div class="resumo-item"><div class="label">Total Geral</div><div class="valor destaque">R$ '+(state.fundoCaixa+totalVendas).toFixed(2).replace('.',',')+'</div></div>'+
-    resumoPgto+
+  document.getElementById('div-itens-lista').innerHTML = html;
+  atualizarDivSub();
+}
+
+function toggleDivItem(uid) {
+  var mesa = state.mesas[state.mesaAtual];
+  var item = mesa.itens.find(function(i){ return i.uid === uid; });
+  if (item) { item._divSel = !item._divSel; renderDivItens(); }
+}
+
+function atualizarDivSub() {
+  var mesa = state.mesas[state.mesaAtual];
+  var sub = mesa.itens.filter(function(i){ return i._divSel; }).reduce(function(s,i){return s+i.preco*i.qty;},0);
+  document.getElementById('div-sub').textContent = 'R$ ' + sub.toFixed(2).replace('.',',');
+  calcDivTroco();
+}
+
+function selDivPgto(p) {
+  state.divPgto = p;
+  ['dinheiro','pix','debito','credito'].forEach(function(x){
+    var el = document.getElementById('dpb-' + x);
+    if (el) el.classList.toggle('on', x === p);
+  });
+  document.getElementById('div-troco-wrap').style.display = p === 'dinheiro' ? 'block' : 'none';
+}
+
+function calcDivTroco() {
+  var mesa = state.mesas[state.mesaAtual];
+  var sub = mesa.itens.filter(function(i){ return i._divSel; }).reduce(function(s,i){return s+i.preco*i.qty;},0);
+  var rec = parseFloat(document.getElementById('div-val-rec').value) || 0;
+  var el = document.getElementById('div-troco-res');
+  if (rec > 0 && state.divPgto === 'dinheiro') {
+    var tr = rec - sub;
+    el.textContent = tr >= 0 ? 'Troco: R$ ' + tr.toFixed(2).replace('.',',') : '⚠️ Valor insuficiente';
+  } else { el.textContent = ''; }
+}
+
+function registrarPagamentoParcial() {
+  var mesa = state.mesas[state.mesaAtual];
+  var selecionados = mesa.itens.filter(function(i){ return i._divSel; });
+  if (!selecionados.length) { alert('Selecione pelo menos um item!'); return; }
+  var sub = selecionados.reduce(function(s,i){return s+i.preco*i.qty;},0);
+  var rec = parseFloat(document.getElementById('div-val-rec').value) || 0;
+  if (state.divPgto === 'dinheiro' && rec > 0 && rec < sub) { alert('Valor recebido insuficiente!'); return; }
+  // registrar pagamento parcial
+  var pgtoNomes = {dinheiro:'Dinheiro',pix:'PIX',debito:'Débito',credito:'Crédito'};
+  mesa.pagos.push({
+    itens: JSON.parse(JSON.stringify(selecionados)),
+    valor: sub,
+    pgto: state.divPgto,
+    pgtoNome: pgtoNomes[state.divPgto],
+    recebido: state.divPgto === 'dinheiro' ? rec : 0,
+    troco: state.divPgto === 'dinheiro' ? Math.max(0, rec - sub) : 0,
+    data: new Date().toISOString()
+  });
+  // remover itens pagos
+  var uidsRemover = selecionados.map(function(i){ return i.uid; });
+  mesa.itens = mesa.itens.filter(function(i){ return uidsRemover.indexOf(i.uid) < 0; });
+  salvarMesas();
+  fecharModal('modal-div');
+  renderCart();
+  renderMesas();
+  // Se não tem mais itens pendentes, perguntar se finaliza
+  if (!mesa.itens.length) {
+    if (confirm('Todos os itens foram pagos! Fechar a mesa?')) {
+      registrarVendaMesa(mesa);
+      mesa.itens = []; mesa.pagos = [];
+      salvarMesas();
+      renderMesas();
+      fecharModal('modal-recibo');
+      irMesas();
+    }
+  }
+}
+
+// ======= FINALIZAR VENDA =======
+function finalizarVenda() {
+  var mesa = state.mesas[state.mesaAtual];
+  var pendente = calcPendenteMesa(mesa);
+  if (mesa.itens.length === 0 && mesa.pagos.length === 0) { alert('Mesa vazia!'); return; }
+  if (pendente > 0) {
+    var rec = parseFloat(document.getElementById('val-recebido').value) || 0;
+    if (state.pgto === 'dinheiro' && rec > 0 && rec < pendente) { alert('Valor recebido insuficiente!'); return; }
+    var pgtoNomes = {dinheiro:'Dinheiro',pix:'PIX',debito:'Débito',credito:'Crédito'};
+    // registrar pagamento final dos itens restantes
+    if (mesa.itens.length > 0) {
+      mesa.pagos.push({
+        itens: JSON.parse(JSON.stringify(mesa.itens)),
+        valor: pendente,
+        pgto: state.pgto,
+        pgtoNome: pgtoNomes[state.pgto],
+        recebido: state.pgto === 'dinheiro' ? rec : 0,
+        troco: state.pgto === 'dinheiro' ? Math.max(0, rec - pendente) : 0,
+        data: new Date().toISOString()
+      });
+      mesa.itens = [];
+    }
+  }
+  var venda = registrarVendaMesa(mesa);
+  mesa.itens = []; mesa.pagos = [];
+  salvarMesas();
+  renderMesas();
+  mostrarRecibo(venda);
+}
+
+function registrarVendaMesa(mesa) {
+  var totalGeral = mesa.pagos.reduce(function(s,p){return s+p.valor;},0);
+  var todosItens = [];
+  mesa.pagos.forEach(function(p){ p.itens.forEach(function(i){ todosItens.push(i); }); });
+  var venda = {
+    id: state.vendas.length + 1,
+    data: new Date().toISOString(),
+    mesa: mesa.num,
+    estab: ESTAB,
+    pagamentos: JSON.parse(JSON.stringify(mesa.pagos)),
+    todosItens: todosItens,
+    totalGeral: totalGeral
+  };
+  state.vendas.push(venda);
+  localStorage.setItem('opg_vendas', JSON.stringify(state.vendas));
+  return venda;
+}
+
+// ======= COMANDA =======
+function imprimirComanda() {
+  var mesa = state.mesas[state.mesaAtual];
+  var html = gerarComandaHTML(mesa, false);
+  document.getElementById('comanda-conteudo').innerHTML = html;
+  abrirModal('modal-comanda');
+}
+
+function gerarComandaHTML(mesa, reimpressao) {
+  var agora = new Date().toLocaleString('pt-BR');
+  var itensHTML = mesa.itens.length > 0 ? mesa.itens.map(function(item){
+    return '<div>' + item.qty + 'x ' + item.nome + (item.obs ? '<div style="font-size:.9em;padding-left:15px;font-style:italic">Obs: ' + item.obs + '</div>' : '') + '</div>';
+  }).join('') : '<div style="color:#999">Sem itens pendentes</div>';
+  var pagosHTML = mesa.pagos.length > 0 ?
+    '<hr><div style="font-size:.9em"><strong>JÁ PAGO:</strong></div>' +
+    mesa.pagos.map(function(p){
+      return '<div style="font-size:.85em">✅ ' + p.pgtoNome + ': R$ ' + p.valor.toFixed(2).replace('.',',') + '</div>';
+    }).join('') : '';
+  var total = calcTotalMesa(mesa);
+  var pago = mesa.pagos.reduce(function(s,p){return s+p.valor;},0);
+  var pendente = Math.max(0, total - pago);
+  return '<div class="recibo-print">' +
+    '<div class="rc-center rc-bold" style="font-size:1.1em">' + ESTAB + '</div>' +
+    '<div class="rc-center">COMANDA' + (reimpressao ? ' (REIMPRESSÃO)' : '') + '</div>' +
+    '<hr>' +
+    '<div>Mesa: ' + mesa.num + '</div>' +
+    '<div>Data: ' + agora + '</div>' +
+    '<hr>' +
+    '<div class="rc-bold">ITENS:</div>' +
+    itensHTML +
+    pagosHTML +
+    '<hr>' +
+    '<div>Total: R$ ' + total.toFixed(2).replace('.',',') + '</div>' +
+    (pago > 0 ? '<div>Pago: R$ ' + pago.toFixed(2).replace('.',',') + '</div>' : '') +
+    '<div class="rc-bold">PENDENTE: R$ ' + pendente.toFixed(2).replace('.',',') + '</div>' +
     '</div>';
 }
 
-function fecharCaixaDefinitivo(){
-  if(!confirm('Fechar o caixa e reiniciar o sistema?'))return;
-  localStorage.removeItem('pdv_caixa');
-  localStorage.removeItem('pdv_vendas');
-  localStorage.removeItem('pdv_numPedido');
-  state.caixaAberto=false; state.vendas=[]; state.carrinho=[]; state.numPedido=1; state.abertura=null;
-  mostrarTela('abertura');
+function mostrarRecibo(v) {
+  var pgtoStr = v.pagamentos.map(function(p){
+    return p.pgtoNome + ': R$ ' + p.valor.toFixed(2).replace('.',',') +
+    (p.troco > 0 ? ' (troco: R$ ' + p.troco.toFixed(2).replace('.',',') + ')' : '');
+  }).join('<br>');
+  var itensStr = v.todosItens.map(function(i){
+    return i.qty + 'x ' + i.nome + ' = R$ ' + (i.preco*i.qty).toFixed(2).replace('.',',') +
+    (i.obs ? ' <span style='font-size:.85em;color:#888'>('+i.obs+')</span>' : '');
+  }).join('<br>');
+  document.getElementById('recibo-conteudo').innerHTML =
+    '<div class="recibo-print">' +
+    '<div class="rc-center rc-bold">' + ESTAB + '</div>' +
+    '<div class="rc-center">COMPROVANTE DE VENDA</div>' +
+    '<hr>' +
+    'Mesa: ' + v.mesa + '<br>' +
+    'Pedido #' + v.id + '<br>' +
+    'Data: ' + new Date(v.data).toLocaleString('pt-BR') +
+    '<hr>' +
+    itensStr +
+    '<hr>' +
+    '<strong>TOTAL: R$ ' + v.totalGeral.toFixed(2).replace('.',',') + '</strong><br>' +
+    pgtoStr +
+    '</div>';
+  abrirModal('modal-recibo');
 }
 
-// ========== HISTÓRICO ==========
-function gerarHistorico(){
-  var pgtoNomes={dinheiro:'Dinheiro',pix:'PIX',debito:'Débito',credito:'Crédito'};
-  if(state.vendas.length===0){
-    document.getElementById('historicoConteudo').innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Nenhuma venda registrada</p></div>';
+// ======= MODAIS =======
+function abrirModal(id) { document.getElementById(id).classList.add('show'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ======= ADMIN TABS =======
+function showAdminTab(tab) {
+  ['rel','hist','prods'].forEach(function(t){
+    var el = document.getElementById('admin-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(function(el,i){
+    el.classList.toggle('on', ['rel','hist','prods'][i] === tab);
+  });
+  if (tab === 'rel') gerarRelatorios();
+  if (tab === 'hist') gerarHistorico();
+  if (tab === 'prods') gerarProdutosAdmin();
+}
+
+// ======= RELATÓRIOS =======
+function gerarRelatorios() {
+  var vendas = state.vendas;
+  var el = document.getElementById('admin-rel');
+  if (!vendas.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">📊</div><p>Nenhuma venda registrada ainda</p></div>';
     return;
   }
-  var rows=state.vendas.slice().reverse().map(function(v){
-    return '<tr><td>#'+v.id+'</td><td>'+new Date(v.data).toLocaleTimeString('pt-BR')+'</td>'+
-    '<td>'+v.itens.length+' item(s)</td><td>R$ '+v.total.toFixed(2).replace('.',',')+'</td>'+
-    '<td>'+(pgtoNomes[v.pgto]||v.pgto)+'</td>'+
-    '<td><button class="btn btn-secondary btn-sm" onclick="mostrarRecibo('+JSON.stringify(JSON.stringify(v)).slice(1,-1)+')">🧾 Ver</button></td>'+
-    '</tr>';
-  }).join('');
-  document.getElementById('historicoConteudo').innerHTML=
-    '<table><thead><tr><th>#</th><th>Hora</th><th>Itens</th><th>Total</th><th>Pagamento</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+
+  // Período atual
+  var agora = new Date();
+  var hoje = agora.toDateString();
+  var semAgo = new Date(agora - 7*24*3600000);
+  var mesAtual = agora.getMonth() + '-' + agora.getFullYear();
+  var anoAtual = agora.getFullYear();
+
+  var vHoje = vendas.filter(function(v){ return new Date(v.data).toDateString() === hoje; });
+  var vSemana = vendas.filter(function(v){ return new Date(v.data) >= semAgo; });
+  var vMes = vendas.filter(function(v){ var d=new Date(v.data); return (d.getMonth()+'-'+d.getFullYear()) === mesAtual; });
+  var vAno = vendas.filter(function(v){ return new Date(v.data).getFullYear() === anoAtual; });
+
+  function totalV(arr) { return arr.reduce(function(s,v){return s+v.totalGeral;},0); }
+
+  // Período selecionado
+  var periodoSel = 'todos';
+  var html = '<div class="tabs no-print">' +
+    ['Hoje','7 Dias','Mês','Ano','Tudo'].map(function(p,i){
+      var pid = ['hoje','semana','mes','ano','todos'][i];
+      return '<button class="tab ' + (i===4?'on':'') + '" onclick="filtrarRelPeriodo(' + JSON.stringify(pid) + ')">' + p + '</button>';
+    }).join('') +
+    '</div>' +
+    '<div id="rel-periodo-content">' + gerarRelConteudo(vendas) + '</div>';
+  el.innerHTML = html;
 }
 
-// ========== PRODUTOS ADMIN ==========
-function gerarProdutosAdmin(){
-  var cats=[...new Set(state.produtos.map(function(p){return p.categoria;}))];
-  var html='';
-  cats.forEach(function(cat){
-    var itens=state.produtos.filter(function(p){return p.categoria===cat;});
-    html+='<div style="margin-bottom:20px"><h4 style="color:#c0392b;margin-bottom:8px">'+cat+'</h4>'+
-    '<table><thead><tr><th>#</th><th>Produto</th><th>Preço</th><th></th></tr></thead><tbody>'+
-    itens.map(function(p){
-      var idx=state.produtos.indexOf(p);
-      return '<tr><td style="color:#666">'+(p.id||'-')+'</td>'+
-      '<td>'+p.nome+'</td>'+
-      '<td><input type="number" value="'+p.preco+'" step="0.01" min="0" style="width:90px;background:#1a1a2e;border:1px solid #c0392b33;border-radius:5px;color:#fff;padding:4px 8px" onchange="atualizarPreco('+idx+',this.value)"></td>'+
-      '<td><button class="btn btn-danger btn-sm" onclick="removerProduto('+idx+')">🗑️</button></td></tr>';
-    }).join('')+'</tbody></table></div>';
+window._relVendasAtual = null;
+function filtrarRelPeriodo(periodo) {
+  var vendas = state.vendas;
+  var agora = new Date();
+  var semAgo = new Date(agora - 7*24*3600000);
+  var mesAtual = agora.getMonth() + '-' + agora.getFullYear();
+  var anoAtual = agora.getFullYear();
+  var hoje = agora.toDateString();
+  var filtrada;
+  if (periodo === 'hoje') filtrada = vendas.filter(function(v){ return new Date(v.data).toDateString() === hoje; });
+  else if (periodo === 'semana') filtrada = vendas.filter(function(v){ return new Date(v.data) >= semAgo; });
+  else if (periodo === 'mes') filtrada = vendas.filter(function(v){ var d=new Date(v.data); return (d.getMonth()+'-'+d.getFullYear()) === mesAtual; });
+  else if (periodo === 'ano') filtrada = vendas.filter(function(v){ return new Date(v.data).getFullYear() === anoAtual; });
+  else filtrada = vendas;
+  document.getElementById('rel-periodo-content').innerHTML = gerarRelConteudo(filtrada);
+  document.querySelectorAll('.tab').forEach(function(el){
+    el.classList.remove('on');
+    if (el.textContent.toLowerCase().indexOf(periodo.slice(0,3)) >= 0 || (periodo==='todos'&&el.textContent==='Tudo')) el.classList.add('on');
   });
-  html+='<button class="btn btn-primary" onclick="resetarProdutos()" style="margin-top:10px">🔄 Restaurar padrão</button>';
-  document.getElementById('produtosAdminConteudo').innerHTML=html;
 }
 
-function atualizarPreco(idx,val){
-  state.produtos[idx].preco=parseFloat(val)||0;
-  localStorage.setItem('pdv_produtos',JSON.stringify(state.produtos));
+function gerarRelConteudo(vendas) {
+  if (!vendas.length) return '<div class="empty"><div class="ei">📊</div><p>Sem vendas no período</p></div>';
+
+  var totalGeral = vendas.reduce(function(s,v){return s+v.totalGeral;},0);
+  var numVendas = vendas.length;
+  var ticketMedio = totalGeral / numVendas;
+
+  // Produtos mais vendidos
+  var prodVendas = {};
+  vendas.forEach(function(v){
+    v.todosItens.forEach(function(i){
+      var k = i.nome;
+      if (!prodVendas[k]) prodVendas[k] = {nome:k,cat:i.cat||'',qty:0,total:0};
+      prodVendas[k].qty += i.qty;
+      prodVendas[k].total += i.preco * i.qty;
+    });
+  });
+  var topProds = Object.values(prodVendas).sort(function(a,b){return b.qty-a.qty;}).slice(0,15);
+  var maxQty = topProds.length ? topProds[0].qty : 1;
+
+  // Horários mais vendidos (por hora)
+  var horaVendas = {};
+  for (var h=0; h<24; h++) horaVendas[h] = 0;
+  vendas.forEach(function(v){ var h=new Date(v.data).getHours(); horaVendas[h]=(horaVendas[h]||0)+v.totalGeral; });
+  var horasOrdenadas = Object.keys(horaVendas).sort(function(a,b){return horaVendas[b]-horaVendas[a];}).slice(0,8);
+  var maxHora = horasOrdenadas.length ? horaVendas[horasOrdenadas[0]] : 1;
+
+  // Por forma de pagamento
+  var pgtoVendas = {dinheiro:0,pix:0,debito:0,credito:0};
+  vendas.forEach(function(v){ v.pagamentos.forEach(function(p){ pgtoVendas[p.pgto]=(pgtoVendas[p.pgto]||0)+p.valor; }); });
+  var pgtoNomes = {dinheiro:'💵 Dinheiro',pix:'📱 PIX',debito:'💳 Débito',credito:'💳 Crédito'};
+
+  // Por categoria
+  var catVendas = {};
+  vendas.forEach(function(v){ v.todosItens.forEach(function(i){ var c=i.cat||'Outros'; catVendas[c]=(catVendas[c]||0)+(i.preco*i.qty); }); });
+  var topCats = Object.entries(catVendas).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var maxCat = topCats.length ? topCats[0][1] : 1;
+
+  // Vendas por dia (últimos 30 dias)
+  var diaVendas = {};
+  vendas.forEach(function(v){ var d=new Date(v.data).toLocaleDateString('pt-BR'); diaVendas[d]=(diaVendas[d]||0)+v.totalGeral; });
+  var diasOrdenados = Object.keys(diaVendas).sort(function(a,b){ return new Date(a.split('/').reverse().join('-'))-new Date(b.split('/').reverse().join('-')); }).slice(-14);
+
+  var colorsBar = ['#c0392b','#e74c3c','#2980b9','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#d35400','#2c3e50'];
+
+  return '<div class="rel-grid">' +
+    '<div class="rel-card"><div class="rl">Total de Vendas</div><div class="rv">' + numVendas + '</div></div>' +
+    '<div class="rel-card"><div class="rl">Faturamento</div><div class="rv">R$ ' + totalGeral.toFixed(2).replace('.',',') + '</div></div>' +
+    '<div class="rel-card"><div class="rl">Ticket Médio</div><div class="rv">R$ ' + ticketMedio.toFixed(2).replace('.',',') + '</div></div>' +
+    '<div class="rel-card"><div class="rl">Itens Vendidos</div><div class="rv">' + vendas.reduce(function(s,v){return s+v.todosItens.reduce(function(ss,i){return ss+i.qty;},0);},0) + '</div></div>' +
+    '</div>' +
+
+    '<h4 style="color:var(--red);margin-bottom:12px">🏆 Produtos Mais Vendidos</h4>' +
+    '<div class="chart-bar-wrap">' +
+    topProds.map(function(p,i){
+      var pct = (p.qty/maxQty*100);
+      return '<div class="chart-bar-item">' +
+        '<div class="chart-bar-label">' + (i+1) + '. ' + p.nome.substring(0,28) + (p.nome.length>28?'...':'') + '</div>' +
+        '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+colorsBar[i%colorsBar.length]+'">' + p.qty + 'x</div></div>' +
+        '<div class="chart-bar-val">R$ ' + p.total.toFixed(2).replace('.',',') + '</div>' +
+        '</div>';
+    }).join('') + '</div>' +
+
+    '<h4 style="color:var(--red);margin-bottom:12px;margin-top:20px">⏰ Horários de Pico</h4>' +
+    '<div class="chart-bar-wrap">' +
+    horasOrdenadas.filter(function(h){return horaVendas[h]>0;}).map(function(h,i){
+      var pct = (horaVendas[h]/maxHora*100);
+      return '<div class="chart-bar-item">' +
+        '<div class="chart-bar-label">' + String(h).padStart(2,'0') + ':00 - ' + String((parseInt(h)+1)%24).padStart(2,'0') + ':00</div>' +
+        '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:#2980b9">R$ '+horaVendas[h].toFixed(0)+'</div></div>' +
+        '<div class="chart-bar-val">R$ ' + horaVendas[h].toFixed(2).replace('.',',') + '</div>' +
+        '</div>';
+    }).join('') + '</div>' +
+
+    '<h4 style="color:var(--red);margin-bottom:12px;margin-top:20px">📂 Faturamento por Categoria</h4>' +
+    '<div class="chart-bar-wrap">' +
+    topCats.map(function(entry,i){
+      var pct = (entry[1]/maxCat*100);
+      return '<div class="chart-bar-item">' +
+        '<div class="chart-bar-label">' + entry[0] + '</div>' +
+        '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+colorsBar[i%colorsBar.length]+'">R$ '+entry[1].toFixed(0)+'</div></div>' +
+        '<div class="chart-bar-val">R$ ' + entry[1].toFixed(2).replace('.',',') + '</div>' +
+        '</div>';
+    }).join('') + '</div>' +
+
+    '<h4 style="color:var(--red);margin-bottom:12px;margin-top:20px">💳 Por Forma de Pagamento</h4>' +
+    '<div class="rel-grid">' +
+    Object.keys(pgtoVendas).map(function(k){
+      return '<div class="rel-card"><div class="rl">' + pgtoNomes[k] + '</div><div class="rv">R$ ' + (pgtoVendas[k]||0).toFixed(2).replace('.',',') + '</div></div>';
+    }).join('') + '</div>' +
+
+    '<h4 style="color:var(--red);margin-bottom:12px;margin-top:20px">📅 Vendas por Dia</h4>' +
+    '<div class="chart-bar-wrap">' +
+    (function(){
+      var maxDia = Math.max.apply(null, diasOrdenados.map(function(d){return diaVendas[d];}));
+      return diasOrdenados.map(function(d,i){
+        var pct = (diaVendas[d]/(maxDia||1)*100);
+        return '<div class="chart-bar-item">' +
+          '<div class="chart-bar-label">' + d + '</div>' +
+          '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:#27ae60">R$ '+diaVendas[d].toFixed(0)+'</div></div>' +
+          '<div class="chart-bar-val">R$ ' + diaVendas[d].toFixed(2).replace('.',',') + '</div>' +
+          '</div>';
+      }).join('');
+    })() + '</div>';
 }
-function removerProduto(idx){
-  if(!confirm('Remover este produto?'))return;
+
+// ======= HISTÓRICO =======
+function gerarHistorico() {
+  var el = document.getElementById('admin-hist');
+  var vendas = state.vendas.slice().reverse();
+  if (!vendas.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">📋</div><p>Nenhuma venda registrada</p></div>';
+    return;
+  }
+  var pgtoNomes = {dinheiro:'Dinheiro',pix:'PIX',debito:'Débito',credito:'Crédito'};
+  var rows = vendas.map(function(v){
+    var pgtos = v.pagamentos.map(function(p){return p.pgtoNome;}).join(', ');
+    return '<tr>' +
+      '<td>#' + v.id + '</td>' +
+      '<td>Mesa ' + v.mesa + '</td>' +
+      '<td>' + new Date(v.data).toLocaleString('pt-BR') + '</td>' +
+      '<td>' + v.todosItens.length + ' item(s)</td>' +
+      '<td>R$ ' + v.totalGeral.toFixed(2).replace('.',',') + '</td>' +
+      '<td>' + pgtos + '</td>' +
+      '<td><button class="btn btn-gray btn-sm" onclick="reimprimir(' + v.id + ')">🖨️ Reimprimir</button></td>' +
+      '</tr>';
+  }).join('');
+  el.innerHTML = '<table><thead><tr><th>#</th><th>Mesa</th><th>Data</th><th>Itens</th><th>Total</th><th>Pagamento</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function reimprimir(id) {
+  var v = state.vendas.find(function(v){ return v.id === id; });
+  if (!v) return;
+  mostrarRecibo(v);
+}
+
+// ======= GERENCIAR PRODUTOS =======
+function gerarProdutosAdmin() {
+  var cats = [...new Set(state.produtos.map(function(p){return p.cat;}))];
+  var html = '';
+  cats.forEach(function(cat){
+    var itens = state.produtos.filter(function(p){return p.cat===cat;});
+    html += '<div style="margin-bottom:22px"><h4 style="color:var(--red);margin-bottom:8px;border-bottom:1px solid rgba(192,57,43,.2);padding-bottom:6px">' + cat + '</h4>' +
+      '<table><thead><tr><th>#</th><th>Produto</th><th>Preço</th><th></th></tr></thead><tbody>' +
+      itens.map(function(p){
+        var idx = state.produtos.indexOf(p);
+        return '<tr><td style="color:#555">' + (p.id<1000?p.id:'') + '</td>' +
+          '<td>' + p.nome + '</td>' +
+          '<td><input type="number" value="' + p.preco + '" step="0.01" min="0" style="width:90px;background:var(--surface);border:1px solid rgba(192,57,43,.3);border-radius:6px;color:#fff;padding:4px 8px" onchange="updatePreco(' + idx + ',this.value)"></td>' +
+          '<td><button class="btn btn-red btn-sm" onclick="removeProd(' + idx + ')">🗑️</button></td></tr>';
+      }).join('') + '</tbody></table></div>';
+  });
+  html += '<div style="margin-top:15px;display:flex;gap:10px"><button class="btn btn-gray" onclick="resetProds()">🔄 Restaurar padrão</button></div>';
+  document.getElementById('admin-prods').innerHTML = html;
+}
+
+function updatePreco(idx, val) {
+  state.produtos[idx].preco = parseFloat(val)||0;
+  localStorage.setItem('opg_produtos', JSON.stringify(state.produtos));
+}
+
+function removeProd(idx) {
+  if (!confirm('Remover produto?')) return;
   state.produtos.splice(idx,1);
-  localStorage.setItem('pdv_produtos',JSON.stringify(state.produtos));
-  gerarProdutosAdmin();
-}
-function resetarProdutos(){
-  if(!confirm('Restaurar todos os produtos para o padrão?'))return;
-  state.produtos=JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
-  localStorage.setItem('pdv_produtos',JSON.stringify(state.produtos));
+  localStorage.setItem('opg_produtos', JSON.stringify(state.produtos));
   gerarProdutosAdmin();
 }
 
-// Iniciar filtro padrão de pagamento
-selecionarPgto('dinheiro');
+function resetProds() {
+  if (!confirm('Restaurar todos os produtos para o padrão do cardápio?')) return;
+  state.produtos = JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
+  localStorage.setItem('opg_produtos', JSON.stringify(state.produtos));
+  gerarProdutosAdmin();
+}
+
+// ======= START =======
 window.onload = init;
 </script>
 </body>
