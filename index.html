@@ -62,7 +62,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f0f0;color:#222;min-height:
 .pdv-mesa-info{font-weight:700;color:var(--gold);font-size:1em}
 .pdv-body{display:flex;flex:1;overflow:hidden;min-height:0}
 .col-prods{flex:1;overflow-y:auto;padding:12px;background:#f8f8f8}
-.col-cart{width:380px;background:#ffffff;display:flex;flex-direction:column;border-left:2px solid rgba(192,57,43,.2)}
+.col-cart{width:380px;background:#111111;display:flex;flex-direction:column;border-left:2px solid rgba(192,57,43,.5)}
 
 /* BUSCA + FILTROS */
 .search-wrap{position:relative;margin-bottom:10px}
@@ -90,33 +90,33 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f0f0;color:#222;min-height:
 .cart-hdr h3{color:var(--red);font-size:.95em}
 .cart-items{flex:1;overflow-y:auto;padding:8px}
 .citem{background:#f8f8f8;border-radius:10px;padding:10px;margin-bottom:7px;border:1px solid rgba(192,57,43,.15)}
-.citem-nome{font-size:.82em;color:#333;margin-bottom:5px;line-height:1.3;font-weight:600}
-.citem-obs{font-size:.73em;color:#666;font-style:italic;margin-bottom:5px}
+.citem-nome{font-size:.82em;color:#ffffff;margin-bottom:5px;line-height:1.3;font-weight:600}
+.citem-obs{font-size:.73em;color:#aaaaaa;font-style:italic;margin-bottom:5px}
 .citem-ctrl{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .qty-wrap{display:flex;align-items:center;gap:6px}
 .qty-btn{width:26px;height:26px;border:none;border-radius:7px;cursor:pointer;font-size:.9em;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .qty-btn.m{background:var(--red);color:#fff}
 .qty-btn.p{background:var(--green);color:#fff}
-.qty-n{min-width:22px;text-align:center;font-weight:700;font-size:.9em}
+.qty-n{min-width:22px;text-align:center;font-weight:700;font-size:.9em;color:#ffffff}
 .citem-preco{font-weight:700;color:var(--green);font-size:.9em}
 .citem-del{background:none;border:none;color:rgba(192,57,43,.4);cursor:pointer;font-size:1em;transition:color .2s;padding:2px}
 .citem-del:hover{color:var(--red)}
-.cart-obs-btn{font-size:.7em;color:#666;background:none;border:1px solid rgba(0,0,0,.15);border-radius:5px;padding:2px 7px;cursor:pointer;margin-top:4px;transition:all .2s}
-.cart-obs-btn:hover{color:#555;border-color:rgba(0,0,0,.3)}
+.cart-obs-btn{font-size:.7em;color:#aaaaaa;background:none;border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:2px 7px;cursor:pointer;margin-top:4px;transition:all .2s}
+.cart-obs-btn:hover{color:#ffffff;border-color:rgba(255,255,255,.5)}
 
 /* FOOTER CARRINHO */
-.cart-foot{padding:12px 15px;border-top:2px solid rgba(192,57,43,.2);background:#f0f0f0}
+.cart-foot{padding:12px 15px;border-top:2px solid rgba(192,57,43,.5);background:#1a1a1a}
 .tl{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.tl .lab{color:#aaa;font-size:.83em}
+.tl .lab{color:#cccccc;font-size:.83em}
 .tl .val{font-weight:700;color:var(--green)}
 .tl.big .lab{font-size:.95em;color:#fff}
 .tl.big .val{font-size:1.4em;color:#fff}
 .pgto-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0}
-.pbtn{padding:9px 5px;border:2px solid rgba(192,57,43,.2);border-radius:8px;background:#f8f8f8;color:#888;cursor:pointer;font-size:.75em;text-align:center;transition:all .2s;font-weight:600}
+.pbtn{padding:9px 5px;border:2px solid rgba(192,57,43,.3);border-radius:8px;background:#2a2a2a;color:#dddddd;cursor:pointer;font-size:.75em;text-align:center;transition:all .2s;font-weight:600}
 .pbtn.on{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.1)}
-.pbtn:hover{border-color:rgba(192,57,43,.5)}
+.pbtn:hover{border-color:rgba(192,57,43,.9);background:#333333;color:#ffffff}
 .troco-wrap{margin:5px 0;display:none}
-.troco-wrap input{width:100%;padding:7px 11px;background:#f8f8f8;border:2px solid rgba(192,57,43,.2);border-radius:7px;color:#fff;font-size:.88em}
+.troco-wrap input{width:100%;padding:7px 11px;background:#222222;border:2px solid rgba(192,57,43,.4);border-radius:7px;color:#ffffff;font-size:.88em}
 .troco-res{color:var(--gold);font-size:.82em;margin-top:3px;text-align:right}
 .div-pgto-btn{width:100%;margin:5px 0;padding:9px;border:2px dashed rgba(192,57,43,.4);border-radius:9px;background:transparent;color:rgba(192,57,43,.8);cursor:pointer;font-size:.8em;font-weight:700;transition:all .2s}
 .div-pgto-btn:hover{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.05)}
