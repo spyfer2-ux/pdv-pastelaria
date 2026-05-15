@@ -829,7 +829,7 @@ function gerarComandaHTML(mesa, reimpressao) {
   var pago = mesa.pagos.reduce(function(s,p){return s+p.valor;},0);
   var pendente = Math.max(0, total - pago);
   return '<div class="recibo-print">' +
-    '<div class="rc-center" style="margin-bottom:4px"><img src="logo.png" style="max-width:120px;max-height:80px" onerror="this.style.display=\'none\'"></div>' +
+    '<div class="rc-center" style="margin-bottom:4px"><img src="logo.png" style="max-width:60px;max-height:40px" onerror="this.style.display=\'none\'"></div>' +
     '<div class="rc-center rc-bold" style="font-size:1.1em">' + ESTAB + '</div>' +
     '<div class="rc-center">COMANDA' + (reimpressao ? ' (REIMPRESSÃO)' : '') + '</div>' +
     '<hr>' +
@@ -857,7 +857,7 @@ function mostrarRecibo(v) {
   }).join('<br>');
   document.getElementById('recibo-conteudo').innerHTML =
     '<div class="recibo-print">' +
-    '<div class="rc-center" style="margin-bottom:4px"><img src="logo.png" style="max-width:100px;max-height:60px" onerror="this.style.display=\'none\'"></div>' +
+    '<div class="rc-center" style="margin-bottom:4px"><img src="logo.png" style="max-width:60px;max-height:40px" onerror="this.style.display=\'none\'"></div>' +
     '<div class="rc-center rc-bold">' + ESTAB + '</div>' +
     '<div class="rc-center">COMPROVANTE DE VENDA</div>' +
     '<hr>' +
