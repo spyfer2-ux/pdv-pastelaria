@@ -697,22 +697,41 @@ function renderCart() {
         var uid = item.uid;
         var addsHtml = '';
         if (item.adicionais && item.adicionais.length) {
-          addsHtml = '<div style="margin-bottom:4px">' + item.adicionais.map(function(a){ return '<span style="background:rgba(192,57,43,.1);border-radius:20px;padding:1px 7px;font-size:.7em;color:#c0392b;margin-right:3px;display:inline-block">+' + a.nome + '</span>'; }).join('') + '</div>';
+          addsHtml = '<div style="margin-bottom:5px;display:flex;flex-wrap:wrap;gap:3px">' +
+            item.adicionais.map(function(a, ai){
+              return '<span style="background:rgba(192,57,43,.18);border-radius:20px;padding:2px 8px;font-size:.72em;color:#ff6b6b;display:inline-flex;align-items:center;gap:4px">' +
+                '+' + a.nome + ' R$' + parseFloat(a.preco).toFixed(2).replace('.',',') +
+                '<button onclick="removerAdicionalItem(' + uid + ',' + ai + ')" style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:.85em;padding:0;line-height:1">×</button>' +
+              '</span>';
+            }).join('') +
+          '</div>';
         }
-        return '<div class="citem">' +
-        '<div class="citem-nome">' + item.nome + '</div>' +
-        addsHtml +
-        (item.obs ? '<div class="citem-obs">📝 ' + item.obs + '</div>' : '') +
-        '<button class="cart-obs-btn" onclick="editarObs(' + uid + ')">✏️ Obs</button>' +
-        '<div class="citem-ctrl">' +
-          '<div class="qty-wrap">' +
-            '<button class="qty-btn m" onclick="mudarQty(' + uid + ',-1)">-</button>' +
-            '<span class="qty-n">' + item.qty + '</span>' +
-            '<button class="qty-btn p" onclick="mudarQty(' + uid + ',1)">+</button>' +
+        return '<div class="citem" id="citem-' + uid + '">' +
+          '<div class="citem-nome">' + item.nome + '</div>' +
+          addsHtml +
+          (item.obs ? '<div class="citem-obs">📝 ' + item.obs + '</div>' : '') +
+          '<div style="display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap">' +
+            '<button class="cart-obs-btn" onclick="editarObs(' + uid + ')">✏️ Obs</button>' +
+            '<button class="cart-obs-btn" style="color:#f39c12;border-color:rgba(243,156,18,.4)" onclick="abrirAddInline(' + uid + ')">+ Adicional</button>' +
           '</div>' +
-          '<span class="citem-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</span>' +
-          '<button class="citem-del" onclick="removerItem(' + uid + ')">🗑️</button>' +
-        '</div>' +
+          '<div id="add-inline-' + uid + '" style="display:none;margin-bottom:6px;background:rgba(243,156,18,.07);border-radius:8px;padding:8px;border:1px solid rgba(243,156,18,.3)">' +
+            '<div style="font-size:.72em;color:#f39c12;font-weight:700;margin-bottom:5px">Adicional avulso:</div>' +
+            '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">' +
+              '<input id="add-nome-' + uid + '" type="text" placeholder="Nome (ex: Bacon)" style="flex:1;min-width:80px;padding:5px 8px;background:#222;border:1px solid rgba(243,156,18,.4);border-radius:6px;color:#fff;font-size:.8em" onkeydown="if(event.key==='Enter')salvarAddInline(' + uid + ')">' +
+              '<input id="add-val-' + uid + '" type="number" placeholder="R$" step="0.01" min="0" style="width:64px;padding:5px 6px;background:#222;border:1px solid rgba(243,156,18,.4);border-radius:6px;color:#fff;font-size:.8em" onkeydown="if(event.key==='Enter')salvarAddInline(' + uid + ')">' +
+              '<button onclick="salvarAddInline(' + uid + ')" style="background:#f39c12;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.8em;font-weight:700">OK</button>' +
+              '<button onclick="fecharAddInline(' + uid + ')" style="background:#555;color:#aaa;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:.8em">×</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="citem-ctrl">' +
+            '<div class="qty-wrap">' +
+              '<button class="qty-btn m" onclick="mudarQty(' + uid + ',-1)">-</button>' +
+              '<span class="qty-n">' + item.qty + '</span>' +
+              '<button class="qty-btn p" onclick="mudarQty(' + uid + ',1)">+</button>' +
+            '</div>' +
+            '<span class="citem-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</span>' +
+            '<button class="citem-del" onclick="removerItem(' + uid + ')">🗑️</button>' +
+          '</div>' +
         '</div>';
       }).join('');
   }
@@ -1276,6 +1295,47 @@ function resetProds() {
 }
 
 // ======= START =======
+
+function abrirAddInline(uid) {
+  var el = document.getElementById('add-inline-' + uid);
+  if (el) { el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
+  var nomeEl = document.getElementById('add-nome-' + uid);
+  if (nomeEl) { nomeEl.value = ''; nomeEl.focus(); }
+  var valEl = document.getElementById('add-val-' + uid);
+  if (valEl) valEl.value = '';
+}
+
+function fecharAddInline(uid) {
+  var el = document.getElementById('add-inline-' + uid);
+  if (el) el.style.display = 'none';
+}
+
+function salvarAddInline(uid) {
+  var nome = (document.getElementById('add-nome-' + uid) || {}).value || '';
+  nome = nome.trim();
+  var preco = parseFloat((document.getElementById('add-val-' + uid) || {}).value) || 0;
+  if (!nome) { alert('Informe o nome do adicional'); return; }
+  var mesa = state.mesas[state.mesaAtual];
+  var item = mesa.itens.find(function(i){ return i.uid === uid; });
+  if (!item) return;
+  if (!item.adicionais) item.adicionais = [];
+  item.adicionais.push({nome: nome, preco: preco});
+  item.preco += preco;
+  salvarMesas();
+  renderCart();
+}
+
+function removerAdicionalItem(uid, aidx) {
+  var mesa = state.mesas[state.mesaAtual];
+  var item = mesa.itens.find(function(i){ return i.uid === uid; });
+  if (!item || !item.adicionais) return;
+  var add = item.adicionais[aidx];
+  if (add) item.preco -= parseFloat(add.preco) || 0;
+  item.adicionais.splice(aidx, 1);
+  salvarMesas();
+  renderCart();
+}
+
 window.onload = init;
 
 function abrirCalculadoraFlutuante() {
