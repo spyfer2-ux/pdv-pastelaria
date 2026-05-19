@@ -712,17 +712,15 @@ function renderCart() {
           (item.obs ? '<div class="citem-obs">📝 ' + item.obs + '</div>' : '') +
           '<div style="display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap">' +
             '<button class="cart-obs-btn" onclick="editarObs(' + uid + ')">✏️ Obs</button>' +
-            '<button class="cart-obs-btn" style="color:#f39c12;border-color:rgba(243,156,18,.4)" onclick="abrirAddInline(' + uid + ')">+ Adicional</button>' +
-          '</div>' +
-          '<div id="add-inline-' + uid + '" style="display:none;margin-bottom:6px;background:rgba(243,156,18,.07);border-radius:8px;padding:8px;border:1px solid rgba(243,156,18,.3)">' +
-            '<div style="font-size:.72em;color:#f39c12;font-weight:700;margin-bottom:5px">Adicional avulso:</div>' +
-            '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">' +
-              '<input id="add-nome-' + uid + '" type="text" placeholder="Nome (ex: Bacon)" style="flex:1;min-width:80px;padding:5px 8px;background:#222;border:1px solid rgba(243,156,18,.4);border-radius:6px;color:#fff;font-size:.8em" onkeydown="if(event.key==='Enter')salvarAddInline(' + uid + ')">' +
-              '<input id="add-val-' + uid + '" type="number" placeholder="R$" step="0.01" min="0" style="width:64px;padding:5px 6px;background:#222;border:1px solid rgba(243,156,18,.4);border-radius:6px;color:#fff;font-size:.8em" onkeydown="if(event.key==='Enter')salvarAddInline(' + uid + ')">' +
-              '<button onclick="salvarAddInline(' + uid + ')" style="background:#f39c12;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.8em;font-weight:700">OK</button>' +
-              '<button onclick="fecharAddInline(' + uid + ')" style="background:#555;color:#aaa;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:.8em">×</button>' +
             '</div>' +
-          '</div>' +
+            '<div style="margin-bottom:6px;background:rgba(243,156,18,.07);border-radius:8px;padding:8px;border:1px solid rgba(243,156,18,.3)">' +
+            '<div style="font-size:.72em;color:#f39c12;font-weight:700;margin-bottom:5px">➕ Adicional avulso:</div>' +
+            '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">' +
+            '<input id="add-nome-' + uid + '" type="text" placeholder="Nome (ex: Bacon)" style="flex:1;min-width:80px;padding:5px 8px;background:#222;border:1px solid rgba(243,156,18,.4);border-radius:6px;color:#fff;font-size:.8em" onkeydown="if(event.key===\'Enter\')salvarAddInline(' + uid + ')">' +
+            '<input id="add-val-' + uid + '" type="number" placeholder="R$" step="0.01" min="0" style="width:64px;padding:5px 6px;background:#222;border:1px solid rgba(243,156,18,.4);border-radius:6px;color:#fff;font-size:.8em" onkeydown="if(event.key===\'Enter\')salvarAddInline(' + uid + ')">' +
+            '<button onclick="salvarAddInline(' + uid + ')" style="background:#f39c12;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.8em;font-weight:700">OK</button>' +
+            '</div>' +
+            '</div>'
           '<div class="citem-ctrl">' +
             '<div class="qty-wrap">' +
               '<button class="qty-btn m" onclick="mudarQty(' + uid + ',-1)">-</button>' +
