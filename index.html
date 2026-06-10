@@ -194,6 +194,29 @@ table tr:hover td{background:rgba(192,57,43,.06)}
 .login-box h2{color:var(--red);margin-bottom:8px}
 .login-box p{color:#666;font-size:.85em;margin-bottom:22px}
 </style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
+  import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBHK_pJO_-XvIZ3gsiSNNaq7NfHsW-VPZI",
+    authDomain: "candeia-jr.firebaseapp.com",
+    projectId: "candeia-jr",
+    storageBucket: "candeia-jr.firebasestorage.app",
+    messagingSenderId: "825450097768",
+    appId: "1:825450097768:web:da2bc771011825b68c1fdd"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Expose to global scope for the PDV to use
+  window._pdvFirestore = { db, collection, addDoc };
+  window._pdvFirestoreReady = true;
+  console.log('[PDV Firebase] Firestore pronto');
+</script>
 </head>
 <body>
 <!-- TELA MESAS -->
@@ -930,6 +953,28 @@ function registrarVendaMesa(mesa) {
   };
   state.vendas.push(venda);
   localStorage.setItem('opg_vendas', JSON.stringify(state.vendas));
+  // Envia venda para Firebase (candeia-jr -> pdv_vendas)
+  if (window._pdvFirestoreReady) {
+    var fbVenda = {
+      timestamp: Date.now(),
+      mesa: venda.mesa,
+      estab: venda.estab,
+      total: venda.totalGeral,
+      itens: (venda.todosItens || []).map(function(it) {
+        return { nome: it.nome || it.descricao || 'Item', qtd: it.qtd || it.quantidade || 1, preco: it.preco || it.valor || 0 };
+      }),
+      pagamentos: venda.pagamentos,
+      data: venda.data
+    };
+    window._pdvFirestore.addDoc(
+      window._pdvFirestore.collection(window._pdvFirestore.db, 'pdv_vendas'),
+      fbVenda
+    ).then(function(docRef) {
+      console.log('[PDV Firebase] Venda salva:', docRef.id);
+    }).catch(function(e) {
+      console.warn('[PDV Firebase] Erro ao salvar:', e.message);
+    });
+  }
   return venda;
 }
 
