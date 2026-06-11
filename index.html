@@ -1476,5 +1476,99 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 </div>
 </div>
 </div>
+
+<!-- ================= MIGRACAO DE HISTORICO PDV -> FIREBASE ================= -->
+<script>
+(function(){
+  var FLAG = 'opg_historico_migrado';
+
+  function aguardarFirebase(cb, tentativas){
+    tentativas = tentativas || 0;
+    if (window._pdvFirestoreReady && window._pdvFirestore) { cb(true); return; }
+    if (tentativas > 40) { cb(false); return; } // ~10s
+    setTimeout(function(){ aguardarFirebase(cb, tentativas+1); }, 250);
+  }
+
+  function vendaParaFirebase(v){
+    var ts;
+    try { ts = new Date(v.data).getTime(); } catch(e){ ts = Date.now(); }
+    if (!ts || isNaN(ts)) ts = Date.now();
+    var itens = (v.todosItens || []).map(function(it){
+      return {
+        nome: it.nome || it.descricao || 'Item',
+        qtd: it.qtd || it.quantidade || 1,
+        preco: it.preco || it.valor || 0
+      };
+    });
+    return {
+      timestamp: ts,
+      mesa: v.mesa,
+      estab: v.estab,
+      total: v.totalGeral,
+      itens: itens,
+      pagamentos: v.pagamentos,
+      data: v.data,
+      _migrado: true
+    };
+  }
+
+  function migrarHistorico(vendas){
+    var fb = window._pdvFirestore;
+    var enviados = 0, erros = 0, total = vendas.length;
+    var btn = document.getElementById('mig-btn-sim');
+    if (btn){ btn.disabled = true; btn.textContent = 'Atualizando...'; }
+
+    function enviarSeq(i){
+      if (i >= vendas.length){
+        if (erros === 0){ localStorage.setItem(FLAG, '1'); }
+        var ov = document.getElementById('mig-overlay');
+        if (ov) ov.remove();
+        alert('Atualizacao concluida! ' + enviados + ' de ' + total + ' vendas do historico foram enviadas.' + (erros ? (' (' + erros + ' falharam, tente novamente mais tarde)') : ''));
+        return;
+      }
+      var doc = vendaParaFirebase(vendas[i]);
+      fb.addDoc(fb.collection(fb.db, 'pdv_vendas'), doc)
+        .then(function(){ enviados++; })
+        .catch(function(e){ erros++; console.warn('[Migracao] erro venda', i, e); })
+        .finally(function(){ enviarSeq(i+1); });
+    }
+    enviarSeq(0);
+  }
+
+  function mostrarModal(vendas){
+    if (document.getElementById('mig-overlay')) return;
+    var ov = document.createElement('div');
+    ov.id = 'mig-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.3);font-family:Segoe UI,sans-serif;';
+    box.innerHTML = '<div style="font-size:17px;font-weight:bold;color:#222;margin-bottom:20px;">Deseja atualizar o sistema agora?</div>';
+    var btn = document.createElement('button');
+    btn.id = 'mig-btn-sim';
+    btn.textContent = 'Sim';
+    btn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:8px;padding:12px 40px;font-size:16px;font-weight:bold;cursor:pointer;';
+    btn.onclick = function(){ migrarHistorico(vendas); };
+    box.appendChild(btn);
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+  }
+
+  function verificar(){
+    if (localStorage.getItem(FLAG) === '1') return; // ja migrado
+    var vendas = [];
+    try { vendas = JSON.parse(localStorage.getItem('opg_vendas') || '[]'); } catch(e){ vendas = []; }
+    if (!vendas.length){ localStorage.setItem(FLAG, '1'); return; } // nada a migrar
+
+    aguardarFirebase(function(ok){
+      if (!ok) return; // sem internet/firebase agora; tenta na proxima abertura
+      mostrarModal(vendas);
+    });
+  }
+
+  if (document.readyState === 'complete'){ setTimeout(verificar, 800); }
+  else { window.addEventListener('load', function(){ setTimeout(verificar, 800); }); }
+})();
+</script>
+<!-- =============== FIM MIGRACAO DE HISTORICO =============== -->
 </body>
 </html>
