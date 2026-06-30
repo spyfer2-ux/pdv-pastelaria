@@ -7,7 +7,7 @@
 <title>🥟 O Pastel Gigante - PDV</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#f0f0f0;color:#222;min-height:100vh}
+body{font-family:'Segoe UI',sans-serif;backghround:#f0f0f0;color:#222;min-height:100vh}
 :root{--red:#c0392b;--red2:#e74c3c;--green:#27ae60;--green2:#2ecc71;--blue:#2980b9;--gold:#e67e22;--dark:#ffffff;--darker:#f0f0f0;--surface:#f8f8f8}
 
 /* TELAS */
@@ -261,7 +261,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
     <div class="col-cart no-print">
       <div class="cart-hdr">
         <h3>🛒 <span id="cart-mesa-label">Mesa 1</span></h3>
-        <button class="btn btn-red btn-sm" onclick="limparMesa()">🗑️ Limpar</button>
+        <button class="btn btn-red btn-sm" onclick="cancelarPedido()">🗑️ Cancelar Pedido</button>
       </div>
       <div class="cart-items" id="cart-items"></div>
       <div class="cart-foot">
@@ -281,7 +281,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
         <div class="fg" style="margin-top:5px">
           <textarea class="fg" id="obs-venda" placeholder="Obs. geral da venda..." rows="2" style="width:100%;padding:7px 10px;background:#f8f8f8;border:2px solid rgba(192,57,43,.2);border-radius:8px;color:#ccc;font-size:.8em;resize:none"></textarea>
         </div>
-        <button class="btn btn-green btn-full btn-lg" onclick="finalizarVenda()">✅ FINALIZAR VENDA</button>
+        <button class="btn btn-full btn-lg" style="background:#f39c12;color:#fff;margin-bottom:6px" onclick="salvarPedido()">📋 DEIXAR EM ABERTO (pagar depois)</button><button class="btn btn-green btn-full btn-lg" onclick="finalizarVenda()">✅ FINALIZAR VENDA</button>
       </div>
     </div>
   </div>
@@ -517,7 +517,9 @@ function abrirMesa(num) {
   selPgto('dinheiro');
 }
 
-function limparMesa() {
+function cancelarPedido() { var m = state.mesas[state.mesaAtual]; if (!m) return; if (!m.itens.length) { alert('Nao ha pedido para cancelar nesta mesa.'); return; } if (!confirm('Tem certeza que deseja CANCELAR o pedido da Mesa ' + m.num + '?
+
+Todos os itens NAO PAGOS serao apagados. Esta acao nao pode ser desfeita.')) return; m.itens = []; salvarMesas(); renderCart(); renderMesas(); irMesas(); } function salvarPedido() { var m = state.mesas[state.mesaAtual]; if (!m) return; if (!m.itens.length && !(m.pagos && m.pagos.length)) { alert('Adicione itens antes de deixar o pedido em aberto.'); return; } salvarMesas(); renderMesas(); irMesas(); } function limparMesa() {
   var m = state.mesas[state.mesaAtual];
   if (!confirm('Limpar todos os itens da Mesa ' + m.num + '?')) return;
   m.itens = []; m.pagos = [];
