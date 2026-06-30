@@ -517,9 +517,7 @@ function abrirMesa(num) {
   selPgto('dinheiro');
 }
 
-function cancelarPedido() { var m = state.mesas[state.mesaAtual]; if (!m) return; if (!m.itens.length) { alert('Nao ha pedido para cancelar nesta mesa.'); return; } if (!confirm('Tem certeza que deseja CANCELAR o pedido da Mesa ' + m.num + '?
-
-Todos os itens NAO PAGOS serao apagados. Esta acao nao pode ser desfeita.')) return; m.itens = []; salvarMesas(); renderCart(); renderMesas(); irMesas(); } function salvarPedido() { var m = state.mesas[state.mesaAtual]; if (!m) return; if (!m.itens.length && !(m.pagos && m.pagos.length)) { alert('Adicione itens antes de deixar o pedido em aberto.'); return; } salvarMesas(); renderMesas(); irMesas(); } function limparMesa() {
+function cancelarPedido() { var m = state.mesas[state.mesaAtual]; if (!m) return; if (!m.itens.length) { alert('Nao ha pedido para cancelar nesta mesa.'); return; } if (!confirm('Tem certeza que deseja CANCELAR o pedido da Mesa ' + m.num + '?\n\nTodos os itens NAO PAGOS serao apagados. Esta acao nao pode ser desfeita.')) return; m.itens = []; salvarMesas(); renderCart(); renderMesas(); irMesas(); } function salvarPedido() { var m = state.mesas[state.mesaAtual]; if (!m) return; if (!m.itens.length && !(m.pagos && m.pagos.length)) { alert('Adicione itens antes de deixar o pedido em aberto.'); return; } salvarMesas(); renderMesas(); irMesas(); } function limparMesa() {
   var m = state.mesas[state.mesaAtual];
   if (!confirm('Limpar todos os itens da Mesa ' + m.num + '?')) return;
   m.itens = []; m.pagos = [];
