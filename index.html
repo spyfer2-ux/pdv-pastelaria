@@ -597,10 +597,7 @@ renderCart();
 }
 }
 
-function getAdicionaisDoProd(prodId) {
-var all = JSON.parse(localStorage.getItem('opg_adicionais') || '{}');
-return all[prodId] || [];
-}
+var ADICIONAIS_DEFAULT = [{nome:'Atum Mistura',preco:7.00},{nome:'Azeitona',preco:2.00},{nome:'Bacon Mistura',preco:6.00},{nome:'Berinjela',preco:6.00},{nome:'Brócolis',preco:6.00},{nome:'Carne Mistura',preco:6.80},{nome:'Carne Seca',preco:11.00},{nome:'Catupiry',preco:6.50},{nome:'Cebola',preco:2.00},{nome:'Cheddar',preco:4.50},{nome:'Escarola',preco:6.00},{nome:'Frango Mistura',preco:5.00},{nome:'Milho',preco:3.00},{nome:'Mussarela',preco:6.00},{nome:'Ovo',preco:2.90},{nome:'Palmito Puro',preco:7.50},{nome:'Presunto',preco:3.00},{nome:'Provolone',preco:5.00},{nome:'Tomate',preco:2.50},{nome:'Calabresa Fatiada',preco:4.90},{nome:'Carne Louca Mistura',preco:7.00},{nome:'Salame',preco:7.90},{nome:'Tomate Seco',preco:4.90}]; var CATS_COM_ADICIONAIS = ['Bauru','Brócolis','Calabresa','Carne','Carne Louca','Carne Seca','Escarola','Frango','Mussarela','Palmito','Salame','Salgados','Vegano','Os Gigantes']; function getAdicionaisDoProd(prodId) { var all = JSON.parse(localStorage.getItem('opg_adicionais') || '{}'); if (all[prodId] && all[prodId].length) return all[prodId]; var prod = (typeof getProdById === 'function') ? getProdById(prodId) : (state.produtos || []).find(function(p){ return p.id === prodId; }); if (prod && CATS_COM_ADICIONAIS.indexOf(prod.cat) !== -1) return ADICIONAIS_DEFAULT; return all[prodId] || []; }
 
 function salvarAdicionaisDoProd(prodId, lista) {
 var all = JSON.parse(localStorage.getItem('opg_adicionais') || '{}');
