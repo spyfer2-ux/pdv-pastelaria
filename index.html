@@ -434,7 +434,26 @@ var state = {
 
 // ======= INIT =======
 function init() {
-  state.produtos = JSON.parse(localStorage.getItem('opg_produtos') || 'null') || JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
+  // Carrega os produtos padrão do código (fonte da verdade do cardápio)
+  var _padrao = JSON.parse(JSON.stringify(PRODUTOS_DEFAULT));
+  // Carrega os produtos salvos no navegador (preserva edições de preço)
+  var _salvos = JSON.parse(localStorage.getItem('opg_produtos') || 'null');
+  if (!_salvos) {
+    // Primeiro uso neste navegador: usa o cardápio padrão completo
+    state.produtos = _padrao;
+  } else {
+    // Já existe lista salva: mescla adicionando itens/categorias novos do código
+    // (ex.: Atum e Berinjela) que ainda não estejam na lista salva,
+    // sem apagar as edições de preço já feitas
+    var _idsSalvos = {};
+    _salvos.forEach(function(p){ _idsSalvos[p.id] = true; });
+    _padrao.forEach(function(p){
+      if (!_idsSalvos[p.id]) { _salvos.push(p); }
+    });
+    state.produtos = _salvos;
+    // Persiste a lista já atualizada
+    localStorage.setItem('opg_produtos', JSON.stringify(state.produtos));
+  }
   state.vendas = JSON.parse(localStorage.getItem('opg_vendas') || '[]');
   var mSalvas = JSON.parse(localStorage.getItem('opg_mesas') || 'null');
   if (mSalvas) state.mesas = mSalvas;
