@@ -640,6 +640,9 @@ abrirModal('modal-adicionais');
 }
 
 function toggleAdicional(idx) {
+  var _agora = Date.now();
+  if (state._lastToggle && state._lastToggle.idx === idx && (_agora - state._lastToggle.t) < 350) { return; }
+  state._lastToggle = { idx: idx, t: _agora };
 var sel = state._selectedAdds || [];
 var pos = sel.indexOf(idx);
 if (pos >= 0) {
