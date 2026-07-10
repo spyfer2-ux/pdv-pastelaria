@@ -975,7 +975,7 @@ function registrarVendaMesa(mesa) {
       estab: venda.estab,
       total: venda.totalGeral,
       itens: (venda.todosItens || []).map(function(it) {
-        return { nome: it.nome || it.descricao || 'Item', qtd: it.qtd || it.quantidade || 1, preco: it.preco || it.valor || 0 };
+        return { nome: it.nome || it.descricao || 'Item', qtd: it.qty || it.qtd || it.quantidade || 1, preco: it.preco || it.valor || 0, adicionais: (it.adicionais || []).map(function(a){ return { nome: a.nome, preco: a.preco }; }) };
       }),
       pagamentos: venda.pagamentos,
       data: venda.data
