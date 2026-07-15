@@ -199,7 +199,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
-  import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
+  import { getFirestore, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyBHK_pJO_-XvIZ3gsiSNNaq7NfHsW-VPZI",
@@ -214,7 +214,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
   const db = getFirestore(app);
 
   // Expose to global scope for the PDV to use
-  window._pdvFirestore = { db, collection, addDoc };
+  window._pdvFirestore = { db, collection, addDoc, getDocs };
   window._pdvFirestoreReady = true;
   console.log('[PDV Firebase] Firestore pronto');
 </script>
@@ -320,6 +320,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
       <button class="tab on" onclick="showAdminTab('rel')">📊 Relatórios</button>
       <button class="tab" onclick="showAdminTab('hist')">📋 Histórico</button>
       <button class="tab" onclick="showAdminTab('prods')">🛒 Produtos</button>
+      <button class="tab" onclick="abrirCobrancas()">💳 Cobranças em Aberto</button>
     </div>
     <div id="admin-rel"></div>
     <div id="admin-hist" style="display:none"></div>
@@ -1588,5 +1589,110 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 })();
 </script>
 <!-- =============== FIM MIGRACAO DE HISTORICO =============== -->
+
+<!-- MODAL COBRANÇAS EM ABERTO (Candeia + PDV) -->
+<div class="modal" id="modal-cobrancas">
+  <div class="mbox">
+    <h3>💳 Cobranças em Aberto</h3>
+    <div id="cobr-lista" style="max-height:60vh;overflow-y:auto"></div>
+    <div class="mbtns" style="margin-top:16px">
+      <button onclick="fecharModal('modal-cobrancas')" style="background:var(--red);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:700;width:100%;cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AVISO DE VENCIMENTOS (1 dia antes) -->
+<div class="modal" id="modal-vencimentos">
+  <div class="mbox">
+    <h3>⏰ Vencimentos amanhã</h3>
+    <p style="color:#555;font-size:.9em;margin-bottom:12px">As cobranças abaixo vencem em 1 dia:</p>
+    <div id="venc-lista"></div>
+    <div class="mbtns" style="margin-top:16px">
+      <button onclick="fecharModal('modal-vencimentos')" style="background:var(--red);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:700;width:100%;cursor:pointer">Entendi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function parseLocal(iso){var p=String(iso).split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+  function diffDias(hoje,alvoISO){var a=parseLocal(alvoISO);a.setHours(0,0,0,0);var h=new Date(hoje);h.setHours(0,0,0,0);return Math.round((a-h)/86400000);}
+  function proximoVenc(hoje,dia){var h=new Date(hoje);h.setHours(0,0,0,0);var a=new Date(h.getFullYear(),h.getMonth(),dia);a.setHours(0,0,0,0);if((a-h)<0)a=new Date(h.getFullYear(),h.getMonth()+1,dia);return ymd(a);}
+  function brl(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});}
+
+  async function coletarCobrancas(hoje){
+    var lista=[];
+    var ROY_ISENCAO_ATE=parseLocal('2026-08-07');
+    var fixas=[
+      {tipo:'💳 Mensalidade do Sistema',valor:119.00,dia:15},
+      {tipo:'🏠 Aluguel do Estabelecimento',valor:1200.00,dia:24},
+      {tipo:'👑 Royalties da Marca',valor:1874.00,dia:15,isentoAte:ROY_ISENCAO_ATE}
+    ];
+    fixas.forEach(function(f){
+      var venc=proximoVenc(hoje,f.dia);
+      if(f.isentoAte && parseLocal(venc)<=f.isentoAte) return;
+      lista.push({tipo:f.tipo,valor:brl(f.valor),vencISO:venc,data:parseLocal(venc).toLocaleDateString('pt-BR'),dias:diffDias(hoje,venc),origem:'recorrente'});
+    });
+    var fs=window._pdvFirestore;
+    if(fs&&fs.db&&fs.getDocs&&fs.collection){
+      try{
+        var snap=await fs.getDocs(fs.collection(fs.db,'boletos_avulsos'));
+        snap.forEach(function(docu){
+          var b=docu.data();
+          if(b.status&&b.status!=='pendente') return;
+          if(!b.vencimento) return;
+          lista.push({tipo:'🧾 '+(b.descricao||'Boleto'),valor:brl(b.valor),vencISO:b.vencimento,data:parseLocal(b.vencimento).toLocaleDateString('pt-BR'),dias:diffDias(hoje,b.vencimento),origem:'avulso'});
+        });
+      }catch(e){console.warn('[PDV] Falha ao ler boletos_avulsos:',e);}
+    }
+    lista.sort(function(a,b){return a.dias-b.dias;});
+    return lista;
+  }
+
+  window.abrirCobrancas=async function(){
+    var hoje=new Date();hoje.setHours(0,0,0,0);
+    var el=document.getElementById('cobr-lista');
+    el.innerHTML='<p style="color:#777;text-align:center;padding:16px">Carregando…</p>';
+    if(typeof abrirModal==='function') abrirModal('modal-cobrancas'); else document.getElementById('modal-cobrancas').classList.add('show');
+    var lista=await coletarCobrancas(hoje);
+    if(!lista.length){el.innerHTML='<p style="color:#777;text-align:center;padding:16px">Nenhuma cobrança em aberto.</p>';return;}
+    el.innerHTML=lista.map(function(a){
+      var venceHoje=a.dias===0, atrasado=a.dias<0, amanha=a.dias===1;
+      var cor=atrasado?'#c0392b':(amanha||venceHoje?'#e67e22':'#555');
+      var badge=atrasado?'em atraso':(venceHoje?'vence hoje':(amanha?'vence amanhã':'vence '+a.data));
+      return '<div style="border:1px solid rgba(0,0,0,.08);border-left:4px solid '+cor+';border-radius:10px;padding:12px;margin-bottom:10px;background:#fafafa">'+
+        '<div style="font-weight:700;color:#333">'+a.tipo+'</div>'+
+        '<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:.9em">'+
+        '<span style="color:'+cor+';font-weight:600">'+badge+' ('+a.data+')</span>'+
+        '<span style="font-weight:700;color:#c0392b">'+a.valor+'</span></div></div>';
+    }).join('');
+  };
+
+  async function verificarVencimentos(){
+    try{
+      var hoje=new Date();hoje.setHours(0,0,0,0);
+      if(localStorage.getItem('pdv_venc_popup_visto')===ymd(hoje)) return;
+      var lista=await coletarCobrancas(hoje);
+      var avisos=lista.filter(function(a){return a.dias===1;});
+      if(!avisos.length) return;
+      document.getElementById('venc-lista').innerHTML=avisos.map(function(a){
+        return '<div style="border:1px solid rgba(192,57,43,.2);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(243,156,18,.06)">'+
+          '<div style="font-weight:700;color:#c0392b">'+a.tipo+'</div>'+
+          '<div style="display:flex;justify-content:space-between;margin-top:4px;font-size:.92em">'+
+          '<span style="color:#777">vence '+a.data+'</span>'+
+          '<span style="font-weight:700;color:#c0392b">'+a.valor+'</span></div></div>';
+      }).join('');
+      if(typeof abrirModal==='function') abrirModal('modal-vencimentos'); else document.getElementById('modal-vencimentos').classList.add('show');
+      localStorage.setItem('pdv_venc_popup_visto',ymd(hoje));
+    }catch(e){console.warn('[PDV] verificarVencimentos erro:',e);}
+  }
+
+  function start(){ if(window._pdvFirestoreReady) verificarVencimentos(); else setTimeout(start,600); }
+  if(document.readyState!=='loading') setTimeout(start,800);
+  else window.addEventListener('DOMContentLoaded',function(){setTimeout(start,800);});
+})();
+</script>
+
 </body>
 </html>
