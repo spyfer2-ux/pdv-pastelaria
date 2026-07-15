@@ -321,6 +321,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
       <button class="tab" onclick="showAdminTab('hist')">📋 Histórico</button>
       <button class="tab" onclick="showAdminTab('prods')">🛒 Produtos</button>
       <button class="tab" onclick="abrirCobrancas()">💳 Cobranças em Aberto</button>
+      <button class="tab" onclick="atualizarSistemaPDV()">🔄 Atualizar Sistema</button>
     </div>
     <div id="admin-rel"></div>
     <div id="admin-hist" style="display:none"></div>
@@ -1500,92 +1501,103 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 <script>
 (function(){
   var FLAG = 'opg_historico_migrado';
+  var SESSION_KEY = 'opg_mig_sessao';
 
   function aguardarFirebase(cb, tentativas){
     tentativas = tentativas || 0;
     if (window._pdvFirestoreReady && window._pdvFirestore) { cb(true); return; }
-    if (tentativas > 40) { cb(false); return; } // ~10s
+    if (tentativas > 40) { cb(false); return; }
     setTimeout(function(){ aguardarFirebase(cb, tentativas+1); }, 250);
   }
 
   function vendaParaFirebase(v){
-    var ts;
-    try { ts = new Date(v.data).getTime(); } catch(e){ ts = Date.now(); }
-    if (!ts || isNaN(ts)) ts = Date.now();
-    var itens = (v.todosItens || []).map(function(it){
-      return {
-        nome: it.nome || it.descricao || 'Item',
-        qtd: it.qtd || it.quantidade || 1,
-        preco: it.preco || it.valor || 0
-      };
+    var itens = (v.todosItens || v.itens || []).map(function(it){
+      return { nome: it.nome || it.descricao || 'Item', qtd: it.qty || it.qtd || it.quantidade || 1, preco: it.preco || it.valor || 0 };
     });
-    return {
-      timestamp: ts,
-      mesa: v.mesa,
-      estab: v.estab,
-      total: v.totalGeral,
-      itens: itens,
-      pagamentos: v.pagamentos,
-      data: v.data,
-      _migrado: true
-    };
+    return { timestamp: v.timestamp || Date.now(), mesa: v.mesa, estab: v.estab, total: v.totalGeral != null ? v.totalGeral : v.total, itens: itens, pagamentos: v.pagamentos, data: v.data, _migrado: true };
   }
 
-  function migrarHistorico(vendas){
+  function migrarHistorico(vendas, onProgress, onDone){
     var fb = window._pdvFirestore;
     var enviados = 0, erros = 0, total = vendas.length;
-    var btn = document.getElementById('mig-btn-sim');
-    if (btn){ btn.disabled = true; btn.textContent = 'Atualizando...'; }
-
     function enviarSeq(i){
-      if (i >= vendas.length){
-        if (erros === 0){ localStorage.setItem(FLAG, '1'); }
-        var ov = document.getElementById('mig-overlay');
-        if (ov) ov.remove();
-        alert('Atualizacao concluida! ' + enviados + ' de ' + total + ' vendas do historico foram enviadas.' + (erros ? (' (' + erros + ' falharam, tente novamente mais tarde)') : ''));
-        return;
-      }
+      if (i >= vendas.length){ onDone(enviados, erros, total); return; }
       var doc = vendaParaFirebase(vendas[i]);
-      fb.addDoc(fb.collection(fb.db, 'pdv_vendas'), doc)
-        .then(function(){ enviados++; })
-        .catch(function(e){ erros++; console.warn('[Migracao] erro venda', i, e); })
-        .finally(function(){ enviarSeq(i+1); });
+      fb.addDoc(fb.collection(fb.db, 'pdv_vendas'), doc).then(function(){
+        enviados++; onProgress(i+1, total); setTimeout(function(){ enviarSeq(i+1); }, 60);
+      }).catch(function(e){
+        erros++; console.warn('[PDV] falha ao enviar venda', e); setTimeout(function(){ enviarSeq(i+1); }, 60);
+      });
     }
     enviarSeq(0);
   }
 
-  function mostrarModal(vendas){
+  function lerVendasLocais(){
+    try { return JSON.parse(localStorage.getItem('opg_vendas') || '[]'); } catch(e){ return []; }
+  }
+
+  function mostrarModal(vendas, manual){
     if (document.getElementById('mig-overlay')) return;
     var ov = document.createElement('div');
     ov.id = 'mig-overlay';
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;font-family:Segoe UI,sans-serif;';
     var box = document.createElement('div');
-    box.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.3);font-family:Segoe UI,sans-serif;';
-    box.innerHTML = '<div style="font-size:17px;font-weight:bold;color:#222;margin-bottom:20px;">Deseja atualizar o sistema agora?</div>';
+    box.style.cssText = 'background:#fff;border-radius:18px;max-width:400px;width:100%;padding:26px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);';
+    box.innerHTML =
+      '<div style="font-size:44px;margin-bottom:6px">🚀</div>' +
+      '<h2 style="color:#c0392b;margin:0 0 6px;font-size:1.25em">Atualização disponível</h2>' +
+      '<p style="color:#555;font-size:.92em;margin:0 0 4px">Uma nova versão do sistema está pronta.</p>' +
+      '<p style="color:#888;font-size:.82em;margin:0 0 16px">' + vendas.length + ' registro(s) de vendas serão sincronizados com a nuvem.</p>' +
+      '<div id="mig-progresso" style="display:none;margin:10px 0 16px">' +
+        '<div style="background:#eee;border-radius:20px;height:12px;overflow:hidden"><div id="mig-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#c0392b,#e74c3c);transition:width .2s"></div></div>' +
+        '<div id="mig-pct" style="font-size:.8em;color:#888;margin-top:6px">0%</div>' +
+      '</div>';
     var btn = document.createElement('button');
     btn.id = 'mig-btn-sim';
-    btn.textContent = 'Sim';
-    btn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:8px;padding:12px 40px;font-size:16px;font-weight:bold;cursor:pointer;';
-    btn.onclick = function(){ migrarHistorico(vendas); };
-    box.appendChild(btn);
-    ov.appendChild(box);
-    document.body.appendChild(ov);
+    btn.textContent = '⬇️  Atualizar agora';
+    btn.style.cssText = 'background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:1em;cursor:pointer;width:100%;';
+    var depois = document.createElement('button');
+    depois.textContent = 'Agora não';
+    depois.style.cssText = 'background:transparent;color:#999;border:none;padding:10px;margin-top:8px;font-size:.85em;cursor:pointer;width:100%;';
+    depois.onclick = function(){ sessionStorage.setItem(SESSION_KEY,'1'); ov.remove(); };
+    btn.onclick = function(){
+      btn.disabled = true; btn.style.opacity = .6; btn.textContent = 'Atualizando...';
+      depois.style.display = 'none';
+      document.getElementById('mig-progresso').style.display = 'block';
+      aguardarFirebase(function(ok){
+        if(!ok){ alert('Sem conexão com a nuvem agora. Verifique a internet e tente novamente.'); btn.disabled=false; btn.style.opacity=1; btn.textContent='⬇️  Atualizar agora'; return; }
+        migrarHistorico(vendas,
+          function(feito,total){ var pct=Math.round(feito/total*100); document.getElementById('mig-bar').style.width=pct+'%'; document.getElementById('mig-pct').textContent=pct+'%'; },
+          function(enviados,erros,total){
+            localStorage.setItem(FLAG, '1');
+            btn.textContent = '✅ Concluído';
+            setTimeout(function(){
+              if(ov) ov.remove();
+              alert('Sistema atualizado! ' + enviados + ' de ' + total + ' vendas sincronizadas.' + (erros ? (' (' + erros + ' falharam, abra novamente para tentar o restante)') : ''));
+            }, 600);
+          }
+        );
+      });
+    };
+    box.appendChild(btn); box.appendChild(depois); ov.appendChild(box); document.body.appendChild(ov);
   }
+
+  window.atualizarSistemaPDV = function(){
+    var vendas = lerVendasLocais();
+    if(!vendas.length){ alert('Não há vendas no histórico local deste aparelho para sincronizar.'); return; }
+    sessionStorage.removeItem(SESSION_KEY);
+    mostrarModal(vendas, true);
+  };
 
   function verificar(){
-    if (localStorage.getItem(FLAG) === '1') return; // ja migrado
-    var vendas = [];
-    try { vendas = JSON.parse(localStorage.getItem('opg_vendas') || '[]'); } catch(e){ vendas = []; }
-    if (!vendas.length){ localStorage.setItem(FLAG, '1'); return; } // nada a migrar
-
-    aguardarFirebase(function(ok){
-      if (!ok) return; // sem internet/firebase agora; tenta na proxima abertura
-      mostrarModal(vendas);
-    });
+    if (sessionStorage.getItem(SESSION_KEY) === '1') return;
+    var vendas = lerVendasLocais();
+    if (!vendas.length){ return; }
+    aguardarFirebase(function(ok){ if(!ok) return; mostrarModal(vendas, false); });
   }
 
-  if (document.readyState === 'complete'){ setTimeout(verificar, 800); }
-  else { window.addEventListener('load', function(){ setTimeout(verificar, 800); }); }
+  if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(verificar, 1200);
+  else window.addEventListener('load', function(){ setTimeout(verificar, 1200); });
 })();
 </script>
 <!-- =============== FIM MIGRACAO DE HISTORICO =============== -->
