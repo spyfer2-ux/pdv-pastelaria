@@ -1706,5 +1706,30 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 })();
 </script>
 
+  <script>
+    async function restaurarVendasNuvem(){
+      try{
+        var fb=window._pdvFirestore;
+        if(!fb||!fb.db){alert('Firebase nao conectado. Aguarde e tente de novo.');return;}
+        if(!confirm('Isso vai BAIXAR as vendas da nuvem e SUBSTITUIR o historico deste aparelho. Continuar?'))return;
+        var snap=await fb.getDocs(fb.collection(fb.db,'pdv_vendas'));
+        var vendas=[];var n=1;
+        snap.forEach(function(doc){
+          var d=doc.data()||{};
+          var itens=d.todosItens||d.itens||[];
+          var total=d.totalGeral;
+          if(total==null){total=0;
+                          if(Array.isArray(d.pagamentos))d.pagamentos.forEach(function(p){total+=Number(p.valor)||0;});
+                          if(!total&&Array.isArray(itens))itens.forEach(function(it){total+=(Number(it.preco)||0)*(Number(it.qty)||1);});}
+          vendas.push({id:d.id||Date.now()+(n++),data:d.data||d.criadoEm||new Date().toISOString(),mesa:d.mesa||'',estab:d.estab||'',pagamentos:d.pagamentos||[],todosItens:itens,totalGeral:total});
+        });
+        localStorage.setItem('opg_vendas',JSON.stringify(vendas));
+        alert('Pronto! '+vendas.length+' vendas restauradas da nuvem. A pagina vai recarregar.');
+        location.reload();
+      }catch(e){alert('Erro ao restaurar: '+(e&&e.message?e.message:e));console.error('[PDV] restaurar',e);}
+    }
+  </script>
+  </script>
+
 </body>
 </html>
