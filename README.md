@@ -8,6 +8,7 @@ Acesse: https://spyfer2-ux.github.io/pdv-pastelaria/
 
 - Atendimento por mesa (8 mesas). O cliente senta, pede e vai comendo; o pagamento fica para o final.
 - Botao Cancelar Pedido: cancela o pedido caso o cliente desista, sem gerar venda.
+- Remocao de item individual: no carrinho da mesa, cada item tem uma lixeira para remover so aquele item, sem precisar cancelar o pedido inteiro.
 - Botao Deixar em Aberto (pagar depois): registra os itens na mesa e volta para as mesas, sem cobrar.
 - Cardapio completo de pasteis salgados, incluindo as categorias Atum e Berinjela.
 - Adicionais em todos os pasteis salgados (23 opcoes: mussarela, catupiry, bacon, carne, escarola, palmito, etc.).
@@ -30,42 +31,60 @@ Os dados do caixa ficam salvos no proprio navegador (localStorage), na chave `op
 Na tela Gerencial (Admin) ha o botao **Cobrancas em Aberto**, que lista todas as cobrancas:
 
 - Cobrancas recorrentes fixas: Mensalidade do Sistema (R$ 119,00 - todo dia 15), Aluguel do Estabelecimento (R$ 1.200,00 - todo dia 24) e Royalties da Marca (R$ 1.874,00 - todo dia 15, com isencao ate 07/08/2026).
-- Boletos avulsos em aberto (status `pendente`) cadastrados no app CANDEIA, lidos em tempo real da colecao `boletos_avulsos` do Firebase.
+- Boletos avulsos em aberto (status pendente) cadastrados no app CANDEIA, lidos em tempo real da colecao boletos_avulsos do Firebase.
 
 A lista mostra cada cobranca ordenada pela proximidade do vencimento, com destaque para "em atraso", "vence hoje" e "vence amanha".
 
 ### Pop-up de vencimento (1 dia antes)
 
-Ao abrir o PDV, um pop-up automatico avisa sobre qualquer cobranca (recorrente ou avulsa) que vence em exatamente 1 dia. O pop-up so aparece uma vez por dia (controle via localStorage, chave `pdv_venc_popup_visto`).
+Ao abrir o PDV, um pop-up automatico avisa sobre qualquer cobranca (recorrente ou avulsa) que vence em exatamente 1 dia. O pop-up so aparece uma vez por dia (controle via localStorage, chave pdv_venc_popup_visto).
 
-## Sincronizacao do historico de vendas (Atualizar Sistema)
+## Sincronizacao do historico de vendas
 
-As vendas sao gravadas localmente no navegador do aparelho (localStorage, chave `opg_vendas`) e tambem enviadas para a colecao `pdv_vendas` do Firebase, onde alimentam a aba **Faturamento** do app CANDEIA.
+As vendas sao gravadas localmente no navegador do aparelho (localStorage, chave `opg_vendas`) e tambem enviadas para a colecao `pdv_vendas` do Firebase, onde alimentam a aba Faturamento do app CANDEIA.
 
-Para enviar o historico local (por exemplo, vendas antigas que ainda nao subiram para a nuvem):
+- **Envio automatico:** a cada venda finalizada, o PDV envia essa venda para a nuvem automaticamente (funcao registrarVendaMesa -> addDoc na colecao pdv_vendas). Nao e preciso atualizar manualmente todo dia. O envio depende de conexao com a internet e da regra de seguranca do Firestore permitir a escrita em pdv_vendas (ver secao Regras do Firestore).
+- **Envio manual (reforco):** na tela Gerencial, o botao **Atualizar Sistema** (e o pop-up "Atualizacao disponivel" com o botao Atualizar agora) dispara o envio em lote de todas as vendas locais. Util para reenviar vendas antigas ou vendas que ficaram so no aparelho caso tenha faltado internet no momento.
 
-- Ao abrir o PDV no aparelho onde estao as vendas, aparece o pop-up **"Atualizacao disponivel"** com o botao **Atualizar agora**. Ele sincroniza todas as vendas locais com a nuvem, mostrando barra de progresso.
-- A qualquer momento, na tela Gerencial, o botao **Atualizar Sistema** dispara essa sincronizacao manualmente.
+### Restaurar vendas da nuvem
 
-> Importante: o historico fica no aparelho onde o PDV roda. A sincronizacao precisa ser feita nesse mesmo aparelho.
+Existe a funcao `restaurarVendasNuvem()` que baixa todas as vendas da colecao pdv_vendas do Firebase, converte para o formato local e **substitui** o historico do aparelho (`opg_vendas`), recarregando a pagina em seguida.
+
+- Serve para recuperar o historico em um aparelho novo ou que perdeu os dados locais.
+- Atencao: ela substitui o historico local pelo da nuvem, entao nao deve ser usada em um aparelho que tenha vendas recentes ainda nao sincronizadas.
+- Hoje ela e disparada pelo Console do navegador (F12) digitando `restaurarVendasNuvem()`.
+
+Importante: o historico local fica no aparelho onde o PDV roda. O envio manual em lote precisa ser feito nesse mesmo aparelho.
+
+## Regras do Firestore
+
+Para o envio e a leitura das vendas funcionarem, a colecao `pdv_vendas` precisa estar liberada nas Regras de Seguranca do Firestore (projeto candeia-jr). Regra atual:
+
+```
+match /pdv_vendas/{docId} {
+  allow read, write: if true;
+}
+```
+
+Observacao de seguranca: com `if true` a colecao pdv_vendas fica publica (qualquer um com a URL do projeto pode ler/gravar). Recomenda-se migrar futuramente para autenticacao (ex.: login anonimo do Firebase + `allow read, write: if request.auth != null`).
 
 ## Tecnologia
 
-- HTML, CSS e JavaScript em um unico arquivo (`index.html`).
-- Firebase / Firestore (projeto `candeia-jr`) para sincronizar as vendas com o app do Franqueado (CANDEIA).
+- HTML, CSS e JavaScript em um unico arquivo (index.html).
+- Firebase / Firestore (projeto candeia-jr) para sincronizar as vendas com o app do Franqueado (CANDEIA).
 - Hospedagem gratuita no GitHub Pages.
 
 ### Colecoes do Firebase usadas
 
-- `pdv_vendas`: vendas do PDV (campos: `timestamp`, `data` em ISO, `estab`, `total`, `itens`, `pagamentos`).
-- `boletos_avulsos`: cobrancas avulsas cadastradas no CANDEIA (lidas para o pop-up e a lista de cobrancas).
+- pdv_vendas: vendas do PDV (campos: timestamp, data em ISO, estab, total, itens, pagamentos).
+- boletos_avulsos: cobrancas avulsas cadastradas no CANDEIA (lidas para o pop-up e a lista de cobrancas).
 
 ### Chaves de localStorage
 
-- `opg_produtos`, `opg_mesas`, `opg_adicionais`, `opg_caixa`: estado operacional do PDV.
-- `opg_vendas`: historico de vendas do aparelho.
-- `opg_historico_migrado`: marca que o historico ja foi sincronizado.
-- `pdv_venc_popup_visto`: controla o pop-up de vencimentos (1x por dia).
+- opg_produtos, opg_mesas, opg_adicionais, opg_caixa: estado operacional do PDV.
+- opg_vendas: historico de vendas do aparelho.
+- opg_historico_migrado: marca que o historico ja foi sincronizado.
+- pdv_venc_popup_visto: controla o pop-up de vencimentos (1x por dia).
 
 ## Como usar
 
