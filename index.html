@@ -1043,11 +1043,18 @@ function mostrarRecibo(v) {
     return p.pgtoNome + ': R$ ' + p.valor.toFixed(2).replace('.',',') +
     (p.troco > 0 ? ' (troco: R$ ' + p.troco.toFixed(2).replace('.',',') + ')' : '');
   }).join('<br>');
-  var itensStr = v.todosItens.map(function(i){
-    var addsRec = (i.adicionais && i.adicionais.length) ? ' <span style="font-size:.8em;color:#c0392b">[+' + i.adicionais.map(function(a){return a.nome;}).join(', ') + ']</span>' : '';
-    return i.qty + 'x ' + i.nome + addsRec + ' = R$ ' + (i.preco*i.qty).toFixed(2).replace('.',',') +
-    (i.obs ? ' <span style="font-size:.85em;color:#888">('+i.obs+')</span>' : '');
-  }).join('<br>');
+  var _grpItens = [];
+v.todosItens.forEach(function(i){
+var _chave = i.nome + '|' + i.preco + '|' + (i.obs||'') + '|' + ((i.adicionais||[]).map(function(a){return a.nome;}).join(','));
+var _ex = _grpItens.find(function(g){ return g._chave === _chave; });
+if (_ex) { _ex.qty += (i.qty||1); }
+else { var _c = JSON.parse(JSON.stringify(i)); _c._chave = _chave; _c.qty = (i.qty||1); _grpItens.push(_c); }
+});
+var itensStr = _grpItens.map(function(i){
+var addsRec = (i.adicionais && i.adicionais.length) ? ' <span style="font-size:.8em;color:#c0392b">[+' + i.adicionais.map(function(a){return a.nome;}).join(', ') + ']</span>' : '';
+return i.qty + 'x ' + i.nome + addsRec + ' = R$ ' + (i.preco*i.qty).toFixed(2).replace('.',',') +
+(i.obs ? ' <span style="font-size:.85em;color:#888">('+i.obs+')</span>' : '');
+}).join('<br>');
   document.getElementById('recibo-conteudo').innerHTML =
     '<div class="recibo-print">' +
     '<div class="rc-center" style="margin-bottom:4px"><img src="logo.png" style="max-width:60px;max-height:40px" onerror="this.style.display=\'none\'"></div>' +
