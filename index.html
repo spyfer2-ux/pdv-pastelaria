@@ -1745,5 +1745,37 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
   </script>
   </script>
 
+<!-- AVISO DE ATUALIZACAO: correcao nome duplicado na comanda/impressao -->
+<script>
+(function(){
+  var VERSAO = 'itens-agrupados-2026-07';
+  var CHAVE = 'pdv_aviso_visto';
+  function mostrarAviso(){
+    try {
+      if (localStorage.getItem(CHAVE) === VERSAO) return;
+      if (document.getElementById('aviso-atualizacao-ov')) return;
+      var ov = document.createElement('div');
+      ov.id = 'aviso-atualizacao-ov';
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px;font-family:Segoe UI,sans-serif';
+      var box = document.createElement('div');
+      box.style.cssText = 'background:#fff;border-radius:18px;max-width:400px;width:100%;padding:26px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35)';
+      box.innerHTML =
+        '<div style="font-size:44px;margin-bottom:6px">🔄</div>' +
+        '<h2 style="color:#c0392b;margin:0 0 10px;font-size:1.25em">Sistema Atualizado</h2>' +
+        '<p style="color:#555;font-size:.95em;margin:0 0 8px;line-height:1.5">Esta versão corrige a duplicação do nome dos itens na comanda e na folha de impressão.</p>' +
+        '<p style="color:#888;font-size:.85em;margin:0 0 18px;line-height:1.5">Agora itens iguais aparecem agrupados (ex.: "2x Pastel").</p>';
+      var btn = document.createElement('button');
+      btn.textContent = 'Entendi';
+      btn.style.cssText = 'background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:1em;cursor:pointer;width:100%';
+      btn.onclick = function(){ localStorage.setItem(CHAVE, VERSAO); ov.remove(); };
+      box.appendChild(btn);
+      ov.appendChild(box);
+      document.body.appendChild(ov);
+    } catch(e){ console.warn('[PDV] aviso atualizacao erro:', e); }
+  }
+  if (document.readyState !== 'loading') setTimeout(mostrarAviso, 1500);
+  else window.addEventListener('DOMContentLoaded', function(){ setTimeout(mostrarAviso, 1500); });
+})();
+</script>
 </body>
 </html>
