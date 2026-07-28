@@ -1008,10 +1008,17 @@ function imprimirComanda() {
 
 function gerarComandaHTML(mesa, reimpressao) {
   var agora = new Date().toLocaleString('pt-BR');
-  var itensHTML = mesa.itens.length > 0 ? mesa.itens.map(function(item){
-    var addsComanda = (item.adicionais && item.adicionais.length) ? '<div style="font-size:.85em;padding-left:15px;color:#555">+ ' + item.adicionais.map(function(a){return a.nome;}).join(', ') + '</div>' : '';
-        return '<div>' + item.qty + 'x ' + item.nome + addsComanda + (item.obs ? '<div style="font-size:.9em;padding-left:15px;font-style:italic">Obs: ' + item.obs + '</div>' : '') + '</div>';
-  }).join('') : '<div style="color:#999">Sem itens pendentes</div>';
+  var _grpComanda = [];
+mesa.itens.forEach(function(item){
+var _ch = item.nome + '|' + (item.obs||'') + '|' + ((item.adicionais||[]).map(function(a){return a.nome;}).join(','));
+var _e = _grpComanda.find(function(g){ return g._ch === _ch; });
+if (_e) { _e.qty += (item.qty||1); }
+else { var _c = JSON.parse(JSON.stringify(item)); _c._ch = _ch; _c.qty = (item.qty||1); _grpComanda.push(_c); }
+});
+var itensHTML = _grpComanda.length > 0 ? _grpComanda.map(function(item){
+var addsComanda = (item.adicionais && item.adicionais.length) ? '<div style="font-size:.85em;padding-left:15px;color:#555">+ ' + item.adicionais.map(function(a){return a.nome;}).join(', ') + '</div>' : '';
+return '<div>' + item.qty + 'x ' + item.nome + addsComanda + (item.obs ? '<div style="font-size:.9em;padding-left:15px;font-style:italic">Obs: ' + item.obs + '</div>' : '') + '</div>';
+}).join('') : '<div style="color:#999">Sem itens pendentes</div>';
   var pagosHTML = mesa.pagos.length > 0 ?
     '<hr><div style="font-size:.9em"><strong>JÁ PAGO:</strong></div>' +
     mesa.pagos.map(function(p){
