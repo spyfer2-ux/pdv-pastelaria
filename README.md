@@ -12,7 +12,8 @@ Acesse: https://spyfer2-ux.github.io/pdv-pastelaria/
 - Botao Deixar em Aberto (pagar depois): registra os itens na mesa e volta para as mesas, sem cobrar.
 - Cardapio completo de pasteis salgados, incluindo as categorias Atum e Berinjela.
 - Adicionais em todos os pasteis salgados (23 opcoes: mussarela, catupiry, bacon, carne, escarola, palmito, etc.).
-- Cadastro de clientes: o botao Cadastrar Cliente salva o cliente (nome, telefone, endereco, observacao) de forma permanente na colecao clientes do Firebase, alem de vincular o cliente a venda atual.
+- Cadastro de clientes: o botao Cadastrar Cliente salva o cliente (nome, telefone, endereco, observacao) de forma permanente na colecao clientes do Firebase, alem de vincular o cliente a venda atual. O formulario tem campos CEP, Endereco e Numero, com busca automatica de endereco por CEP (via API ViaCEP): ao digitar um CEP valido, os dados de logradouro, bairro, cidade e UF sao preenchidos sozinhos.
+- Aviso de nova atualizacao: ao abrir o PDV, um modal central informa novidades ao usuario (ex.: a busca de endereco por CEP). Aparece uma unica vez por navegador (marcador pdv_update_cep_seen no localStorage).
 - Integracao com o app do Franqueado (CANDEIA) via Firebase.
 - Caixa obrigatorio (abertura e fechamento).
 
@@ -80,7 +81,7 @@ Observacao de seguranca: com if true as colecoes pdv_vendas e clientes ficam pub
 ### Colecoes do Firebase usadas
 
 - pdv_vendas: vendas do PDV (campos: timestamp, data em ISO, estab, total, itens, pagamentos).
-- clientes: clientes cadastrados no PDV (campos: nome, tel, endereco, obs, criadoEm).
+- clientes: clientes cadastrados no PDV (campos: nome, tel, endereco, obs, criadoEm). O campo endereco e um texto unico montado a partir dos campos Endereco, Numero e CEP do formulario.
 - boletos_avulsos: cobrancas avulsas cadastradas no CANDEIA (lidas para o pop-up e a lista de cobrancas).
 
 ### Chaves de localStorage
