@@ -1782,7 +1782,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 <div id="modal-cliente"><div class="mc-box">
   <h3>&#128100; Cadastro de Cliente</h3>
   <div class="fg"><label>Nome *</label><input id="cli-nome" placeholder="Nome do cliente" autocomplete="off"></div>
-  <div class="fg"><label>Telefone</label><input id="cli-tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
+  <div class="fg"><label>Telefone</label><input id="cli-tel" placeholder="(00) 00000-0000" autocomplete="off"></div><div class="fg"><label>CEP</label><input id="cli-cep" placeholder="00000-000" autocomplete="off" oninput="mascaraCep(this)" onblur="buscarCep()"></div><div class="fg"><label>Endereco</label><input id="cli-endereco" placeholder="Rua, avenida..." autocomplete="off"></div><div class="fg"><label>Numero</label><input id="cli-numero" placeholder="Numero" autocomplete="off"></div>
   <div id="cli-suglist" style="margin:-6px 0 10px"></div>
   <div class="fg"><label>Observacao</label><input id="cli-obs" placeholder="Ex: preferencias, endereco..." autocomplete="off"></div>
   <div id="cli-histbox" class="cli-hist" style="display:none"><h4>&#129534; Ultimos pedidos</h4><div id="cli-histlist"></div></div>
@@ -1871,7 +1871,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
     var obs=(document.getElementById('cli-obs').value||'').trim();
     if(!nome){ alert('Informe o nome do cliente.'); return; }
     var existe=(window._clientes||[]).some(function(c){return (c.nome||'').toLowerCase()===nome.toLowerCase() && (c.tel||'')===tel;});
-    if(!existe){ try{ var f=FS(); await f.addDoc(f.collection(f.db,'clientes'),{nome:nome,tel:tel,obs:obs,criadoEm:Date.now()}); }catch(e){ console.warn('[clientes] falha ao salvar na nuvem (ver Regras)',e); } }
+    if(!existe){ try{ var f=FS();const cep=(document.getElementById('cli-cep')?.value||'').trim();const endr=(document.getElementById('cli-endereco')?.value||'').trim();const num=(document.getElementById('cli-numero')?.value||'').trim();let endereco='';if(endr){endereco=endr;if(num)endereco+=', '+num;}if(cep)endereco+=(endereco?' - CEP '+cep:'CEP '+cep); await f.addDoc(f.collection(f.db,'clientes'),{nome:nome,tel:tel,obs:obs,endereco:endereco,criadoEm:Date.now()}); }catch(e){ console.warn('[clientes] falha ao salvar na nuvem (ver Regras)',e); } }
     window._clienteAtual={nome:nome,tel:tel,obs:obs};
     document.getElementById('modal-cliente').classList.remove('show');
     window._abrirMesaOriginal(MESA_CLIENTE);
@@ -1880,6 +1880,9 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
       if(l1)l1.innerHTML='&#128100; '+nome; if(l2)l2.innerHTML='&#128100; '+nome;
     },30);
   };
+window.mascaraCep=function(el){let v=(el.value||'').replace(/\D/g,'').slice(0,8);if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5);el.value=v;};
+window.buscarCep=async function(){try{const el=document.getElementById('cli-cep');if(!el)return;const cep=(el.value||'').replace(/\D/g,'');if(cep.length!==8)return;const r=await fetch('https://viacep.com.br/ws/'+cep+'/json/');if(!r.ok)return;const d=await r.json();if(d.erro)return;const endEl=document.getElementById('cli-endereco');if(endEl){const partes=[d.logradouro,d.bairro,(d.localidade&&d.uf)?(d.localidade+'/'+d.uf):''].filter(Boolean);endEl.value=partes.join(' - ');}const numEl=document.getElementById('cli-numero');if(numEl)numEl.focus();}catch(e){console.warn('buscarCep',e);}};
+
 
   if(!window._abrirMesaOriginal){
     window._abrirMesaOriginal=window.abrirMesa;
