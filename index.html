@@ -1877,7 +1877,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
     window._abrirMesaOriginal(MESA_CLIENTE);
     setTimeout(function(){
       var l1=document.getElementById('pdv-mesa-label'), l2=document.getElementById('cart-mesa-label');
-      if(l1)l1.textContent='&#128100; '+nome; if(l2)l2.textContent='&#128100; '+nome;
+      if(l1)l1.innerHTML='&#128100; '+nome; if(l2)l2.innerHTML='&#128100; '+nome;
     },30);
   };
 
@@ -1906,8 +1906,8 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
       var idx=window.state.mesas.findIndex(function(m){return m.num===MESA_CLIENTE;});
       if(idx>=0&&cards[idx]){ var c=cards[idx];
         c.classList.add('cliente'); c.classList.remove('ocupada');
-        var n=c.querySelector('.mesa-num'); if(n)n.textContent='&#128100; Clientes';
-        var ic=c.querySelector('.mesa-icon'); if(ic)ic.textContent='&#128100;';
+        var n=c.querySelector('.mesa-num'); if(n)n.innerHTML='&#128100; Clientes';
+        var ic=c.querySelector('.mesa-icon'); if(ic)ic.innerHTML='&#128100;';
         var st=c.querySelector('.mesa-status'); if(st)st.textContent='Cadastro / Pedido';
         var t=c.querySelector('.mesa-total'); if(t)t.remove();
         var b=c.querySelector('.mesa-itens-badge'); if(b)b.remove();
