@@ -220,6 +220,15 @@ table tr:hover td{background:rgba(192,57,43,.06)}
 </script>
 </head>
 <body>
+<div id="modal-update" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;max-width:420px;width:100%;border-radius:16px;padding:26px 24px;box-shadow:0 12px 40px rgba(0,0,0,.3);text-align:center;font-family:'Segoe UI',sans-serif;">
+    <div style="font-size:44px;line-height:1;margin-bottom:8px;">🎉</div>
+    <h2 style="margin:0 0 10px;color:#c0392b;font-size:1.25em;">Nova atualizacao!</h2>
+    <p style="margin:0 0 18px;color:#333;font-size:.98em;line-height:1.5;">Agora o <b>cadastro de cliente</b> tem <b>busca automatica de endereco por CEP</b>! Basta digitar o CEP que o endereco e preenchido sozinho.</p>
+    <button onclick="fecharUpdate()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:1em;font-weight:700;cursor:pointer;">Entendi!</button>
+  </div>
+</div>
+
 <!-- TELA MESAS -->
 <div id="tela-mesas" class="tela ativa">
   <div class="hdr no-print">
@@ -1921,5 +1930,22 @@ window.buscarCep=async function(){try{const el=document.getElementById('cli-cep'
 })();
 </script>
 <!-- ===== FIM MODULO CLIENTES ===== -->
+
+<script>
+(function(){
+  function showUpdate(){
+    try{ if(localStorage.getItem('pdv_update_cep_seen')==='1') return; }catch(e){}
+    var m=document.getElementById('modal-update');
+    if(m){ m.style.display='flex'; }
+  }
+  window.fecharUpdate=function(){
+    var m=document.getElementById('modal-update');
+    if(m) m.style.display='none';
+    try{ localStorage.setItem('pdv_update_cep_seen','1'); }catch(e){}
+  };
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',showUpdate); }
+  else { showUpdate(); }
+})();
+</script>
 </body>
 </html>
