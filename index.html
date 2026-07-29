@@ -1777,5 +1777,146 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
   else window.addEventListener('DOMContentLoaded', function(){ setTimeout(mostrarAviso, 1500); });
 })();
 </script>
+
+<!-- ===== MODULO CLIENTES (Mesa 8) ===== -->
+<div id="modal-cliente"><div class="mc-box">
+  <h3>&#128100; Cadastro de Cliente</h3>
+  <div class="fg"><label>Nome *</label><input id="cli-nome" placeholder="Nome do cliente" autocomplete="off"></div>
+  <div class="fg"><label>Telefone</label><input id="cli-tel" placeholder="(00) 00000-0000" autocomplete="off"></div>
+  <div id="cli-suglist" style="margin:-6px 0 10px"></div>
+  <div class="fg"><label>Observacao</label><input id="cli-obs" placeholder="Ex: preferencias, endereco..." autocomplete="off"></div>
+  <div id="cli-histbox" class="cli-hist" style="display:none"><h4>&#129534; Ultimos pedidos</h4><div id="cli-histlist"></div></div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn btn-gray" style="flex:1" onclick="fecharCadastroCliente()">Cancelar</button>
+    <button class="btn btn-green" style="flex:2" onclick="confirmarCadastroCliente()">&#10004;&#65039; Cadastrar e Abrir Pedido</button>
+  </div>
+</div></div>
+<style>
+.mesa-card.cliente{border-color:#8e44ad !important;background:rgba(142,68,173,.10) !important}
+.mesa-card.cliente:hover{border-color:#9b59b6 !important;box-shadow:0 12px 30px rgba(142,68,173,.35) !important}
+.mesa-card.cliente .mesa-status{color:#8e44ad !important}
+#modal-cliente{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px}
+#modal-cliente.show{display:flex !important}
+#modal-cliente .mc-box{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:22px;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+#modal-cliente h3{color:#8e44ad;margin-bottom:14px;font-size:1.2em}
+#modal-cliente .cli-hist{margin-top:14px;border-top:1px solid #eee;padding-top:12px}
+#modal-cliente .cli-hist h4{font-size:.9em;color:#555;margin-bottom:8px}
+#modal-cliente .cli-ped{background:#f6f6f6;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:.82em}
+#modal-cliente .cli-sug{cursor:pointer;padding:6px 10px;border-radius:6px;font-size:.85em}
+#modal-cliente .cli-sug:hover{background:#f0e6f5}
+</style>
+<script>
+(function(){
+  var MESA_CLIENTE = 8;
+  function FS(){ return window._pdvFirestore; }
+  window._clientes = window._clientes || [];
+
+  window.carregarClientes = async function(){
+    try{ var f=FS(); var snap=await f.getDocs(f.collection(f.db,'clientes'));
+      window._clientes = snap.docs.map(function(d){ var o=d.data(); o._id=d.id; return o; });
+    }catch(e){ console.warn('[clientes] load falhou (ver Regras do Firestore)', e); }
+    return window._clientes;
+  };
+  window.pedidosDoCliente = function(nome,tel){
+    var v=(window.state&&window.state.vendas)||[];
+    var nn=(nome||'').trim().toLowerCase(), tt=(tel||'').replace(/\D/g,'');
+    return v.filter(function(x){
+      var xn=(x.clienteNome||'').trim().toLowerCase(), xt=(x.clienteTel||'').replace(/\D/g,'');
+      return (nn&&xn===nn)||(tt&&xt&&xt===tt);
+    }).slice(-5).reverse();
+  };
+  window.abrirCadastroCliente = function(){
+    document.getElementById('cli-nome').value='';
+    document.getElementById('cli-tel').value='';
+    document.getElementById('cli-obs').value='';
+    document.getElementById('cli-histbox').style.display='none';
+    document.getElementById('cli-suglist').innerHTML='';
+    document.getElementById('modal-cliente').classList.add('show');
+    window.carregarClientes();
+    setTimeout(function(){document.getElementById('cli-nome').focus();},50);
+  };
+  window.fecharCadastroCliente = function(){ document.getElementById('modal-cliente').classList.remove('show'); };
+
+  function renderSug(){
+    var q=(document.getElementById('cli-nome').value||'').trim().toLowerCase();
+    var box=document.getElementById('cli-suglist');
+    if(!q){box.innerHTML='';return;}
+    var ms=(window._clientes||[]).filter(function(c){return (c.nome||'').toLowerCase().indexOf(q)>=0;}).slice(0,4);
+    box.innerHTML=ms.map(function(c){return '<div class="cli-sug" data-n="'+(c.nome||'')+'" data-t="'+(c.tel||'')+'" data-o="'+(c.obs||'')+'">&#8627; '+c.nome+(c.tel?(' &#183; '+c.tel):'')+'</div>';}).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('.cli-sug'),function(el){el.onclick=function(){
+      document.getElementById('cli-nome').value=el.getAttribute('data-n');
+      document.getElementById('cli-tel').value=el.getAttribute('data-t');
+      document.getElementById('cli-obs').value=el.getAttribute('data-o');
+      box.innerHTML=''; hist();
+    };});
+  }
+  function hist(){
+    var nome=document.getElementById('cli-nome').value, tel=document.getElementById('cli-tel').value;
+    var peds=window.pedidosDoCliente(nome,tel);
+    var hb=document.getElementById('cli-histbox'), hl=document.getElementById('cli-histlist');
+    if(peds.length){ hb.style.display='block';
+      hl.innerHTML=peds.map(function(p){
+        var ds=new Date(p.data).toLocaleDateString('pt-BR');
+        var it=(p.todosItens||[]).map(function(i){return i.qty+'x '+i.nome;}).join(', ');
+        return '<div class="cli-ped"><b>'+ds+'</b> &#8212; R$ '+(p.totalGeral||0).toFixed(2).replace('.',',')+'<br><span style="color:#777">'+it+'</span></div>';
+      }).join('');
+    }else{ hb.style.display='none'; hl.innerHTML=''; }
+  }
+  document.getElementById('cli-nome').addEventListener('input',function(){renderSug();hist();});
+  document.getElementById('cli-tel').addEventListener('input',hist);
+
+  window.confirmarCadastroCliente = async function(){
+    var nome=(document.getElementById('cli-nome').value||'').trim();
+    var tel=(document.getElementById('cli-tel').value||'').trim();
+    var obs=(document.getElementById('cli-obs').value||'').trim();
+    if(!nome){ alert('Informe o nome do cliente.'); return; }
+    var existe=(window._clientes||[]).some(function(c){return (c.nome||'').toLowerCase()===nome.toLowerCase() && (c.tel||'')===tel;});
+    if(!existe){ try{ var f=FS(); await f.addDoc(f.collection(f.db,'clientes'),{nome:nome,tel:tel,obs:obs,criadoEm:Date.now()}); }catch(e){ console.warn('[clientes] falha ao salvar na nuvem (ver Regras)',e); } }
+    window._clienteAtual={nome:nome,tel:tel,obs:obs};
+    document.getElementById('modal-cliente').classList.remove('show');
+    window._abrirMesaOriginal(MESA_CLIENTE);
+    setTimeout(function(){
+      var l1=document.getElementById('pdv-mesa-label'), l2=document.getElementById('cart-mesa-label');
+      if(l1)l1.textContent='&#128100; '+nome; if(l2)l2.textContent='&#128100; '+nome;
+    },30);
+  };
+
+  if(!window._abrirMesaOriginal){
+    window._abrirMesaOriginal=window.abrirMesa;
+    window.abrirMesa=function(num){ if(Number(num)===MESA_CLIENTE){ window.abrirCadastroCliente(); return; } window._clienteAtual=null; return window._abrirMesaOriginal(num); };
+  }
+  if(!window._registrarVendaMesaOriginal){
+    window._registrarVendaMesaOriginal=window.registrarVendaMesa;
+    window.registrarVendaMesa=function(mesa){
+      var venda=window._registrarVendaMesaOriginal(mesa);
+      if(window._clienteAtual){
+        var alvo=venda||(window.state.vendas&&window.state.vendas[window.state.vendas.length-1]);
+        if(alvo){ alvo.clienteNome=window._clienteAtual.nome; alvo.clienteTel=window._clienteAtual.tel; }
+        try{ localStorage.setItem('opg_vendas',JSON.stringify(window.state.vendas)); }catch(e){}
+      }
+      return venda;
+    };
+  }
+  if(!window._renderMesasOriginal){
+    window._renderMesasOriginal=window.renderMesas;
+    window.renderMesas=function(){
+      window._renderMesasOriginal();
+      var grid=document.getElementById('mesas-grid'); if(!grid)return;
+      var cards=grid.querySelectorAll('.mesa-card');
+      var idx=window.state.mesas.findIndex(function(m){return m.num===MESA_CLIENTE;});
+      if(idx>=0&&cards[idx]){ var c=cards[idx];
+        c.classList.add('cliente'); c.classList.remove('ocupada');
+        var n=c.querySelector('.mesa-num'); if(n)n.textContent='&#128100; Clientes';
+        var ic=c.querySelector('.mesa-icon'); if(ic)ic.textContent='&#128100;';
+        var st=c.querySelector('.mesa-status'); if(st)st.textContent='Cadastro / Pedido';
+        var t=c.querySelector('.mesa-total'); if(t)t.remove();
+        var b=c.querySelector('.mesa-itens-badge'); if(b)b.remove();
+      }
+    };
+  }
+  if(document.getElementById('mesas-grid')) window.renderMesas();
+})();
+</script>
+<!-- ===== FIM MODULO CLIENTES ===== -->
 </body>
 </html>
