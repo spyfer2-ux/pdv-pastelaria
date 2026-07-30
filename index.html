@@ -1790,6 +1790,17 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 <!-- ===== MODULO CLIENTES (Mesa 8) ===== -->
 <div id="modal-cliente"><div class="mc-box">
   <h3>&#128100; Cadastro de Cliente</h3>
+  <div id="cli-busca-box" style="background:#f8f6fb;border:1px solid #e6e0f0;border-radius:10px;padding:10px 12px;margin-bottom:14px">
+    <label style="font-weight:600;color:#6a3fb5;display:block;margin-bottom:6px">&#128269; Buscar cliente</label>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <select id="cli-busca-tipo" style="flex:0 0 90px;padding:8px;border-radius:8px;border:1px solid #ccc">
+        <option value="nome">Nome</option>
+        <option value="cep">CEP</option>
+      </select>
+      <input id="cli-busca-input" placeholder="Digite para buscar..." autocomplete="off" style="flex:1;padding:8px;border-radius:8px;border:1px solid #ccc">
+    </div>
+    <div id="cli-busca-list" class="cli-busca-list"></div>
+  </div>
   <div class="fg"><label>Nome *</label><input id="cli-nome" placeholder="Nome do cliente" autocomplete="off"></div>
   <div class="fg"><label>Telefone</label><input id="cli-tel" placeholder="(00) 00000-0000" autocomplete="off"></div><div class="fg"><label>CEP</label><input id="cli-cep" placeholder="00000-000" autocomplete="off" oninput="mascaraCep(this)" onblur="buscarCep()"></div><div class="fg"><label>Endereco</label><input id="cli-endereco" placeholder="Rua, avenida..." autocomplete="off"></div><div class="fg"><label>Numero</label><input id="cli-numero" placeholder="Numero" autocomplete="off"></div>
   <div id="cli-suglist" style="margin:-6px 0 10px"></div>
@@ -1813,6 +1824,11 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 #modal-cliente .cli-ped{background:#f6f6f6;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:.82em}
 #modal-cliente .cli-sug{cursor:pointer;padding:6px 10px;border-radius:6px;font-size:.85em}
 #modal-cliente .cli-sug:hover{background:#f0e6f5}
+#modal-cliente .cli-busca-list{max-height:180px;overflow-y:auto;margin-top:2px}
+#modal-cliente .cli-busca-item{cursor:pointer;padding:8px 10px;border-radius:6px;font-size:.9em;border-bottom:1px solid #eee}
+#modal-cliente .cli-busca-item:hover{background:#f0e6f5}
+#modal-cliente .cli-busca-item small{color:#888;display:block}
+#modal-cliente .cli-busca-empty{padding:8px 10px;color:#999;font-size:.85em}
 </style>
 <script>
 (function(){
@@ -1873,6 +1889,53 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
   }
   document.getElementById('cli-nome').addEventListener('input',function(){renderSug();hist();});
   document.getElementById('cli-tel').addEventListener('input',hist);
+  function _cliDigits(s){return (s||'').replace(/\D/g,'');}
+  function _cliExtractCep(end){ var m=(end||'').match(/CEP\s*([\d\-]+)/i); return m? _cliDigits(m[1]) : ''; }
+  function _cliParseEndereco(end){
+    end=end||''; var cep=_cliExtractCep(end);
+    var semCep=end.replace(/\s*-?\s*CEP\s*[\d\-]+/i,'').trim();
+    var num='', rua=semCep;
+    var mm=semCep.match(/^(.*),\s*([\w\d]+)$/);
+    if(mm){ rua=mm[1].trim(); num=mm[2].trim(); }
+    return {cep:cep, rua:rua, num:num};
+  }
+  function renderBusca(){
+    var tipo=document.getElementById('cli-busca-tipo').value;
+    var q=(document.getElementById('cli-busca-input').value||'').trim().toLowerCase();
+    var box=document.getElementById('cli-busca-list');
+    if(!q){ box.innerHTML=''; return; }
+    var lista=(window._clientes||[]);
+    var ms=lista.filter(function(c){
+      if(tipo==='cep'){ var cd=_cliDigits(q); return cd && _cliExtractCep(c.endereco).indexOf(cd)===0; }
+      return (c.nome||'').toLowerCase().indexOf(q)>-1;
+    }).slice(0,30);
+    if(!ms.length){ box.innerHTML='<div class="cli-busca-empty">Nenhum cliente encontrado.</div>'; return; }
+    box.innerHTML=ms.map(function(c){
+      return '<div class="cli-busca-item" data-idx="'+lista.indexOf(c)+'"><b>'+(c.nome||'(sem nome)')+'</b>'+(c.tel?(' &#128222; '+c.tel):'')+'<small>'+(c.endereco||'')+'</small></div>';
+    }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('.cli-busca-item'),function(el){
+      el.onclick=function(){
+        var c=(window._clientes||[])[parseInt(el.getAttribute('data-idx'),10)];
+        if(!c) return;
+        document.getElementById('cli-nome').value=c.nome||'';
+        document.getElementById('cli-tel').value=c.tel||'';
+        document.getElementById('cli-obs').value=c.obs||'';
+        var p=_cliParseEndereco(c.endereco);
+        var cepEl=document.getElementById('cli-cep'); if(cepEl){ cepEl.value=p.cep? p.cep.replace(/^(\d{5})(\d)/,'$1-$2') : ''; }
+        var endEl=document.getElementById('cli-endereco'); if(endEl){ endEl.value=p.rua||''; }
+        var numEl=document.getElementById('cli-numero'); if(numEl){ numEl.value=p.num||''; }
+        box.innerHTML=''; document.getElementById('cli-busca-input').value='';
+        document.getElementById('cli-suglist').innerHTML='';
+        if(typeof hist==='function') hist();
+      };
+    });
+  }
+  document.getElementById('cli-busca-input').addEventListener('input',renderBusca);
+  document.getElementById('cli-busca-tipo').addEventListener('change',function(){
+    var inp=document.getElementById('cli-busca-input');
+    inp.placeholder=this.value==='cep'?'Digite o CEP...':'Digite o nome...';
+    renderBusca();
+  });
 
   window.confirmarCadastroCliente = async function(){
     var nome=(document.getElementById('cli-nome').value||'').trim();
