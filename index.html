@@ -1797,7 +1797,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
     <div style="display:flex;gap:6px;margin-bottom:6px">
       <select id="cli-busca-tipo" style="flex:0 0 90px;padding:8px;border-radius:8px;border:1px solid #ccc">
         <option value="nome">Nome</option>
-        <option value="cep">CEP</option>
+        <option value="cel">Celular</option>
       </select>
       <input id="cli-busca-input" placeholder="Digite para buscar..." autocomplete="off" style="flex:1;padding:8px;border-radius:8px;border:1px solid #ccc">
     </div>
@@ -1908,7 +1908,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
     if(!q){ box.innerHTML=''; return; }
     var lista=(window._clientes||[]);
     var ms=lista.filter(function(c){
-      if(tipo==='cep'){ var cd=_cliDigits(q); return cd && _cliExtractCep(c.endereco).indexOf(cd)===0; }
+      if(tipo==='cel'){ var cd=_cliDigits(q); return cd && _cliDigits(c.tel).indexOf(cd)>-1; }
       return (c.nome||'').toLowerCase().indexOf(q)>-1;
     }).slice(0,30);
     if(!ms.length){ box.innerHTML='<div class="cli-busca-empty">Nenhum cliente encontrado.</div>'; return; }
@@ -1935,7 +1935,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
   document.getElementById('cli-busca-input').addEventListener('input',renderBusca);
   document.getElementById('cli-busca-tipo').addEventListener('change',function(){
     var inp=document.getElementById('cli-busca-input');
-    inp.placeholder=this.value==='cep'?'Digite o CEP...':'Digite o nome...';
+    inp.placeholder=this.value==='cel'?'Digite o celular...':'Digite o nome...';
     renderBusca();
   });
 
