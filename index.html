@@ -1079,6 +1079,8 @@ return i.qty + 'x ' + i.nome + addsRec + ' = R$ ' + (i.preco*i.qty).toFixed(2).r
     '<hr>' +
     'Mesa: ' + v.mesa + '<br>' +
     'Pedido #' + v.id + '<br>' +
+    (v.clienteNome ? 'Cliente: ' + v.clienteNome + '<br>' : '') +
+    (v.clienteEndereco ? 'Endereco: ' + v.clienteEndereco + '<br>' : '') +
     'Data: ' + new Date(v.data).toLocaleString('pt-BR') +
     '<hr>' +
     itensStr +
@@ -1944,7 +1946,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
     if(!nome){ alert('Informe o nome do cliente.'); return; }
     var existe=(window._clientes||[]).some(function(c){return (c.nome||'').toLowerCase()===nome.toLowerCase() && (c.tel||'')===tel;});
     if(!existe){ try{ var f=FS();const cep=(document.getElementById('cli-cep')?.value||'').trim();const endr=(document.getElementById('cli-endereco')?.value||'').trim();const num=(document.getElementById('cli-numero')?.value||'').trim();let endereco='';if(endr){endereco=endr;if(num)endereco+=', '+num;}if(cep)endereco+=(endereco?' - CEP '+cep:'CEP '+cep); await f.addDoc(f.collection(f.db,'clientes'),{nome:nome,tel:tel,obs:obs,endereco:endereco,criadoEm:Date.now()}); }catch(e){ console.warn('[clientes] falha ao salvar na nuvem (ver Regras)',e); } }
-    window._clienteAtual={nome:nome,tel:tel,obs:obs};
+    var _endCli='';{var _e=(document.getElementById('cli-endereco')||{}).value||'';var _n=(document.getElementById('cli-numero')||{}).value||'';var _c=(document.getElementById('cli-cep')||{}).value||'';_e=_e.trim();_n=_n.trim();_c=_c.trim();if(_e){_endCli=_e;if(_n)_endCli+=', '+_n;}if(_c)_endCli+=(_endCli?' - CEP '+_c:'CEP '+_c);}window._clienteAtual={nome:nome,tel:tel,obs:obs,endereco:_endCli};
     document.getElementById('modal-cliente').classList.remove('show');
     window._abrirMesaOriginal(MESA_CLIENTE);
     setTimeout(function(){
@@ -1966,7 +1968,7 @@ window.buscarCep=async function(){try{const el=document.getElementById('cli-cep'
       var venda=window._registrarVendaMesaOriginal(mesa);
       if(window._clienteAtual){
         var alvo=venda||(window.state.vendas&&window.state.vendas[window.state.vendas.length-1]);
-        if(alvo){ alvo.clienteNome=window._clienteAtual.nome; alvo.clienteTel=window._clienteAtual.tel; }
+        if(alvo){ alvo.clienteNome=window._clienteAtual.nome; alvo.clienteTel=window._clienteAtual.tel; alvo.clienteEndereco = window._clienteAtual.endereco; }
         try{ localStorage.setItem('opg_vendas',JSON.stringify(window.state.vendas)); }catch(e){}
       }
       return venda;
