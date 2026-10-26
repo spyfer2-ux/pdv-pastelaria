@@ -139,6 +139,11 @@ body{font-family:'Segoe UI',sans-serif;backghround:#f0f0f0;color:#222;min-height
 .div-item-nome{color:#333;font-weight:600}
 .div-item-preco{color:var(--green);font-weight:700}
 .div-subtotal{padding:10px;background:#f0f0f0;border-radius:9px;margin-top:5px}
+.div-item-act{background:#fff;border:2px solid rgba(192,57,43,.35);color:var(--red);border-radius:9px;min-width:40px;height:40px;font-size:1.15em;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0 8px;font-weight:700}
+.div-item-act:hover{background:rgba(192,57,43,.08)}
+.div-item-fr{font-size:.72em;color:#888;font-weight:600;margin-left:4px}
+.fr-nbtn{padding:12px 4px;border:2px solid rgba(192,57,43,.3);border-radius:9px;background:#fff;color:#333;cursor:pointer;font-size:1.1em;font-weight:800;transition:all .15s}
+.fr-nbtn:hover{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.06)}
 
 /* RELATÓRIOS */
 .rel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
@@ -390,7 +395,7 @@ table tr:hover td{background:rgba(192,57,43,.06)}
 <div class="modal" id="modal-div">
   <div class="mbox" style="max-width:550px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0"><h3>⚖️ Dividir Conta</h3><button class="btn btn-gray btn-sm" onclick="abrirCalculadoraFlutuante()" style="font-size:.85em;padding:6px 10px" title="Calculadora">🧲 Calculadora</button></div>
-    <p style="color:#888;font-size:.82em;margin-bottom:12px">Selecione os itens que serão pagos nesta parte:</p>
+    <p style="color:#888;font-size:.82em;margin-bottom:12px">Selecione os itens que serão pagos nesta parte. Toque em <b>➗</b> para dividir um item entre pessoas (ex.: uma Coca para 3).</p>
     <div id="div-itens-lista"></div>
     <div class="div-subtotal">
       <div class="tl"><span class="lab" style="color:#aaa;font-size:.85em">Subtotal selecionado</span><span class="val" id="div-sub" style="font-weight:700;color:var(--green)">R$ 0,00</span></div>
@@ -409,6 +414,35 @@ table tr:hover td{background:rgba(192,57,43,.06)}
     <div class="mbtns">
       <button class="btn btn-gray btn-sm" onclick="fecharModal('modal-div')">Cancelar</button>
       <button class="btn btn-green btn-sm" onclick="registrarPagamentoParcial()">✅ Registrar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DIVIDIR ITEM (FRAÇÕES) -->
+<div class="modal" id="modal-fracao">
+  <div class="mbox" style="max-width:440px">
+    <h3>➗ Dividir item</h3>
+    <div id="fracao-item-nome" style="font-weight:700;color:#333;margin-bottom:2px"></div>
+    <div id="fracao-item-valor" style="color:var(--green);font-weight:800;font-size:1.1em;margin-bottom:14px"></div>
+    <div id="fracao-unidades-wrap" style="display:none;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(192,57,43,.15)">
+      <button class="btn btn-gold" style="width:100%;justify-content:center" id="fracao-btn-unidades" onclick="separarUnidades()"></button>
+      <div style="font-size:.75em;color:#888;margin-top:5px">Cada unidade vira um item separado, que pode ser pago por uma pessoa diferente.</div>
+    </div>
+    <p style="color:#555;font-size:.85em;font-weight:700;margin-bottom:8px">Dividir o valor em partes iguais entre quantas pessoas?</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px">
+      <button class="fr-nbtn" onclick="dividirItemEm(2)">2</button>
+      <button class="fr-nbtn" onclick="dividirItemEm(3)">3</button>
+      <button class="fr-nbtn" onclick="dividirItemEm(4)">4</button>
+      <button class="fr-nbtn" onclick="dividirItemEm(5)">5</button>
+      <button class="fr-nbtn" onclick="dividirItemEm(6)">6</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="number" id="fracao-n" min="2" max="30" step="1" placeholder="Outro nº" oninput="previewFracao()" onkeydown="if(event.key==='Enter')dividirItemEm(this.value)" style="width:120px;padding:9px 10px;background:#f8f8f8;border:2px solid rgba(192,57,43,.3);border-radius:8px;color:#222;font-size:.95em">
+      <button class="btn btn-green btn-sm" onclick="dividirItemEm(document.getElementById('fracao-n').value)">➗ Dividir</button>
+      <span id="fracao-preview" style="font-size:.8em;color:#555;flex:1"></span>
+    </div>
+    <div class="mbtns">
+      <button class="btn btn-gray btn-sm" onclick="fecharModal('modal-fracao')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -746,6 +780,8 @@ function renderCart() {
   if (!mesa.itens.length) {
     el.innerHTML = '<div class="empty"><div class="ei">🛒</div><p>Carrinho vazio</p></div>';
   } else {
+    var _grpCart = {};
+    mesa.itens.forEach(function(i){ if (i.fracaoGrupo) _grpCart[i.fracaoGrupo] = (_grpCart[i.fracaoGrupo] || 0) + 1; });
     el.innerHTML = mesa.itens.map(function(item){
         var uid = item.uid;
         var addsHtml = '';
@@ -765,6 +801,7 @@ function renderCart() {
           (item.obs ? '<div class="citem-obs">📝 ' + item.obs + '</div>' : '') +
           '<div style="display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap">' +
             '<button class="cart-obs-btn" onclick="editarObs(' + uid + ')">✏️ Obs</button>' +
+            (item.fracaoGrupo && _grpCart[item.fracaoGrupo] === item.fracaoDe ? '<button class="cart-obs-btn" onclick="juntarFracoes(\'' + item.fracaoGrupo + '\')" title="Desfazer a divisão">↩ Juntar partes</button>' : '') +
             '</div>' +
             '<div style="margin-bottom:4px;background:rgba(243,156,18,.07);border-radius:6px;padding:4px 6px;border:1px solid rgba(243,156,18,.3)">' +
             '<div style="font-size:.68em;color:#f39c12;font-weight:700;margin-bottom:3px">➕ Adicional avulso:</div>' +
@@ -775,11 +812,13 @@ function renderCart() {
             '</div>' +
             '</div>' +
           '<div class="citem-ctrl">' +
-            '<div class="qty-wrap">' +
+            (item.fracaoDe
+              ? '<span class="qty-n" style="font-size:.78em;color:#aaa;min-width:0">➗ parte ' + item.fracaoN + '/' + item.fracaoDe + '</span>'
+              : '<div class="qty-wrap">' +
               '<button class="qty-btn m" onclick="mudarQty(' + uid + ',-1)">-</button>' +
               '<span class="qty-n">' + item.qty + '</span>' +
               '<button class="qty-btn p" onclick="mudarQty(' + uid + ',1)">+</button>' +
-            '</div>' +
+            '</div>') +
             '<span class="citem-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</span>' +
             '<button class="citem-del" onclick="removerItem(' + uid + ')">🗑️</button>' +
           '</div>' +
@@ -833,13 +872,23 @@ function abrirDivisao() {
 
 function renderDivItens() {
   var mesa = state.mesas[state.mesaAtual];
+  var grupos = {};
+  mesa.itens.forEach(function(i){ if (i.fracaoGrupo) grupos[i.fracaoGrupo] = (grupos[i.fracaoGrupo] || 0) + 1; });
   var html = mesa.itens.map(function(item){
+    var acao;
+    if (item.fracaoGrupo) {
+      acao = (grupos[item.fracaoGrupo] === item.fracaoDe)
+        ? '<button class="div-item-act" onclick="event.stopPropagation();juntarFracoes(\'' + item.fracaoGrupo + '\')" title="Desfazer a divisão (juntar as partes)">↩</button>'
+        : '<span class="div-item-fr" title="Parte deste item já foi paga">pago em parte</span>';
+    } else {
+      acao = '<button class="div-item-act" onclick="event.stopPropagation();abrirDividirItem(' + item.uid + ')" title="Dividir este item entre pessoas">➗</button>';
+    }
     return '<div class="div-item ' + (item._divSel ? 'sel' : '') + '" onclick="toggleDivItem(' + item.uid + ')">' +
       '<div class="div-item-cb">' + (item._divSel ? '✓' : '') + '</div>' +
       '<div class="div-item-info">' +
-        '<div class="div-item-nome">' + item.qty + 'x ' + item.nome + (item.obs ? ' <small style="color:#666">('+item.obs+')</small>' : '') + '</div>' +
+        '<div class="div-item-nome">' + (item.fracaoDe ? '' : item.qty + 'x ') + item.nome + (item.obs ? ' <small style="color:#666">('+item.obs+')</small>' : '') + '</div>' +
         '<div class="div-item-preco">R$ ' + (item.preco*item.qty).toFixed(2).replace('.',',') + '</div>' +
-      '</div>' +
+      '</div>' + acao +
     '</div>';
   }).join('');
   document.getElementById('div-itens-lista').innerHTML = html;
@@ -924,6 +973,122 @@ function registrarPagamentoParcial() {
   }
 }
 
+// ======= DIVIDIR ITEM ENTRE PESSOAS (FRAÇÕES) =======
+function fmtRS(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
+function nomeComAdicionais(item) {
+  var n = item.nome;
+  if (item.adicionais && item.adicionais.length) n += ' + ' + item.adicionais.map(function(a){ return a.nome; }).join(', ');
+  return n;
+}
+function dividirCentavos(totalCent, n) {
+  // divide em n partes inteiras de centavos; as primeiras partes ficam com o centavo que sobrar
+  var base = Math.floor(totalCent / n), resto = totalCent - base * n, out = [];
+  for (var i = 0; i < n; i++) out.push(base + (i < resto ? 1 : 0));
+  return out;
+}
+function _reRenderDivisao() {
+  salvarMesas();
+  renderCart();
+  var md = document.getElementById('modal-div');
+  if (md && md.classList.contains('show')) renderDivItens();
+}
+function abrirDividirItem(uid) {
+  var mesa = state.mesas[state.mesaAtual];
+  var item = mesa.itens.find(function(i){ return i.uid === uid; });
+  if (!item) return;
+  state._fracaoUid = uid;
+  document.getElementById('fracao-item-nome').textContent = (item.qty > 1 ? item.qty + 'x ' : '') + nomeComAdicionais(item) + (item.obs ? ' (' + item.obs + ')' : '');
+  document.getElementById('fracao-item-valor').textContent = fmtRS(item.preco * item.qty);
+  var wUn = document.getElementById('fracao-unidades-wrap');
+  if (item.qty > 1) {
+    wUn.style.display = 'block';
+    document.getElementById('fracao-btn-unidades').textContent = '🔢 Separar em ' + item.qty + ' unidades de ' + fmtRS(item.preco);
+  } else { wUn.style.display = 'none'; }
+  document.getElementById('fracao-n').value = '';
+  document.getElementById('fracao-preview').textContent = '';
+  abrirModal('modal-fracao');
+}
+function previewFracao() {
+  var n = parseInt(document.getElementById('fracao-n').value);
+  var mesa = state.mesas[state.mesaAtual];
+  var item = mesa.itens.find(function(i){ return i.uid === state._fracaoUid; });
+  var el = document.getElementById('fracao-preview');
+  if (!item || !(n >= 2 && n <= 30)) { el.textContent = ''; return; }
+  var partes = dividirCentavos(Math.round(item.preco * item.qty * 100), n);
+  el.textContent = n + ' partes de ' + fmtRS(partes[partes.length - 1] / 100) + (partes[0] !== partes[partes.length - 1] ? ' (as primeiras ' + fmtRS(partes[0] / 100) + ' p/ fechar os centavos)' : '');
+}
+function separarUnidades() {
+  var mesa = state.mesas[state.mesaAtual];
+  var idx = mesa.itens.findIndex(function(i){ return i.uid === state._fracaoUid; });
+  if (idx < 0) return;
+  var item = mesa.itens[idx];
+  if (item.qty <= 1) return;
+  var novos = [];
+  for (var k = 0; k < item.qty; k++) {
+    var c = JSON.parse(JSON.stringify(item));
+    c.uid = Date.now() + Math.random() + k;
+    c.qty = 1;
+    c._divSel = (k === 0) ? !!item._divSel : false;
+    novos.push(c);
+  }
+  mesa.itens.splice.apply(mesa.itens, [idx, 1].concat(novos));
+  fecharModal('modal-fracao');
+  _reRenderDivisao();
+}
+function dividirItemEm(n) {
+  n = parseInt(n);
+  if (!(n >= 2 && n <= 30)) { alert('Informe em quantas pessoas dividir (de 2 a 30).'); return; }
+  var mesa = state.mesas[state.mesaAtual];
+  var idx = mesa.itens.findIndex(function(i){ return i.uid === state._fracaoUid; });
+  if (idx < 0) return;
+  var item = mesa.itens[idx];
+  var partes = dividirCentavos(Math.round(item.preco * item.qty * 100), n);
+  var grupo = 'g' + Date.now() + Math.floor(Math.random() * 1e6);
+  // se o item já era uma fração, divide a partir do original para manter a referência
+  var orig = item.original || { nome: item.nome, preco: item.preco, qty: item.qty, obs: item.obs || '', adicionais: item.adicionais || [], precoBase: item.precoBase, id: item.id, cat: item.cat };
+  var baseNome = nomeComAdicionais(item.original ? item.original : item) + ((item.original ? item.original.qty : item.qty) > 1 ? ' ×' + (item.original ? item.original.qty : item.qty) : '');
+  var deTotal = item.fracaoDe ? item.fracaoDe * n : n; // fração de fração: ex. 1/2 dividido em 2 => 1/4
+  var novos = partes.map(function(cent, k){
+    return {
+      uid: Date.now() + Math.random() + k,
+      id: item.id, cat: item.cat,
+      nome: baseNome + ' (' + (k + 1) + '/' + deTotal + ')',
+      preco: cent / 100, qty: 1,
+      obs: item.obs || '', adicionais: [],
+      fracaoDe: n, fracaoN: k + 1, fracaoGrupo: grupo, fracaoPeso: (item.fracaoPeso || 1) / n,
+      original: orig,
+      _divSel: k === 0 ? !!item._divSel : false
+    };
+  });
+  mesa.itens.splice.apply(mesa.itens, [idx, 1].concat(novos));
+  fecharModal('modal-fracao');
+  _reRenderDivisao();
+}
+function juntarFracoes(grupo) {
+  var mesa = state.mesas[state.mesaAtual];
+  var fr = mesa.itens.filter(function(i){ return i.fracaoGrupo === grupo; });
+  if (!fr.length) return;
+  if (fr.length < fr[0].fracaoDe) { alert('Não dá para juntar: uma parte deste item já foi paga.'); return; }
+  var o = fr[0].original;
+  var idx = mesa.itens.findIndex(function(i){ return i.fracaoGrupo === grupo; });
+  var sel = fr.some(function(i){ return i._divSel; });
+  var somaCent = fr.reduce(function(s, i){ return s + Math.round(i.preco * 100); }, 0);
+  var pesoTotal = fr.reduce(function(s, i){ return s + (i.fracaoPeso || 1 / i.fracaoDe); }, 0);
+  var item;
+  if (Math.abs(pesoTotal - 1) < 1e-9) {
+    // todas as partes do item original: volta exatamente ao original
+    item = { uid: Date.now() + Math.random(), id: o.id, nome: o.nome, preco: o.preco, cat: o.cat, qty: o.qty, obs: o.obs || '', adicionais: o.adicionais || [], _divSel: sel };
+    if (o.precoBase !== undefined) item.precoBase = o.precoBase;
+  } else {
+    // era fração de fração: volta a ser a fração maior
+    var deTotal = Math.round(1 / pesoTotal);
+    item = { uid: Date.now() + Math.random(), id: o.id, cat: o.cat, nome: nomeComAdicionais(o) + (o.qty > 1 ? ' ×' + o.qty : '') + ' (1/' + deTotal + ')', preco: somaCent / 100, qty: 1, obs: o.obs || '', adicionais: [], fracaoDe: deTotal, fracaoN: 1, fracaoGrupo: 'g' + Date.now() + Math.floor(Math.random() * 1e6), fracaoPeso: pesoTotal, original: o, _divSel: sel };
+  }
+  mesa.itens = mesa.itens.filter(function(i){ return i.fracaoGrupo !== grupo; });
+  mesa.itens.splice(idx, 0, item);
+  _reRenderDivisao();
+}
+
 function mostrarToastRestante(valor) {
   var ex = document.getElementById('toast-restante');
   if (ex) ex.remove();
@@ -990,7 +1155,7 @@ function registrarVendaMesa(mesa) {
       estab: venda.estab,
       total: venda.totalGeral,
       itens: (venda.todosItens || []).map(function(it) {
-        return { nome: it.nome || it.descricao || 'Item', qtd: it.qty || it.qtd || it.quantidade || 1, preco: it.preco || it.valor || 0, adicionais: (it.adicionais || []).map(function(a){ return { nome: a.nome, preco: a.preco }; }) };
+        var r = { nome: it.nome || it.descricao || 'Item', qtd: it.qty || it.qtd || it.quantidade || 1, preco: it.preco || it.valor || 0, adicionais: (it.adicionais || []).map(function(a){ return { nome: a.nome, preco: a.preco }; }) }; if (it.fracaoDe) { r.fracaoDe = it.fracaoDe; r.nomeOriginal = (it.original && it.original.nome) || it.nome; } return r;
       }),
       pagamentos: venda.pagamentos,
       data: venda.data
@@ -1176,9 +1341,9 @@ function gerarRelConteudo(vendas) {
   var prodVendas = {};
   vendas.forEach(function(v){
     v.todosItens.forEach(function(i){
-      var k = i.nome;
+      var k = (i.fracaoDe && i.original && i.original.nome) ? i.original.nome : i.nome; // frações contam no produto original
       if (!prodVendas[k]) prodVendas[k] = {nome:k,cat:i.cat||'',qty:0,total:0};
-      prodVendas[k].qty += i.qty;
+      prodVendas[k].qty += i.fracaoDe ? (i.fracaoPeso || 1 / i.fracaoDe) * ((i.original && i.original.qty) || 1) : i.qty;
       prodVendas[k].total += i.preco * i.qty;
     });
   });
@@ -1223,7 +1388,7 @@ function gerarRelConteudo(vendas) {
       var pct = (p.qty/maxQty*100);
       return '<div class="chart-bar-item">' +
         '<div class="chart-bar-label">' + (i+1) + '. ' + p.nome.substring(0,28) + (p.nome.length>28?'...':'') + '</div>' +
-        '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+colorsBar[i%colorsBar.length]+'">' + p.qty + 'x</div></div>' +
+        '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+colorsBar[i%colorsBar.length]+'">' + (Math.round(p.qty * 100) / 100) + 'x</div></div>' +
         '<div class="chart-bar-val">R$ ' + p.total.toFixed(2).replace('.',',') + '</div>' +
         '</div>';
     }).join('') + '</div>' +
@@ -1885,7 +2050,7 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
 <!-- AVISO DE ATUALIZACAO: correcao nome duplicado na comanda/impressao -->
 <script>
 (function(){
-  var VERSAO = 'itens-agrupados-2026-07';
+  var VERSAO = 'dividir-item-2026-10';
   var CHAVE = 'pdv_aviso_visto';
   function mostrarAviso(){
     try {
@@ -1899,8 +2064,8 @@ function reimprimirVenda(id){var v=state.vendas.find(function(x){return x.id===i
       box.innerHTML =
         '<div style="font-size:44px;margin-bottom:6px">🔄</div>' +
         '<h2 style="color:#c0392b;margin:0 0 10px;font-size:1.25em">Sistema Atualizado</h2>' +
-        '<p style="color:#555;font-size:.95em;margin:0 0 8px;line-height:1.5">Esta versão corrige a duplicação do nome dos itens na comanda e na folha de impressão.</p>' +
-        '<p style="color:#888;font-size:.85em;margin:0 0 18px;line-height:1.5">Agora itens iguais aparecem agrupados (ex.: "2x Pastel").</p>';
+        '<p style="color:#555;font-size:.95em;margin:0 0 8px;line-height:1.5">Agora dá para dividir um item entre pessoas (ex.: uma Coca para 3 amigos).</p>' +
+        '<p style="color:#888;font-size:.85em;margin:0 0 18px;line-height:1.5">Em <b>💳 Dividir</b>, toque no <b>➗</b> ao lado do item, escolha entre quantas pessoas, e cada parte pode ser paga separadamente. Se errar, <b>↩</b> junta de volta.</p>';
       var btn = document.createElement('button');
       btn.textContent = 'Entendi';
       btn.style.cssText = 'background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:1em;cursor:pointer;width:100%';
